@@ -51,7 +51,7 @@ import com.k42b3.oat.http.request;
 
 public class oat extends JFrame
 {
-	public static String ver = "0.0.2";
+	public static String ver = "0.0.2 beta";
 	
 	private JTextField url;
 	private in in;
@@ -244,13 +244,13 @@ public class oat extends JFrame
 			out.setText("");
 			
 			out.append("oat version " + ver + "\n");
-			out.append("developed by k42b3 <http://k42b3.com>" + "\n");
-			out.append("contact: meecrob@k42b3.com" + "\n");
+			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
+			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
 			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
-			out.append("oat a simple application wich makes an http request to an defined url" + "\n");
-			out.append("The format of the request can be configured flexible in an XML file." + "\n");
-			out.append("This application is mostly for testing APIs and find security holes" + "\n");
+			out.append("An application with that you can make raw http requests to any url. You can" + "\n");
+			out.append("save a request for later use. The application uses the java nio library to" + "\n");
+			out.append("make non-blocking requests so the requests should work fluently." + "\n");
 			out.append("\n");
 			out.append("best regards\n");
 			out.append("k42b3\n");
