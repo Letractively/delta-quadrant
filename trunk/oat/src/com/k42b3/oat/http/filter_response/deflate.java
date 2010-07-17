@@ -52,10 +52,10 @@ public class deflate implements iresponse_filter
 				try
 				{
 					Inflater inf = new Inflater();
-					
+
 					inf.setInput(response.get_body().getBytes());
-					
-					
+
+
 					// decode
 					StringBuilder buffer = new StringBuilder();
 					byte[] buf = new byte[512];

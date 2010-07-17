@@ -129,6 +129,7 @@ public class http implements Runnable
 			while(selector.select(500) > 0) 
 			{
 				Set ready_keys = selector.selectedKeys();
+				
 				Iterator ready_itor = ready_keys.iterator();
 
 				while(ready_itor.hasNext())
@@ -151,15 +152,17 @@ public class http implements Runnable
 					else if(key.isReadable())
 					{
 						key_channel.read(buffer);
+						
 						buffer.flip();
 
+						
 						decoder.decode(buffer, char_buffer, false);
 
 						char_buffer.flip();
 
 
 						// if buffer is empty finish
-						if(char_buffer.toString().isEmpty())
+						if(char_buffer.length() == 0)
 						{
 							key.cancel();
 							//channel.close();
@@ -172,6 +175,7 @@ public class http implements Runnable
 
 						// clear buffer
 						buffer.clear();
+						
 						char_buffer.clear();
 					}
 					else if(key.isWritable())

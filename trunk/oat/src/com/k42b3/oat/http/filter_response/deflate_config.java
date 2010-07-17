@@ -23,7 +23,14 @@
 
 package com.k42b3.oat.http.filter_response;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.Properties;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import com.k42b3.oat.config_filter;
 
@@ -37,6 +44,8 @@ import com.k42b3.oat.config_filter;
  */
 public class deflate_config extends config_filter
 {
+	private JCheckBox ckb_active;
+	
 	public String get_name()
 	{
 		return "Deflate";
@@ -49,6 +58,41 @@ public class deflate_config extends config_filter
 	
 	public boolean is_active()
 	{
-		return false;
+		return this.ckb_active.isSelected();
+	}
+	
+	public deflate_config()
+	{
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+		
+		JPanel panel = new JPanel();
+		
+		panel.setLayout(new GridLayout(0, 1));
+		
+		
+		// active
+		JPanel panel_active = new JPanel();
+
+		panel_active.setLayout(new FlowLayout());
+
+
+		JLabel lbl_active = new JLabel("Active:");
+
+		lbl_active.setPreferredSize(new Dimension(100, 24));
+
+		panel_active.add(lbl_active);
+
+
+		this.ckb_active = new JCheckBox();
+		
+		this.ckb_active.setPreferredSize(new Dimension(200, 24));
+		
+		panel_active.add(this.ckb_active);
+		
+		
+		panel.add(panel_active);
+		
+		
+		this.add(panel);
 	}
 }

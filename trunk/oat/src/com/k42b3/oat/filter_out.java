@@ -93,14 +93,20 @@ public class filter_out extends JFrame
 		{
 			try
 			{
-				String cls = "com.k42b3.oat.http.filter_response." + filters.get(i) + "_config";
+				String cls_config = "com.k42b3.oat.http.filter_response." + filters.get(i) + "_config";
+				String cls = "com.k42b3.oat.http.filter_response." + filters.get(i);
 
+				Class c_config = Class.forName(cls_config);
 				Class c = Class.forName(cls);
 
-				config_filter filter = (config_filter) c.newInstance();
+				config_filter filter_config = (config_filter) c_config.newInstance();
+				iresponse_filter filter = (iresponse_filter) c.newInstance();
+				
+				this.filters_config.add(filter_config);
+				this.filters.add(filter);
 				
 				
-				JScrollPane scp_filter = new JScrollPane(filter);
+				JScrollPane scp_filter = new JScrollPane(filter_config);
 
 				scp_filter.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 				
@@ -109,7 +115,7 @@ public class filter_out extends JFrame
 				scp_filter.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
 				
-				panel.addTab(filter.get_name(), scp_filter);
+				panel.addTab(filter_config.get_name(), scp_filter);
 			}
 			catch(Exception e)
 			{

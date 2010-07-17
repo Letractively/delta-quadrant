@@ -38,9 +38,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
@@ -90,37 +92,52 @@ public class sacmis extends JFrame
 		this.setSize(600, 500);
 		
 		this.setMinimumSize(this.getSize());
-		
+
 		
 		// arguments
+		JPanel panel_args = new JPanel();
+		
+		panel_args.setLayout(new BorderLayout());
+		
+		panel_args.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		
+		
 		this.args = new args();
 
-		this.add(this.args, BorderLayout.NORTH);
+		panel_args.add(this.args, BorderLayout.CENTER);
+		
+		
+		this.add(panel_args, BorderLayout.NORTH);
 		
 		
 		// main panel
-		JPanel panel = new JPanel();
+		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		
-		panel.setLayout(new GridLayout(0, 1));
 		
 		this.in  = new in();
-		this.out = new out();
-			
+		
 		JScrollPane scr_in = new JScrollPane(this.in);
 		
 		scr_in.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		scr_in.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
+		sp.add(scr_in);
+		
+		
+		this.out = new out();
+		
 		JScrollPane scr_out = new JScrollPane(this.out);
 		
 		scr_out.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		scr_out.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
-		panel.add(scr_in);
-		panel.add(scr_out);
+		sp.add(scr_out);
 		
-		this.getContentPane().add(BorderLayout.CENTER, panel);
-		
+				
+		this.add(sp, BorderLayout.CENTER);
+
 		
 		// toolbar
 		this.toolbar = new toolbar();
@@ -130,7 +147,7 @@ public class sacmis extends JFrame
 		this.toolbar.get_about().addActionListener(new about_handler());
 		this.toolbar.get_exit().addActionListener(new exit_handler());
 		
-		this.getContentPane().add(BorderLayout.SOUTH, this.toolbar);
+		this.getContentPane().add(this.toolbar, BorderLayout.SOUTH);
 		
 		
 		this.setVisible(true);
