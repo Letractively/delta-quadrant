@@ -48,6 +48,14 @@ import com.k42b3.oat.http.http;
 import com.k42b3.oat.http.icallback;
 import com.k42b3.oat.http.request;
 
+/**
+ * oat
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class oat extends JFrame
 {
 	public static String ver = "0.0.2 beta";

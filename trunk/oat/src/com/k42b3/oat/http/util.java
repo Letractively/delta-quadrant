@@ -27,6 +27,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+/**
+ * util
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class util 
 {
 	public final static String[] types = {"HTTP/1.0", "HTTP/1.1"};

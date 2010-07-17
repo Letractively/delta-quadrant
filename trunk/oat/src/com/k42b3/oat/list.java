@@ -30,6 +30,14 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+/**
+ * list
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class list implements ListModel
 {
 	ArrayList<String> files = new ArrayList<String>();

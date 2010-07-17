@@ -28,6 +28,14 @@ import java.util.zip.Inflater;
 import com.k42b3.oat.http.iresponse_filter;
 import com.k42b3.oat.http.response;
 
+/**
+ * deflate
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class deflate implements iresponse_filter
 {
 	public void exec(response response) 

@@ -26,6 +26,14 @@ package com.k42b3.oat.http;
 import java.net.URL;
 import java.util.HashMap;
 
+/**
+ * request
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class request extends message
 {
 	private String host;
