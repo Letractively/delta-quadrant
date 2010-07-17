@@ -118,6 +118,8 @@ public class sacmis extends JFrame
 		
 		JScrollPane scr_in = new JScrollPane(this.in);
 		
+		scr_in.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		
 		scr_in.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
 		scr_in.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
@@ -128,6 +130,8 @@ public class sacmis extends JFrame
 		this.out = new out();
 		
 		JScrollPane scr_out = new JScrollPane(this.out);
+		
+		scr_out.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		
 		scr_out.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		
