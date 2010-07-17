@@ -23,10 +23,16 @@
 
 package com.k42b3.oat.http.filter_request;
 
+import java.net.URL;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Map.Entry;
 
 import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
@@ -95,49 +101,116 @@ public class oauth implements irequest_filter
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 		}
 	}
 
 	private String build_auth_string(HashMap<String, String> values)
 	{
-		return "";
+		StringBuilder auth_string = new StringBuilder();
+
+		Iterator<Entry<String, String>> it = values.entrySet().iterator();
+
+		while(it.hasNext())
+		{
+			Entry<String, String> e = it.next();
+
+			auth_string.append(util.url_encode(e.getKey()) + "=\"" + util.url_encode(e.getValue()) + "\", ");
+		}
+
+		String str = auth_string.toString();
+
+		
+		// remove ", " from string
+		str = str.substring(0, str.length() - 2);
+
+		
+		return str;
 	}
 
 	private String build_base_string(String request_method, String url, HashMap<String, String> params)
 	{
 		StringBuilder base = new StringBuilder();
 		
-		base.append(this.url_encode(this.get_normalized_method(request_method)));
+		base.append(util.url_encode(this.get_normalized_method(request_method)));
 
 		base.append('&');
 		
-		base.append(this.url_encode(this.get_normalized_url(url)));
+		base.append(util.url_encode(this.get_normalized_url(url)));
 
 		base.append('&');
 		
-		base.append(this.url_encode(this.get_normalized_parameters(params)));
+		base.append(util.url_encode(this.get_normalized_parameters(params)));
 
 		return base.toString();
 	}
 	
 	private String get_normalized_parameters(HashMap<String, String> params)
 	{
-		return "";
+		Iterator<Entry<String, String>> it = params.entrySet().iterator();
+
+		List<String> keys = new ArrayList<String>();
+
+		while(it.hasNext())
+		{
+			Entry<String, String> e = it.next();
+
+			keys.add(e.getKey());
+		}
+
+
+		// sort params
+		Collections.sort(keys);
+
+
+		// build normalized params
+		StringBuilder normalized_params = new StringBuilder();
+
+		for(int i = 0; i < keys.size(); i++)
+		{
+			normalized_params.append(util.url_encode(keys.get(i)) + "=" + util.url_encode(params.get(keys.get(i))) + "&");
+		}
+
+		String str = normalized_params.toString();
+
+
+		// remove trailing &
+		str = str.substring(0, str.length() - 1);
+
+
+		return str;
 	}
 	
-	private String get_normalized_url(String url)
+	private String get_normalized_url(String raw_url)
 	{
-		return "";
+		try
+		{
+			raw_url = raw_url.toLowerCase();
+
+			URL url = new URL(raw_url);
+
+			int port = url.getPort();
+			
+			if(port == -1)
+			{
+				return url.getProtocol() + "://" + url.getHost() + "/" + url.getPath();
+			}
+			else
+			{
+				return url.getProtocol() + "://" + url.getHost() + ":" + port + "/" + url.getPath();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
 	}
 	
 	private String get_normalized_method(String method)
 	{
 		return method.toUpperCase();
-	}
-	
-	private String url_encode(String content)
-	{
-		return "";
 	}
 	
 	private String get_timestamp()
@@ -161,6 +234,8 @@ public class oauth implements irequest_filter
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
+			
 			return util.md5("" + System.currentTimeMillis());
 		}
 	}

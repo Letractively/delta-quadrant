@@ -24,6 +24,7 @@
 package com.k42b3.oat.http;
 
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
@@ -66,25 +67,23 @@ public class http implements Runnable
 
 	private ArrayList<iresponse_filter> response_filter = new ArrayList<iresponse_filter>();
 
-	public http(String host, request request, icallback callback) throws Exception
+	public http(String raw_url, request request, icallback callback) throws Exception
 	{
-		// get host and port
-		if(host.startsWith("https://"))
+		// get host and port from url
+		URL url;
+		
+		if(raw_url.startsWith("http://") || raw_url.startsWith("https://"))
 		{
-			this.host = host.substring(8);
-			this.port = 443;
-		}
-		else if(host.startsWith("http://"))
-		{
-			this.host = host.substring(7);
-			this.port = 80;
+			url = new URL(raw_url);
 		}
 		else
 		{
-			this.host = host;
-			this.port = 80;
+			url = new URL("http://" + raw_url);
 		}
-
+	
+		this.host = url.getHost();
+		this.port = url.getPort() == -1 ? 80 : url.getPort();
+		
 		
 		// set params
 		this.request = request;
@@ -101,11 +100,12 @@ public class http implements Runnable
 		try
 		{
 			this.raw_response = new StringBuilder();
-			
+
 			SocketChannel channel = null;
 
 
 			InetSocketAddress socket_address = new InetSocketAddress(this.host, this.port);
+
 
 			Charset charset = Charset.forName("UTF-8");
 			CharsetDecoder decoder = charset.newDecoder();
@@ -161,7 +161,8 @@ public class http implements Runnable
 						// if buffer is empty finish
 						if(char_buffer.toString().isEmpty())
 						{
-							channel.close();
+							key.cancel();
+							//channel.close();
 						}
 
 
@@ -184,7 +185,7 @@ public class http implements Runnable
 		}
 		catch(Exception e)
 		{
-			callback.response(e.getMessage());
+			e.printStackTrace();
 		}
 		finally
 		{
@@ -196,7 +197,7 @@ public class http implements Runnable
 				}
 				catch(Exception e)
 				{
-					callback.response(e.getMessage());
+					e.printStackTrace();
 				}
 			}
 
