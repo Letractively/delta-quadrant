@@ -61,7 +61,7 @@ import org.apache.commons.exec.PumpStreamHandler;
  */
 public class sacmis extends JFrame
 {
-	public static String ver = "0.0.4 beta";
+	public static String ver = "0.0.5 beta";
 	public static String file = "input.cache";
 
 	private String path;
