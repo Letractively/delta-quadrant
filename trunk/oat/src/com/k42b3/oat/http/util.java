@@ -23,7 +23,6 @@
 
 package com.k42b3.oat.http;
 
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
