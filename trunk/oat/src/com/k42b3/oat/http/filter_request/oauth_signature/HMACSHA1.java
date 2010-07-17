@@ -23,6 +23,10 @@
 
 package com.k42b3.oat.http.filter_request.oauth_signature;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+
 /**
  * HMACSHA1
  *
@@ -35,6 +39,29 @@ public class HMACSHA1 implements isignature
 {
 	public String build(String base_string, String consumer_secret, String token_secret)
 	{
-		return "";
+		try
+		{
+			String key = util.url_encode(consumer_secret) + "&" + util.url_encode(token_secret);
+
+
+			KeyGenerator kg = KeyGenerator.getInstance("HmacSHA1");
+
+			SecretKey sk = kg.generateKey();
+
+			Mac mac = Mac.getInstance("HmacMD5");
+
+			mac.init(sk);
+
+			byte[] result = mac.doFinal(key.getBytes());
+
+
+			return util.base64_encode(result);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
 	}
 }

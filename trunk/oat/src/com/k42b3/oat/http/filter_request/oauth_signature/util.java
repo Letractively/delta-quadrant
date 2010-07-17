@@ -23,7 +23,10 @@
 
 package com.k42b3.oat.http.filter_request.oauth_signature;
 
+import java.net.URLEncoder;
 import java.security.MessageDigest;
+
+import sun.misc.BASE64Encoder;
 
 /**
  * util
@@ -35,18 +38,41 @@ import java.security.MessageDigest;
  */
 public class util 
 {
+	public static String url_encode(String content)
+	{
+		try
+		{
+			String encoded = URLEncoder.encode(content);
+
+			encoded = encoded.replaceAll("%7E", "~");
+					
+			return encoded;
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
+	}
+	
+	public static String base64_encode(byte[] content)
+	{
+		return (new BASE64Encoder()).encode(content);
+	}
+	
 	public static String base64_encode(String content)
 	{
-		return "";
+		return util.base64_encode(content.getBytes());
 	}
 
-	public static String md5(String content)
+	public static String md5(byte[] content)
 	{
 		try
 		{
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 		
-			digest.update(content.getBytes());
+			digest.update(content);
 					
 			byte[] hash = digest.digest();
 
@@ -64,7 +90,14 @@ public class util
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
+			
 			return null;
 		}
+	}
+	
+	public static String md5(String content)
+	{
+		return util.md5(content.getBytes());
 	}
 }

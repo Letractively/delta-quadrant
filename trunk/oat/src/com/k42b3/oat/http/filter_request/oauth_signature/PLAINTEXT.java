@@ -35,6 +35,8 @@ public class PLAINTEXT implements isignature
 {
 	public String build(String base_string, String consumer_secret, String token_secret)
 	{
-		return "";
+		String key = util.url_encode(consumer_secret) + "&" + util.url_encode(token_secret);
+
+		return key;
 	}
 }

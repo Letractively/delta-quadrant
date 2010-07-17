@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -313,50 +314,81 @@ public class oat extends JFrame
 			url.setText("");
 			in.setText("");
 			out.setText("");
+
+			url.requestFocusInWindow();
 		}
 	}
 
 	public class run_handler implements ActionListener
 	{
+		private boolean is_active = false;
+
 		public void actionPerformed(ActionEvent e)
 		{
-			try
+			if(!this.is_active)
 			{
-				request request = new request(url.getText(), in.getText());
+				this.is_active = true;
 
-				http http = new http(url.getText(), request, new icallback(){
+				SwingUtilities.invokeLater(new Runnable(){
 					
-					public void response(Object content) 
+					public void run() 
 					{
-						out.setText(content.toString());
+						toolbar.get_run().setEnabled(false);
 					}
 
 				});
 
-				
-				// add response filters
-				for(int i = 0; i < filters_out.size(); i++)
+				try
 				{
-					http.add_response_filter(filters_out.get(i));
-				}
-				
-				
-				// apply request filter 
-				for(int i = 0; i < filters_in.size(); i++)
-				{
-					filters_in.get(i).exec(request);
-				}
-				
-				
-				// start thread
-				new Thread(http).start();
+					request request = new request(url.getText(), in.getText());
 
-				out.setText("");
-				in.setText(request.toString());
-			}
-			catch(Exception ex)
-			{
-				out.setText(ex.getStackTrace().toString());
+					http http = new http(url.getText(), request, new icallback(){
+
+						public void response(Object content) 
+						{
+							out.setText(content.toString());
+
+							is_active = false;
+							
+							SwingUtilities.invokeLater(new Runnable(){
+								
+								public void run() 
+								{
+									toolbar.get_run().setEnabled(true);
+								}
+
+							});
+						}
+
+					});
+
+
+					// add response filters
+					for(int i = 0; i < filters_out.size(); i++)
+					{
+						http.add_response_filter(filters_out.get(i));
+					}
+
+
+					// apply request filter 
+					for(int i = 0; i < filters_in.size(); i++)
+					{
+						filters_in.get(i).exec(request);
+					}
+
+
+					// start thread
+					new Thread(new ThreadGroup("http"), http).start();
+
+
+					out.setText("");
+
+					in.setText(request.toString());
+				}
+				catch(Exception ex)
+				{
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
