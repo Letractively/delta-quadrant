@@ -23,7 +23,15 @@
 
 package com.k42b3.oat.http.filter_request;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.util.Properties;
+
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import com.k42b3.oat.config_filter;
 
@@ -37,6 +45,10 @@ import com.k42b3.oat.config_filter;
  */
 public class basicauth_config extends config_filter
 {
+	private JCheckBox ckb_active;
+	private JTextField txt_user;
+	private JTextField txt_pw;
+	
 	public String get_name()
 	{
 		return "Basic authentication";
@@ -44,6 +56,97 @@ public class basicauth_config extends config_filter
 	
 	public Properties on_save() 
 	{
-		return null;
+		Properties props = new Properties();
+		
+		props.setProperty("user", this.txt_user.getText());
+		props.setProperty("pw", this.txt_pw.getText());
+
+		return props;
+	}
+	
+	public boolean is_active()
+	{
+		return this.ckb_active.isSelected();
+	}
+
+	public basicauth_config()
+	{
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+		
+		JPanel panel = new JPanel();
+		
+		panel.setLayout(new GridLayout(0, 1));
+		
+		
+		// active
+		JPanel panel_active = new JPanel();
+
+		panel_active.setLayout(new FlowLayout());
+
+
+		JLabel lbl_active = new JLabel("Active:");
+
+		lbl_active.setPreferredSize(new Dimension(100, 24));
+
+		panel_active.add(lbl_active);
+
+
+		this.ckb_active = new JCheckBox();
+		
+		this.ckb_active.setPreferredSize(new Dimension(200, 24));
+		
+		panel_active.add(this.ckb_active);
+		
+		
+		panel.add(panel_active);
+		
+		
+		// user
+		JPanel panel_user = new JPanel();
+
+		panel_user.setLayout(new FlowLayout());
+
+
+		JLabel lbl_user = new JLabel("User:");
+
+		lbl_user.setPreferredSize(new Dimension(100, 24));
+
+		panel_user.add(lbl_user);
+
+
+		this.txt_user = new JTextField();
+		
+		this.txt_user.setPreferredSize(new Dimension(200, 24));
+		
+		panel_user.add(this.txt_user);
+		
+		
+		panel.add(panel_user);
+		
+		
+		// password
+		JPanel panel_pw = new JPanel();
+
+		panel_pw.setLayout(new FlowLayout());
+
+
+		JLabel lbl_pw = new JLabel("Password:");
+
+		lbl_pw.setPreferredSize(new Dimension(100, 24));
+
+		panel_pw.add(lbl_pw);
+
+
+		this.txt_pw = new JTextField();
+		
+		txt_pw.setPreferredSize(new Dimension(200, 24));
+		
+		panel_pw.add(txt_pw);
+		
+		
+		panel.add(panel_pw);
+		
+		
+		this.add(panel);
 	}
 }

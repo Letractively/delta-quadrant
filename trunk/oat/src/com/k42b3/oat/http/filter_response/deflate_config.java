@@ -46,4 +46,9 @@ public class deflate_config extends config_filter
 	{
 		return null;
 	}
+	
+	public boolean is_active()
+	{
+		return false;
+	}
 }

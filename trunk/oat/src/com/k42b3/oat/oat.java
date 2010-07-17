@@ -35,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -72,6 +73,9 @@ public class oat extends JFrame
 	private toolbar toolbar;
 	private JList list;
 	
+	private ArrayList<irequest_filter> filters_in = new ArrayList<irequest_filter>();
+	private ArrayList<iresponse_filter> filters_out = new ArrayList<iresponse_filter>();
+
 	public oat()
 	{
 		this.setTitle("oat (version: " + ver + ")");
@@ -322,17 +326,27 @@ public class oat extends JFrame
 
 				http http = new http(url.getText(), request, new icallback(){
 					
-					public void response(String content) 
+					public void response(Object content) 
 					{
-						out.setText(content);
+						out.setText(content.toString());
 					}
 
 				});
 
 				
 				// add request/response filters
+				for(int i = 0; i < filters_in.size(); i++)
+				{
+					http.add_request_filter(filters_in.get(i));
+				}
+				
+				for(int i = 0; i < filters_out.size(); i++)
+				{
+					http.add_response_filter(filters_out.get(i));
+				}
 				
 				
+				// start thread
 				new Thread(http).start();
 
 				out.setText("");
@@ -459,7 +473,14 @@ public class oat extends JFrame
 					
 					public void run() 
 					{
-						filter_in win = new filter_in();
+						filter_in win = new filter_in(new icallback(){
+
+							public void response(Object content) 
+							{
+								filters_in = (ArrayList<irequest_filter>) content;
+							}
+
+						});
 						
 						win.pack();
 						
@@ -481,7 +502,14 @@ public class oat extends JFrame
 					
 					public void run() 
 					{
-						filter_out win = new filter_out();
+						filter_out win = new filter_out(new icallback(){
+
+							public void response(Object content) 
+							{
+								filters_out = (ArrayList<iresponse_filter>) content;
+							}
+
+						});
 						
 						win.pack();
 						

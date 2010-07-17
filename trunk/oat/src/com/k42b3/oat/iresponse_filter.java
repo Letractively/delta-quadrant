@@ -23,6 +23,8 @@
 
 package com.k42b3.oat;
 
+import java.util.Properties;
+
 import com.k42b3.oat.http.response;
 
 /**
@@ -36,4 +38,5 @@ import com.k42b3.oat.http.response;
 public interface iresponse_filter 
 {
 	public void exec(response response);
+	public void set_config(Properties config);
 }

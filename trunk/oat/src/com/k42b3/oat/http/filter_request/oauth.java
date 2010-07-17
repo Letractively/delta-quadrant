@@ -23,6 +23,8 @@
 
 package com.k42b3.oat.http.filter_request;
 
+import java.util.Properties;
+
 import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
 
@@ -36,12 +38,14 @@ import com.k42b3.oat.http.request;
  */
 public class oauth implements irequest_filter
 {
-	public oauth(String consumer_key, String consumer_secret, String token, String token_secret, String signature_method)
-	{
-		
-	}
-
+	private Properties config = new Properties();
+	
 	public void exec(request request) 
 	{
+	}
+	
+	public void set_config(Properties config)
+	{
+		this.config = config;
 	}
 }

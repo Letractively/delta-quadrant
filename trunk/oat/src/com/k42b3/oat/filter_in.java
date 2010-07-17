@@ -24,10 +24,15 @@
 package com.k42b3.oat;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
@@ -44,8 +49,19 @@ public class filter_in extends JFrame
 {
 	public static boolean active = false;
 
-	public filter_in()
+	private ArrayList<config_filter> filters_config = new ArrayList<config_filter>();
+	private ArrayList<irequest_filter> filters = new ArrayList<irequest_filter>();
+	
+	private icallback callback;
+	
+	public filter_in(icallback callback)
 	{
+		filter_in.active = true;
+		
+		
+		this.callback = callback;
+		
+		
 		this.setTitle("Request filter");
 
 		this.setLocation(100, 100);
@@ -74,14 +90,20 @@ public class filter_in extends JFrame
 		{
 			try
 			{
-				String cls = "com.k42b3.oat.http.filter_request." + filters.get(i) + "_config";
+				String cls_config = "com.k42b3.oat.http.filter_request." + filters.get(i) + "_config";
+				String cls = "com.k42b3.oat.http.filter_request." + filters.get(i);
 
+				Class c_config = Class.forName(cls_config);
 				Class c = Class.forName(cls);
 
-				config_filter filter = (config_filter) c.newInstance();
+				config_filter filter_config = (config_filter) c_config.newInstance();
+				irequest_filter filter = (irequest_filter) c.newInstance();
+				
+				this.filters_config.add(filter_config);
+				this.filters.add(filter);
 				
 				
-				JScrollPane scp_filter = new JScrollPane(filter);
+				JScrollPane scp_filter = new JScrollPane(filter_config);
 
 				scp_filter.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 				
@@ -90,7 +112,7 @@ public class filter_in extends JFrame
 				scp_filter.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
 				
-				panel.addTab(filter.get_name(), scp_filter);
+				panel.addTab(filter_config.get_name(), scp_filter);
 			}
 			catch(Exception e)
 			{
@@ -99,5 +121,67 @@ public class filter_in extends JFrame
 	
 
 		this.add(panel, BorderLayout.CENTER);
+		
+		
+		// buttons
+		JPanel panel_buttons = new JPanel();
+		
+		panel_buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+		
+		
+		JButton btn_save = new JButton("Save");
+		
+		btn_save.addActionListener(new handler_save());
+		
+		panel_buttons.add(btn_save);
+		
+		
+		JButton btn_cancel = new JButton("Cancel");
+		
+		btn_cancel.addActionListener(new handler_cancel());
+		
+		panel_buttons.add(btn_cancel);
+		
+
+		this.add(panel_buttons, BorderLayout.SOUTH);
+	}
+	
+	private void close()
+	{
+		this.setVisible(false);
+		
+		filter_in.active = false;
+	}
+	
+	class handler_save implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			ArrayList<irequest_filter> list = new ArrayList<irequest_filter>();
+			
+			for(int i = 0; i < filters_config.size(); i++)
+			{
+				if(filters_config.get(i).is_active())
+				{
+					filters.get(i).set_config(filters_config.get(i).on_save());
+					
+					list.add(filters.get(i));
+				}
+			}
+
+
+			callback.response(list);
+			
+			
+			close();
+		}
+	}
+	
+	class handler_cancel implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			close();
+		}
 	}
 }
