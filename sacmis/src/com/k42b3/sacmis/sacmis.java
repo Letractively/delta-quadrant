@@ -53,7 +53,7 @@ import org.apache.commons.exec.PumpStreamHandler;
 
 public class sacmis extends JFrame
 {
-	public static String ver = "0.0.4";
+	public static String ver = "0.0.4 beta";
 	public static String file = "input.cache";
 
 	private String path;
@@ -260,15 +260,14 @@ public class sacmis extends JFrame
 			out.setText("");
 			
 			out.append("sacmis version " + ver + "\n");
-			out.append("developed by k42b3 <http://k42b3.com>" + "\n");
-			out.append("contact: meecrob@k42b3.com" + "\n");
+			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
+			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
 			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
-			out.append("To use sacmis you have to provide as first argument an path to an exe" + "\n");
-			out.append("cutable file and as seconds argument optional the expected exit code." + "\n");
-			out.append("Now you can write to the stdin by typing anything into the upper text" + "\n");
-			out.append("box. Click on the button \"Run\" to execute the program. If it was su" + "\n");
-			out.append("ccessful the stdout is displayed else the stderr." + "\n");
+			out.append("An application wich let you write to the stdin of any executable file and" + "\n");
+			out.append("return the stdout on success or stderr on error. You have to specify the" + "\n");
+			out.append("executable file as first argument and optional as second argument the" + "\n");
+			out.append("expected exit value (default is 0)" + "\n");
 			out.append("\n");
 			out.append("best regards\n");
 			out.append("k42b3\n");
