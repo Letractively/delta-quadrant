@@ -97,7 +97,7 @@ public class request extends message
 
 
 		// parse header
-		this.set_header(util.parse_header(header, "\n"));
+		this.set_headers(util.parse_header(header, "\n"));
 
 		this.add_header("Host", this.host);
 		

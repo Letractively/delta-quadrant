@@ -63,7 +63,7 @@ public class response extends message
 		
 		
 		// parse header
-		this.set_header(util.parse_header(header, http.new_line));
+		this.set_headers(util.parse_header(header, http.new_line));
 
 
 		// set body

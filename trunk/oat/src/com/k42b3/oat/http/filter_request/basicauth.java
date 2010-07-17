@@ -25,6 +25,8 @@ package com.k42b3.oat.http.filter_request;
 
 import java.util.Properties;
 
+import sun.misc.BASE64Encoder;
+
 import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
 
@@ -42,8 +44,14 @@ public class basicauth implements irequest_filter
 
 	public void exec(request request) 
 	{
+		String user = this.config.getProperty("user");
+		String pw = this.config.getProperty("pw");
+
+		String auth = new BASE64Encoder().encode((user + ":" + pw).getBytes());
+
+		request.set_header("Authorization", "Basic " + auth);
 	}
-	
+
 	public void set_config(Properties config)
 	{
 		this.config = config;

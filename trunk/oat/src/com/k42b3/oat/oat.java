@@ -334,15 +334,17 @@ public class oat extends JFrame
 				});
 
 				
-				// add request/response filters
-				for(int i = 0; i < filters_in.size(); i++)
-				{
-					http.add_request_filter(filters_in.get(i));
-				}
-				
+				// add response filters
 				for(int i = 0; i < filters_out.size(); i++)
 				{
 					http.add_response_filter(filters_out.get(i));
+				}
+				
+				
+				// apply request filter 
+				for(int i = 0; i < filters_in.size(); i++)
+				{
+					filters_in.get(i).exec(request);
 				}
 				
 				
@@ -465,6 +467,8 @@ public class oat extends JFrame
 	
 	public class in_filter_handler implements ActionListener
 	{
+		private filter_in win;
+		
 		public void actionPerformed(ActionEvent e) 
 		{
 			if(!filter_in.active)
@@ -473,17 +477,20 @@ public class oat extends JFrame
 					
 					public void run() 
 					{
-						filter_in win = new filter_in(new icallback(){
+						if(win == null)
+						{
+							win = new filter_in(new icallback(){
 
-							public void response(Object content) 
-							{
-								filters_in = (ArrayList<irequest_filter>) content;
-							}
+								public void response(Object content) 
+								{
+									filters_in = (ArrayList<irequest_filter>) content;
+								}
 
-						});
-						
+							});
+						}
+
 						win.pack();
-						
+
 						win.setVisible(true);		
 					}
 					
@@ -494,6 +501,8 @@ public class oat extends JFrame
 	
 	public class out_filter_handler implements ActionListener
 	{
+		private filter_out win;
+		
 		public void actionPerformed(ActionEvent e) 
 		{
 			if(!filter_out.active)
@@ -502,14 +511,17 @@ public class oat extends JFrame
 					
 					public void run() 
 					{
-						filter_out win = new filter_out(new icallback(){
+						if(win == null)
+						{
+							win = new filter_out(new icallback(){
 
-							public void response(Object content) 
-							{
-								filters_out = (ArrayList<iresponse_filter>) content;
-							}
+								public void response(Object content) 
+								{
+									filters_out = (ArrayList<iresponse_filter>) content;
+								}
 
-						});
+							});
+						}
 						
 						win.pack();
 						

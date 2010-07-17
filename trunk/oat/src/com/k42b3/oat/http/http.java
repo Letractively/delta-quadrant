@@ -65,7 +65,6 @@ public class http implements Runnable
 	private response response;
 	private icallback callback;
 
-	private ArrayList<irequest_filter> request_filter = new ArrayList<irequest_filter>();
 	private ArrayList<iresponse_filter> response_filter = new ArrayList<iresponse_filter>();
 
 	public http(String host, request request, icallback callback) throws Exception
@@ -93,11 +92,6 @@ public class http implements Runnable
 		this.callback = callback;
 	}
 
-	public void add_request_filter(irequest_filter filter)
-	{
-		this.request_filter.add(filter);
-	}
-
 	public void add_response_filter(iresponse_filter filter)
 	{
 		this.response_filter.add(filter);
@@ -107,13 +101,6 @@ public class http implements Runnable
 	{
 		try
 		{
-			// apply request filter 
-			for(int i = 0; i < this.request_filter.size(); i++)
-			{
-				this.request_filter.get(i).exec(this.request);
-			}
-
-
 			this.raw_response = new StringBuilder();
 			
 			SocketChannel channel = null;
