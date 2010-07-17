@@ -38,6 +38,46 @@ public class response extends message
 		this.parse(response);
 	}
 
+	public String get_charset()
+	{
+		// default charset
+		String charset = "UTF-8";
+
+		
+		// we look in the content-type header for an charset
+		String content_type = this.get_header().get("Content-Type");
+		
+		if(content_type != null)
+		{
+			int pos = content_type.indexOf("charset=");
+			
+			if(pos != -1)
+			{
+				charset = content_type.substring(pos + 8).trim();
+			}
+		}
+
+
+		// map aliases
+		charset = charset.toUpperCase();
+		
+		if(charset.equals("ISO-8859-1"))
+		{
+			charset = "ISO8859_1";
+		}
+		else if(charset.equals("UTF-8"))
+		{
+			charset = "UTF8";
+		}
+		else if(charset.equals("US-ASCII"))
+		{
+			charset = "ASCII";
+		}
+	
+
+		return charset;
+	}
+	
 	private void parse(String response)
 	{
 		// split header body
@@ -84,43 +124,6 @@ public class response extends message
 		{
 			raw_line = raw_response.substring(0, pos).trim();
 		}
-
-		/*
-		// split parts
-		String[] parts = raw_line.split(" ");
-		
-		String type = "";
-		int code = 0;
-		String message = "";
-		
-		if(parts.length == 3)
-		{
-			type = parts[0];
-			code = Integer.parseInt(parts[1]);
-			message = parts[2];
-		}
-		else
-		{
-			type = "HTTP/1.1";
-			code = 200;
-			message = "OK";
-		}
-		
-		
-		// check method
-		if(!util.is_valid_code(code, message))
-		{
-			code = 200;
-			message = "OK";
-		}
-		
-		
-		// check type
-		if(!util.is_valid_type(type))
-		{
-			type = http.type;
-		}
-		*/
 
 		return raw_line;
 	}
