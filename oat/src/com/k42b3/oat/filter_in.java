@@ -50,7 +50,7 @@ public class filter_in extends JFrame
 
 		this.setLocation(100, 100);
 
-		this.setSize(100, 300);
+		this.setSize(400, 300);
 
 		this.setMinimumSize(this.getSize());
 
@@ -62,9 +62,14 @@ public class filter_in extends JFrame
 		panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
 
+		// add filters
 		ArrayList<String> filters = new ArrayList<String>();
 		
+		filters.add("basicauth");
+		filters.add("oauth");
+
 		
+		// parse filters
 		for(int i = 0; i < filters.size(); i++)
 		{
 			try
