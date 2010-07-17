@@ -23,7 +23,14 @@
 
 package com.k42b3.oat;
 
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneConstants;
 
 /**
  * filter_out
@@ -43,8 +50,52 @@ public class filter_out extends JFrame
 
 		this.setLocation(100, 100);
 
-		this.setSize(300, 400);
+		this.setSize(400, 300);
 
 		this.setMinimumSize(this.getSize());
+		
+		
+		JTabbedPane panel = new JTabbedPane();
+
+		panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+
+		// add filters
+		ArrayList<String> filters = new ArrayList<String>();
+		
+		filters.add("deflate");
+		filters.add("gzip");
+
+		
+		// parse filters
+		for(int i = 0; i < filters.size(); i++)
+		{
+			try
+			{
+				String cls = "com.k42b3.oat.http.filter_response." + filters.get(i) + "_config";
+
+				Class c = Class.forName(cls);
+
+				config_filter filter = (config_filter) c.newInstance();
+				
+				
+				JScrollPane scp_filter = new JScrollPane(filter);
+
+				scp_filter.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+				
+				scp_filter.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+				scp_filter.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
+
+				
+				panel.addTab(filter.get_name(), scp_filter);
+			}
+			catch(Exception e)
+			{
+			}
+		}
+	
+
+		this.add(panel, BorderLayout.CENTER);
 	}
 }
