@@ -36,6 +36,7 @@ import java.util.HashMap;
  */
 public class request extends message
 {
+	private URL url;
 	private String host;
 	private String path;
 	private String method;
@@ -54,6 +55,18 @@ public class request extends message
 		return this.method;
 	}
 
+	public String get_url()
+	{
+		return this.url.toString();
+	}
+
+	public HashMap<String, String> get_params()
+	{
+		HashMap<String, String> params = new HashMap<String, String>();
+		
+		return params;
+	}
+	
 	private void parse_url(String raw_url) throws Exception
 	{
 		if(!raw_url.startsWith("http://") && !raw_url.startsWith("https://"))
@@ -61,14 +74,14 @@ public class request extends message
 			raw_url = "http://" + raw_url;
 		}
 
-		URL url	= new URL(raw_url);
+		this.url = new URL(raw_url);
 		
 		this.host = url.getHost();
 		this.path = url.getPath();
 		
-		if(url.getQuery() != null && !url.getQuery().isEmpty())
+		if(this.url.getQuery() != null && !this.url.getQuery().isEmpty())
 		{
-			this.path+= "?" + url.getQuery();
+			this.path+= "?" + this.url.getQuery();
 		}
 	}
 	
