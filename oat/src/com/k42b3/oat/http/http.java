@@ -36,6 +36,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * http
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class http implements Runnable
 {
 	public final static String new_line = "\r\n";

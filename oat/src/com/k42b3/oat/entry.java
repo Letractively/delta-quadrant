@@ -25,6 +25,14 @@ package com.k42b3.oat;
 
 import javax.swing.UIManager;
 
+/**
+ * entry
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class entry 
 {
 	public static void main(String[] args)
