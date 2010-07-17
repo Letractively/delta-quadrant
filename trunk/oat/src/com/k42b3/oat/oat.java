@@ -46,12 +46,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.k42b3.oat.http.http;
-import com.k42b3.oat.http.icallback;
 import com.k42b3.oat.http.request;
+import com.k42b3.oat.model.file_list;
 
 /**
  * oat
@@ -129,6 +130,8 @@ public class oat extends JFrame
 		
 		JButton btn_in_filter = new JButton("Filter");
 		
+		btn_in_filter.addActionListener(new in_filter_handler());
+		
 		panel_btn_filter_in.add(btn_in_filter);
 		
 		panel_in_header.add(panel_btn_filter_in, BorderLayout.EAST);
@@ -179,6 +182,8 @@ public class oat extends JFrame
 		
 		JButton btn_out_filter = new JButton("Filter");
 		
+		btn_out_filter.addActionListener(new out_filter_handler());
+		
 		panel_btn_filter_out.add(btn_out_filter);
 		
 		panel_out_header.add(panel_btn_filter_out, BorderLayout.EAST);
@@ -210,9 +215,13 @@ public class oat extends JFrame
 		this.toolbar = new toolbar();
 		
 		this.toolbar.get_run().addActionListener(new run_handler());
+		
 		this.toolbar.get_save().addActionListener(new save_handler());
+		
 		this.toolbar.get_reset().addActionListener(new reset_handler());
+		
 		this.toolbar.get_about().addActionListener(new about_handler());
+		
 		this.toolbar.get_exit().addActionListener(new exit_handler());
 
 		this.add(this.toolbar, BorderLayout.SOUTH);
@@ -221,7 +230,7 @@ public class oat extends JFrame
 		// list
 		this.list = new JList();
 
-		this.list.setModel(new list());
+		this.list.setModel(new file_list());
 
 		this.list.addListSelectionListener(new list_handler());
 
@@ -229,7 +238,7 @@ public class oat extends JFrame
 
 		JScrollPane scr_list = new JScrollPane(this.list);
 		
-		scr_list.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		scr_list.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
 		
 		scr_list.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
@@ -237,8 +246,6 @@ public class oat extends JFrame
 
 		this.add(scr_list, BorderLayout.EAST);
 
-
-		this.setVisible(true);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -287,7 +294,7 @@ public class oat extends JFrame
 			}
 			
 			
-			((list) list.getModel()).load();
+			((file_list) list.getModel()).load();
 		}
 		catch(IOException e)
 		{
@@ -307,7 +314,7 @@ public class oat extends JFrame
 
 	public class run_handler implements ActionListener
 	{
-		public void actionPerformed(ActionEvent args)
+		public void actionPerformed(ActionEvent e)
 		{
 			try
 			{
@@ -331,30 +338,31 @@ public class oat extends JFrame
 				out.setText("");
 				in.setText(request.toString());
 			}
-			catch(Exception e)
+			catch(Exception ex)
 			{
-				out.setText(e.getStackTrace().toString());
+				out.setText(ex.getStackTrace().toString());
 			}
 		}
 	}
 	
 	public class save_handler implements ActionListener
 	{
-		public void actionPerformed(ActionEvent args)
+		public void actionPerformed(ActionEvent e)
 		{
 			try
 			{
 				save_file();
 			}
-			catch(Exception e)
+			catch(Exception ex)
 			{
+				out.setText(ex.getStackTrace().toString());
 			}
 		}
 	}
 	
 	public class about_handler implements ActionListener
 	{
-		public void actionPerformed(ActionEvent args) 
+		public void actionPerformed(ActionEvent e) 
 		{
 			out.setText("");
 			
@@ -374,7 +382,7 @@ public class oat extends JFrame
 	
 	public class exit_handler implements ActionListener
 	{
-		public void actionPerformed(ActionEvent args) 
+		public void actionPerformed(ActionEvent e) 
 		{
 			System.exit(0);
 		}
@@ -437,6 +445,50 @@ public class oat extends JFrame
 				{
 					out.setText(ex.getMessage());
 				}
+			}
+		}
+	}
+	
+	public class in_filter_handler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(!filter_in.active)
+			{
+				SwingUtilities.invokeLater(new Runnable(){
+					
+					public void run() 
+					{
+						filter_in win = new filter_in();
+						
+						win.pack();
+						
+						win.setVisible(true);		
+					}
+					
+				});
+			}
+		}
+	}
+	
+	public class out_filter_handler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(!filter_out.active)
+			{
+				SwingUtilities.invokeLater(new Runnable(){
+					
+					public void run() 
+					{
+						filter_out win = new filter_out();
+						
+						win.pack();
+						
+						win.setVisible(true);			
+					}
+					
+				});
 			}
 		}
 	}

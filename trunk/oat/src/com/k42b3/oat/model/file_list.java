@@ -21,7 +21,7 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
+package com.k42b3.oat.model;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,12 +38,12 @@ import javax.swing.event.ListDataListener;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class list implements ListModel
+public class file_list implements ListModel
 {
 	ArrayList<String> files = new ArrayList<String>();
 	ArrayList<ListDataListener> listener = new ArrayList<ListDataListener>();
 
-	public list()
+	public file_list()
 	{
 		this.load();
 	}

@@ -23,6 +23,7 @@
 
 package com.k42b3.oat;
 
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
@@ -37,18 +38,29 @@ public class entry
 {
 	public static void main(String[] args)
 	{
-	      try
-	        {
-	    		String look_and_feel = UIManager.getSystemLookAndFeelClassName();
+		try
+		{
+			String look_and_feel = UIManager.getSystemLookAndFeelClassName();
 
-	        	UIManager.setLookAndFeel(look_and_feel);
-	        	
+			UIManager.setLookAndFeel(look_and_feel);
 
-	        	new oat();
-	        }
-	        catch(Exception e)
-	        {
-	        	System.out.print(e.getMessage());
-	        }	
+
+			SwingUtilities.invokeLater(new Runnable(){
+				
+				public void run() 
+				{
+					oat win = new oat();
+					
+					win.pack();
+					
+					win.setVisible(true);				
+				}
+				
+			});
+		}
+		catch(Exception e)
+		{
+			System.out.print(e.getMessage());
+		}	
 	}
 }

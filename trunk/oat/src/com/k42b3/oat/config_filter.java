@@ -21,17 +21,22 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http;
+package com.k42b3.oat;
+
+import java.util.Properties;
+
+import javax.swing.JPanel;
 
 /**
- * irequest_filter
+ * config_filter
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public interface irequest_filter 
+public abstract class config_filter extends JPanel
 {
-	public void exec(request request);
+	abstract public String get_name();
+	abstract public Properties on_save();
 }

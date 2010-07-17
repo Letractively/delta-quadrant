@@ -39,6 +39,6 @@ public class url extends JTextField
 {
 	public url()
 	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 14));
+		this.setFont(new Font("Courier New", Font.PLAIN, 12));
 	}
 }

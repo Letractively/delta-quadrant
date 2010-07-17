@@ -21,17 +21,30 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http;
+package com.k42b3.oat;
+
+import javax.swing.JFrame;
 
 /**
- * icallback
+ * filter_out
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public interface icallback 
+public class filter_out extends JFrame
 {
-	public void response(String content);
+	public static boolean active = false;
+
+	public filter_out()
+	{
+		this.setTitle("Response filter");
+
+		this.setLocation(100, 100);
+
+		this.setSize(300, 400);
+
+		this.setMinimumSize(this.getSize());
+	}
 }
