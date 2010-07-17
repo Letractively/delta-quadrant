@@ -25,7 +25,6 @@ package com.k42b3.oat;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -38,8 +37,8 @@ import java.io.PrintStream;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ListSelectionEvent;
@@ -77,10 +76,8 @@ public class oat extends JFrame
 		
 		
 		// main panel
-		JPanel panel = new JPanel();
-		
-		panel.setLayout(new GridLayout(0, 1));
-		
+		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
 		this.in  = new in();
 		this.out = new out();
 			
@@ -94,10 +91,10 @@ public class oat extends JFrame
 		scr_out.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scr_out.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
-		panel.add(scr_in);
-		panel.add(scr_out);
+		sp.add(scr_in);
+		sp.add(scr_out);
 		
-		this.add(panel, BorderLayout.CENTER);
+		this.add(sp, BorderLayout.CENTER);
 		
 		
 		// toolbar
@@ -204,14 +201,17 @@ public class oat extends JFrame
 			{
 				request request = new request(url.getText(), in.getText());
 
-				new Thread(new http(url.getText(), request, new icallback(){
+				http http = new http(url.getText(), request, new icallback(){
 					
 					public void response(String content) 
 					{
 						out.setText(content);
 					}
 
-				})).start();
+				});
+
+				
+				new Thread(http).start();
 
 				out.setText("");
 				in.setText(request.toString());

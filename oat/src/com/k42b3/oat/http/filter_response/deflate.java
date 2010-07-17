@@ -21,9 +21,46 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http;
+package com.k42b3.oat.http.filter_response;
 
-public interface iencoder 
+import java.util.zip.Inflater;
+
+import com.k42b3.oat.http.iresponse_filter;
+import com.k42b3.oat.http.response;
+
+public class deflate implements iresponse_filter
 {
-	public String decode(String encoded) throws Exception;
+	public void exec(response response) 
+	{
+		if(response.get_header().containsKey("Content-Encoding"))
+		{
+			String encoding = response.get_header().get("Content-Encoding");
+			
+			if(encoding.indexOf("deflate") != -1)
+			{
+				try
+				{
+					Inflater inf = new Inflater();
+					
+					inf.setInput(response.get_body().getBytes());
+					
+					
+					// decode
+					StringBuilder buffer = new StringBuilder();
+					byte[] buf = new byte[512];
+
+					while(inf.inflate(buf) > 0)
+					{
+						buffer.append(buf);
+					}
+					
+					
+					response.set_body(buffer.toString());
+				}
+				catch(Exception e)
+				{
+				}
+			}
+		}
+	}
 }

@@ -26,13 +26,8 @@ package com.k42b3.oat.http;
 import java.net.URL;
 import java.util.HashMap;
 
-
-public class request 
+public class request extends message
 {
-	private HashMap<String, String> header;
-	private String body;
-	private String request_line;
-
 	private String host;
 	private String path;
 
@@ -84,17 +79,17 @@ public class request
 
 
 		// get request line
-		this.request_line = this.parse_request_line(header);
-		
-		
-		// parse header
-		this.header = util.parse_header(header, "\n");
+		this.set_line(this.parse_request_line(header));
 
-		this.header.put("Host", this.host);
+
+		// parse header
+		this.set_header(util.parse_header(header, "\n"));
+
+		this.add_header("Host", this.host);
 		
 
 		// set body
-		this.body = body;
+		this.set_body(body);
 	}
 
 	private String parse_request_line(String raw_request)
@@ -177,6 +172,6 @@ public class request
 	
 	public String toString()
 	{
-		return util.build_message(this.request_line, this.header, this.body);
+		return util.build_message(this.line, this.header, this.body);
 	}
 }

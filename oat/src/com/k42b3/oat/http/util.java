@@ -131,12 +131,12 @@ public class util
 			// headers
 			for(int i = 0; i < lines.length; i++)
 			{
-				String[] line = lines[i].split(":");
-
-				if(line.length == 2)
+				int pos = lines[i].indexOf(':');
+				
+				if(pos != -1)
 				{
-					String key = line[0].trim();
-					String value = line[1].trim();
+					String key = lines[i].substring(0, pos).trim();
+					String value = lines[i].substring(pos + 1).trim();
 
 					if(!headers.containsKey(key))
 					{

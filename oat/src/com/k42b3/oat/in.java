@@ -32,7 +32,7 @@ public class in extends JTextArea
 {
 	public in()
 	{
-		super();
+		super(10, 20);
 		
 		this.setFont(new Font("Courier New", Font.PLAIN, 12));
 		
