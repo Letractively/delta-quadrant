@@ -28,6 +28,14 @@ import java.awt.Font;
 
 import javax.swing.JTextField;
 
+/**
+ * args
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class args extends JTextField
 {
 	public args()
