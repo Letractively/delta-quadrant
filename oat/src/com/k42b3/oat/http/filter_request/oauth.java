@@ -23,7 +23,7 @@
 
 package com.k42b3.oat.http.filter_request;
 
-import com.k42b3.oat.http.irequest_filter;
+import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
 
 /**

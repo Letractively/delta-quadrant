@@ -23,52 +23,27 @@
 
 package com.k42b3.oat.http.filter_response;
 
-import java.util.zip.Inflater;
+import java.util.Properties;
 
-import com.k42b3.oat.iresponse_filter;
-import com.k42b3.oat.http.response;
+import com.k42b3.oat.config_filter;
 
 /**
- * deflate
+ * deflate_config
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class deflate implements iresponse_filter
+public class deflate_config extends config_filter
 {
-	public void exec(response response) 
+	public String get_name()
 	{
-		if(response.get_header().containsKey("Content-Encoding"))
-		{
-			String encoding = response.get_header().get("Content-Encoding");
-			
-			if(encoding.indexOf("deflate") != -1)
-			{
-				try
-				{
-					Inflater inf = new Inflater();
-					
-					inf.setInput(response.get_body().getBytes());
-					
-					
-					// decode
-					StringBuilder buffer = new StringBuilder();
-					byte[] buf = new byte[512];
-
-					while(inf.inflate(buf) > 0)
-					{
-						buffer.append(buf);
-					}
-					
-					
-					response.set_body(buffer.toString());
-				}
-				catch(Exception e)
-				{
-				}
-			}
-		}
+		return "Deflate";
+	}
+	
+	public Properties on_save() 
+	{
+		return null;
 	}
 }

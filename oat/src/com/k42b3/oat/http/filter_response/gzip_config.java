@@ -21,17 +21,29 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http;
+package com.k42b3.oat.http.filter_response;
+
+import java.util.Properties;
+
+import com.k42b3.oat.config_filter;
 
 /**
- * iresponse_filter
+ * gzip_config
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public interface iresponse_filter 
+public class gzip_config extends config_filter
 {
-	public void exec(response response);
+	public String get_name()
+	{
+		return "GZip";
+	}
+	
+	public Properties on_save() 
+	{
+		return null;
+	}
 }

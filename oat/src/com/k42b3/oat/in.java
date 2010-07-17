@@ -41,13 +41,13 @@ public class in extends JTextArea
 	public in()
 	{
 		super(10, 20);
-		
+
 		this.setFont(new Font("Courier New", Font.PLAIN, 12));
-		
+
 		this.setEditable(true);
-		
+
 		this.setBackground(new Color(255, 255, 255));
-		
+
 		this.setForeground(new Color(0, 0, 0));
 	}
 }

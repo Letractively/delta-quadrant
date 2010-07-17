@@ -28,7 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
-import com.k42b3.oat.http.iresponse_filter;
+import com.k42b3.oat.iresponse_filter;
 import com.k42b3.oat.http.response;
 
 /**
