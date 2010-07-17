@@ -23,6 +23,8 @@
 
 package com.k42b3.oat.http.filter_request;
 
+import java.util.Properties;
+
 import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
 
@@ -36,11 +38,14 @@ import com.k42b3.oat.http.request;
  */
 public class basicauth implements irequest_filter
 {
-	public basicauth(String user, String password)
-	{
-	}
+	private Properties config = new Properties();
 
 	public void exec(request request) 
 	{
+	}
+	
+	public void set_config(Properties config)
+	{
+		this.config = config;
 	}
 }

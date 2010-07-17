@@ -33,5 +33,5 @@ package com.k42b3.oat;
  */
 public interface icallback 
 {
-	public void response(String content);
+	public void response(Object content);
 }

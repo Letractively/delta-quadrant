@@ -23,6 +23,8 @@
 
 package com.k42b3.oat;
 
+import java.util.Properties;
+
 import com.k42b3.oat.http.request;
 
 /**
@@ -36,4 +38,5 @@ import com.k42b3.oat.http.request;
 public interface irequest_filter 
 {
 	public void exec(request request);
+	public void set_config(Properties config);
 }

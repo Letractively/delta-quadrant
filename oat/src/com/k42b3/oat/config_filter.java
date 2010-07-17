@@ -39,4 +39,5 @@ public abstract class config_filter extends JPanel
 {
 	abstract public String get_name();
 	abstract public Properties on_save();
+	abstract public boolean is_active();
 }

@@ -23,6 +23,7 @@
 
 package com.k42b3.oat.http.filter_response;
 
+import java.util.Properties;
 import java.util.zip.Inflater;
 
 import com.k42b3.oat.iresponse_filter;
@@ -38,6 +39,8 @@ import com.k42b3.oat.http.response;
  */
 public class deflate implements iresponse_filter
 {
+	private Properties config = new Properties();
+	
 	public void exec(response response) 
 	{
 		if(response.get_header().containsKey("Content-Encoding"))
@@ -70,5 +73,10 @@ public class deflate implements iresponse_filter
 				}
 			}
 		}
+	}
+	
+	public void set_config(Properties config)
+	{
+		this.config = config;
 	}
 }
