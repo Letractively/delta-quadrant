@@ -32,6 +32,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -51,7 +52,10 @@ public class http implements Runnable
 	private request request;
 	private response response;
 	private icallback callback;
-	
+
+	private ArrayList<irequest_filter> request_filter = new ArrayList<irequest_filter>();
+	private ArrayList<iresponse_filter> response_filter = new ArrayList<iresponse_filter>();
+
 	public http(String host, request request, icallback callback) throws Exception
 	{
 		// get host and port
@@ -77,10 +81,27 @@ public class http implements Runnable
 		this.callback = callback;
 	}
 
+	public void add_request_filter(irequest_filter filter)
+	{
+		this.request_filter.add(filter);
+	}
+
+	public void add_response_filter(iresponse_filter filter)
+	{
+		this.response_filter.add(filter);
+	}
+
 	public void run()
 	{
 		try
 		{
+			// apply request filter 
+			for(int i = 0; i < this.request_filter.size(); i++)
+			{
+				this.request_filter.get(i).exec(this.request);
+			}
+
+
 			this.raw_response = new StringBuilder();
 			
 			SocketChannel channel = null;
@@ -181,7 +202,15 @@ public class http implements Runnable
 				}
 			}
 
-			this.response = new response(this.raw_response.toString()); 
+			this.response = new response(this.raw_response.toString());
+
+
+			// apply response filter 
+			for(int i = 0; i < this.response_filter.size(); i++)
+			{
+				this.response_filter.get(i).exec(this.response);
+			}
+
 
 			callback.response(this.response.toString());
 		}

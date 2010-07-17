@@ -21,34 +21,49 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.encoder;
+package com.k42b3.oat.http.filter_response;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.util.zip.GZIPInputStream;
 
-import com.k42b3.oat.http.iencoder;
+import com.k42b3.oat.http.iresponse_filter;
+import com.k42b3.oat.http.response;
 
-public class gzip implements iencoder
+public class gzip implements iresponse_filter
 {
-	public String decode(String encoded) throws Exception
+	public void exec(response response) 
 	{
-		GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(encoded.getBytes()));
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(gis));
-
-
-		// decode
-		StringBuilder buffer = new StringBuilder();
-		char[] buf = new char[512];
-		
-		while(br.read(buf) > 0)
+		if(response.get_header().containsKey("Content-Encoding"))
 		{
-			buffer.append(buf);
+			String encoding = response.get_header().get("Content-Encoding");
+			
+			if(encoding.indexOf("gzip") != -1)
+			{
+				try
+				{
+					GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(response.get_body().getBytes()));
+
+					BufferedReader br = new BufferedReader(new InputStreamReader(gis));
+
+
+					// decode
+					StringBuilder buffer = new StringBuilder();
+					char[] buf = new char[512];
+					
+					while(br.read(buf) > 0)
+					{
+						buffer.append(buf);
+					}
+					
+					
+					response.set_body(buffer.toString());
+				}
+				catch(Exception e)
+				{
+				}
+			}
 		}
-		
-		
-		return buffer.toString();
 	}
 }

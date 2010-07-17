@@ -23,17 +23,9 @@
 
 package com.k42b3.oat.http;
 
-import java.util.HashMap;
 
-import com.k42b3.oat.http.encoder.deflate;
-import com.k42b3.oat.http.encoder.gzip;
-
-public class response 
+public class response extends message
 {
-	private HashMap<String, String> header;
-	private String body;
-	private String response_line;
-
 	public response(String response)
 	{
 		this.parse(response);
@@ -60,15 +52,15 @@ public class response
 		
 		
 		// get request line
-		this.response_line = this.parse_response_line(header);
+		this.set_line(this.parse_response_line(header));
 		
 		
 		// parse header
-		this.header = util.parse_header(header, http.new_line);
+		this.set_header(util.parse_header(header, http.new_line));
 
 
 		// set body
-		this.parse_body(body);
+		this.set_body(body);
 	}
 
 	private String parse_response_line(String raw_response)
@@ -85,8 +77,7 @@ public class response
 		{
 			raw_line = raw_response.substring(0, pos).trim();
 		}
-		
-		
+
 		/*
 		// split parts
 		String[] parts = raw_line.split(" ");
@@ -123,50 +114,12 @@ public class response
 			type = http.type;
 		}
 		*/
-		
-		
-		return raw_line;
-	}
-	
-	private void parse_body(String raw_body)
-	{
-		// handle content encoding
-		if(this.header.containsKey("Content-Encoding"))
-		{
-			iencoder encoder = null;
 
-			String encoding = this.header.get("Content-Encoding");
-			
-			if(encoding.startsWith("gzip"))
-			{
-				encoder = new gzip();
-			}
-			else if(encoding.startsWith("deflate"))
-			{
-				encoder = new deflate();
-			}
-			
-			if(encoder != null)
-			{
-				try
-				{
-					String encoded = encoder.decode(raw_body);
-					
-					raw_body = encoded;
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		
-		this.body = raw_body;
+		return raw_line;
 	}
 	
 	public String toString()
 	{
-		return util.build_message(this.response_line, this.header, this.body);
+		return util.build_message(this.line, this.header, this.body);
 	}
 }
