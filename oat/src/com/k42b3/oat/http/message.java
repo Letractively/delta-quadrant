@@ -59,9 +59,9 @@ public class message
 		this.line = line;
 	}
 	
-	public void set_header(HashMap<String, String> header)
+	public void set_headers(HashMap<String, String> headers)
 	{
-		this.header = header;
+		this.header = headers;
 	}
 
 	public void set_body(String body)
@@ -75,6 +75,11 @@ public class message
 		{
 			this.header.put(key, value);
 		}
+	}
+	
+	public void set_header(String key, String value)
+	{
+		this.header.put(key, value);
 	}
 	
 	public void replace_header(String key, String value)
