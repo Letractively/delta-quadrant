@@ -25,6 +25,7 @@ package com.k42b3.oat;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -35,8 +36,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -76,35 +81,131 @@ public class oat extends JFrame
 		
 		this.setMinimumSize(this.getSize());
 
+		this.setLayout(new BorderLayout());
 
-		// arguments
+		
+		// url
+		JPanel panel_url = new JPanel();
+		
+		panel_url.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+		panel_url.setLayout(new BorderLayout());
+				
+		
 		this.url = new url();
+		
+		panel_url.add(this.url, BorderLayout.CENTER);
 
-		this.add(this.url, BorderLayout.NORTH);
-		
-		
+
+		this.add(panel_url, BorderLayout.NORTH);
+
+
 		// main panel
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
+		
+		// in
+		JPanel panel_in = new JPanel();
+		
+		panel_in.setLayout(new BorderLayout());
+				
+		
+		// header
+		JPanel panel_in_header = new JPanel();
+		
+		panel_in_header.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		
+		panel_in_header.setLayout(new BorderLayout());
+		
+		
+		JLabel lbl_in = new JLabel("Request:");
+		
+		panel_in_header.add(lbl_in, BorderLayout.CENTER);
+		
+		
+		JPanel panel_btn_filter_in = new JPanel();
+		
+		panel_btn_filter_in.setLayout(new FlowLayout());
+		
+		JButton btn_in_filter = new JButton("Filter");
+		
+		panel_btn_filter_in.add(btn_in_filter);
+		
+		panel_in_header.add(panel_btn_filter_in, BorderLayout.EAST);
+		
+		
+		panel_in.add(panel_in_header, BorderLayout.NORTH);
+		
+		
+		
 		this.in  = new in();
-		this.out = new out();
-			
+		
 		JScrollPane scr_in = new JScrollPane(this.in);
+
+		scr_in.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
 		
 		scr_in.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		scr_in.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
-
+		
+		panel_in.add(scr_in, BorderLayout.CENTER);
+		
+		
+		sp.add(panel_in);
+		
+		
+		// out
+		JPanel panel_out = new JPanel();
+		
+		panel_out.setLayout(new BorderLayout());
+				
+		
+		// header
+		JPanel panel_out_header = new JPanel();
+		
+		panel_out_header.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		
+		panel_out_header.setLayout(new BorderLayout());
+		
+		
+		JLabel lbl_out = new JLabel("Response:");
+		
+		panel_out_header.add(lbl_out, BorderLayout.CENTER);
+		
+		
+		JPanel panel_btn_filter_out = new JPanel();
+		
+		panel_btn_filter_out.setLayout(new FlowLayout());
+		
+		JButton btn_out_filter = new JButton("Filter");
+		
+		panel_btn_filter_out.add(btn_out_filter);
+		
+		panel_out_header.add(panel_btn_filter_out, BorderLayout.EAST);
+		
+		
+		panel_out.add(panel_out_header, BorderLayout.NORTH);
+		
+		
+		this.out = new out();
+			
 		JScrollPane scr_out = new JScrollPane(this.out);
 		
+		scr_out.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+		
 		scr_out.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		scr_out.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
 
-		sp.add(scr_in);
-		sp.add(scr_out);
-		
+		panel_out.add(scr_out, BorderLayout.CENTER);
+
+
+		sp.add(panel_out);
+
+
 		this.add(sp, BorderLayout.CENTER);
-		
-		
+
+
 		// toolbar
 		this.toolbar = new toolbar();
 		
@@ -128,7 +229,10 @@ public class oat extends JFrame
 
 		JScrollPane scr_list = new JScrollPane(this.list);
 		
+		scr_list.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		
 		scr_list.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
 		scr_list.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		this.add(scr_list, BorderLayout.EAST);
