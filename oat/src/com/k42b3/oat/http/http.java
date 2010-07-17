@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.k42b3.oat.icallback;
-import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.iresponse_filter;
 
 /**
