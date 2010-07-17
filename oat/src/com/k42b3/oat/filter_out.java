@@ -37,9 +37,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.ScrollPaneConstants;
 
-import com.k42b3.oat.filter_in.handler_cancel;
-import com.k42b3.oat.filter_in.handler_save;
-
 /**
  * filter_out
  *
@@ -59,7 +56,7 @@ public class filter_out extends JFrame
 
 	public filter_out(icallback callback)
 	{
-		filter_in.active = true;
+		filter_out.active = true;
 		
 		
 		this.callback = callback;

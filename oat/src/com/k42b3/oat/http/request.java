@@ -38,6 +38,7 @@ public class request extends message
 {
 	private String host;
 	private String path;
+	private String method;
 
 	public request(String url, String request) throws Exception
 	{
@@ -46,6 +47,11 @@ public class request extends message
 		this.parse_url(url);
 		
 		this.parse(request);
+	}
+
+	public String get_request_method()
+	{
+		return this.method;
 	}
 
 	private void parse_url(String raw_url) throws Exception
@@ -175,6 +181,9 @@ public class request extends message
 		}
 		
 		
+		this.method = method;
+
+
 		return method + " " + path + " " + type;
 	}
 	
