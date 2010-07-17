@@ -58,7 +58,7 @@ import com.k42b3.oat.http.request;
  */
 public class oat extends JFrame
 {
-	public static String ver = "0.0.2 beta";
+	public static String ver = "0.0.3 beta";
 	
 	private JTextField url;
 	private in in;
@@ -218,6 +218,9 @@ public class oat extends JFrame
 
 				});
 
+				
+				// add request/response filters
+				
 				
 				new Thread(http).start();
 
