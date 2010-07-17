@@ -70,6 +70,8 @@ public class filter_in extends JFrame
 		this.setSize(400, 300);
 
 		this.setMinimumSize(this.getSize());
+		
+		this.setResizable(false);
 
 		this.setLayout(new BorderLayout());
 

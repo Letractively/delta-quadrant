@@ -68,10 +68,14 @@ public class filter_out extends JFrame
 		this.setLocation(100, 100);
 
 		this.setSize(400, 300);
-
+		
 		this.setMinimumSize(this.getSize());
 		
+		this.setResizable(false);
 		
+		this.setLayout(new BorderLayout());
+
+
 		JTabbedPane panel = new JTabbedPane();
 
 		panel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
