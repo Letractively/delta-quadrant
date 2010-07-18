@@ -29,22 +29,20 @@ import com.k42b3.oat.irequest_filter;
 import com.k42b3.oat.http.request;
 
 /**
- * basicauth
+ * contentlength
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class agent implements irequest_filter
+public class contentlength implements irequest_filter
 {
 	private Properties config = new Properties();
 
 	public void exec(request request) 
 	{
-		String agent = this.config.getProperty("agent");
-
-		request.set_header("User-Agent", agent);
+		request.set_header("Content-Length", "" + request.get_body().length());
 	}
 
 	public void set_config(Properties config)

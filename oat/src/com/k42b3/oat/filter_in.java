@@ -85,8 +85,9 @@ public class filter_in extends JFrame
 		ArrayList<String> filters = new ArrayList<String>();
 		
 		filters.add("basicauth");
+		filters.add("contentlength");
 		filters.add("oauth");
-		filters.add("agent");
+		filters.add("useragent");
 
 		
 		// parse filters
