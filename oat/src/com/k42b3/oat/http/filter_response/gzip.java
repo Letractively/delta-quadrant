@@ -26,6 +26,7 @@ package com.k42b3.oat.http.filter_response;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
@@ -54,7 +55,16 @@ public class gzip implements iresponse_filter
 			{
 				try
 				{
-					GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(response.get_body().getBytes()));
+					ByteBuffer raw_body = response.get_raw_body();
+
+					raw_body.rewind();
+
+					byte[] bytes = new byte[raw_body.capacity()];
+
+					raw_body.get(bytes, 0, bytes.length);
+
+
+					GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
 
 					BufferedReader br = new BufferedReader(new InputStreamReader(gis));
 
@@ -62,17 +72,18 @@ public class gzip implements iresponse_filter
 					// decode
 					StringBuilder buffer = new StringBuilder();
 					char[] buf = new char[512];
-					
+
 					while(br.read(buf) > 0)
 					{
 						buffer.append(buf);
 					}
-					
-					
+
+
 					response.set_body(buffer.toString());
 				}
 				catch(Exception e)
 				{
+					e.printStackTrace();
 				}
 			}
 		}

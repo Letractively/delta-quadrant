@@ -23,6 +23,7 @@
 
 package com.k42b3.oat.http;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 
 /**
@@ -38,6 +39,7 @@ public class message
 	protected String line;
 	protected HashMap<String, String> header;
 	protected String body;
+	protected ByteBuffer raw_body;
 	
 	public String get_line()
 	{
@@ -54,6 +56,11 @@ public class message
 		return this.body;
 	}
 		
+	public ByteBuffer get_raw_body()
+	{
+		return this.raw_body;
+	}
+	
 	public void set_line(String line)
 	{
 		this.line = line;
@@ -68,7 +75,12 @@ public class message
 	{
 		this.body = body;
 	}
-	
+
+	public void set_raw_body(ByteBuffer raw_body)
+	{
+		this.raw_body = raw_body;
+	}
+
 	public void add_header(String key, String value)
 	{
 		if(!this.header.containsKey(key))
