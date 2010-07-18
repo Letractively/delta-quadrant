@@ -81,6 +81,8 @@ public class oauth implements irequest_filter
 			// build base string
 			String base_string = this.build_base_string(request.get_request_method(), request.get_url(), values);
 			
+			System.out.println("base string: " + base_string);
+			
 			
 			// get signature
 			isignature sig;
@@ -190,8 +192,8 @@ public class oauth implements irequest_filter
 			URL url = new URL(raw_url);
 
 			int port = url.getPort();
-			
-			if(port == -1)
+
+			if(port == -1 || port == 80 || port == 443)
 			{
 				return url.getProtocol() + "://" + url.getHost() + "/" + url.getPath();
 			}
