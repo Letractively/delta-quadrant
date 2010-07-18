@@ -293,7 +293,7 @@ public class http implements Runnable
 								this.content_length = Integer.parseInt(header.get("Content-Length"));
 							}
 
-							
+
 							// check character set
 							if(header.containsKey("Content-Type"))
 							{
@@ -306,11 +306,20 @@ public class http implements Runnable
 
 
 							// add rest to body
-							ByteBuffer buffer_body = ByteBuffer.allocateDirect(this.buffer_size - header_end);
+							ByteBuffer buffer_body;
+							
+							if(this.buffer_size > this.content_length)
+							{
+								buffer_body = ByteBuffer.allocateDirect(this.content_length);
+							}
+							else
+							{
+								buffer_body = ByteBuffer.allocateDirect(this.buffer_size - header_end);
+							}
 
 							int j = 0;
 
-							for(int i = header_end; i < this.buffer_size; i++)
+							for(int i = header_end; i < buffer.remaining(); i++)
 							{
 								buffer_body.put(j, buffer.get(i));
 
