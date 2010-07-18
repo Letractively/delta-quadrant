@@ -63,8 +63,8 @@ import com.k42b3.oat.iresponse_filter;
  * some cases. If the header is greater then the buffer means 1024 bytes then
  * we are not able to get the header files so we throw an "Max header size 
  * exceeded" exception. Probably you ask yourself why not reading the header
- * in the nextround the problem is that the byte sequence "0xD 0xA 0xD 0xA" can
- * always be between to buffers so we dont find the header. In example:
+ * in the next round the problem is that the byte sequence "0xD 0xA 0xD 0xA" can
+ * always be between two buffers so we dont find the header. In example:
  * 
  * first buffer
  * +--------------
@@ -85,7 +85,10 @@ import com.k42b3.oat.iresponse_filter;
  * In this case we dont find the byte sequence "0xD 0xA 0xD 0xA" not in the 
  * first buffer nor in the second. In most cases the header should not exceed
  * 1024 bytes but if you expect larger headers you can increase the byte buffer
- * size.
+ * size. Sure we could solve this problem by looking at the end of the buffer 
+ * and at the beginning of the next buffer but because this case doesnt often
+ * occure it the expenditure is greater then the benefit ... if you have a 
+ * solution do not hesiatte to contact me
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -109,20 +112,19 @@ public class http implements Runnable
 	private int buffer_size = 1024;
 	
 	/**
-	 * The raw response is the concatenated string of raw_header + \n\r\n\r +
-	 * raw_header
+	 * The response header as string
 	 */
-	private StringBuilder raw_response;
+	private String header;
 
 	/**
-	 * The raw response header as string
+	 * The response body as string
 	 */
-	private String raw_header;
+	private StringBuilder body = new StringBuilder();
 
 	/**
-	 * The raw response body as string
+	 * Holds the complete body in raw binary format
 	 */
-	private StringBuilder raw_body = new StringBuilder();
+	private ByteBuffer raw_body;
 
 	/**
 	 * The found content length of the body
@@ -174,7 +176,7 @@ public class http implements Runnable
 	{
 		try
 		{
-			this.raw_response = new StringBuilder();
+			this.body = new StringBuilder();
 
 			SocketChannel channel = null;
 
@@ -280,11 +282,11 @@ public class http implements Runnable
 
 
 							// parse header
-							this.raw_header = char_buffer_header.toString();
+							this.header = char_buffer_header.toString();
 
 
 							// search for content-length
-							HashMap<String, String> header = util.parse_header(raw_header, http.new_line);
+							HashMap<String, String> header = util.parse_header(this.header, http.new_line);
 
 							if(header.containsKey("Content-Length"))
 							{
@@ -319,6 +321,15 @@ public class http implements Runnable
 						}
 
 
+						// add to byte body
+						if(this.raw_body == null)
+						{
+							this.raw_body = ByteBuffer.allocateDirect(this.content_length);
+						}
+
+						this.raw_body.put(buffer.duplicate());
+
+
 						// decode response
 						body_decoder.decode(buffer, char_buffer, false);
 
@@ -326,13 +337,13 @@ public class http implements Runnable
 						// append text
 						char_buffer.flip();
 
-						this.raw_body.append(char_buffer);
+						this.body.append(char_buffer);
 
 
 						// check content length
 						if(this.content_length != -1)
 						{
-							if(this.raw_body.length() >= this.content_length)
+							if(this.body.length() >= this.content_length)
 							{
 								//key.cancel();
 								channel.close();
@@ -381,16 +392,10 @@ public class http implements Runnable
 			}
 
 
-			// build raw response
-			this.raw_response.append(this.raw_header);
-
-			this.raw_response.append(http.new_line + http.new_line);
-
-			this.raw_response.append(this.raw_body);
-
-			
 			// create response
-			this.response = new response(this.raw_response.toString());
+			this.response = new response(this.header + http.new_line + http.new_line + this.body.toString());
+
+			this.response.set_raw_body(this.raw_body);
 
 
 			// apply response filter 
