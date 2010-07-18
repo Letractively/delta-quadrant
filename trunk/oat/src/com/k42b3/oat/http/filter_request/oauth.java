@@ -76,14 +76,12 @@ public class oauth implements irequest_filter
 
 			// add get vars to values
 			values.putAll(request.get_params());
-			
-			
+
+
 			// build base string
 			String base_string = this.build_base_string(request.get_request_method(), request.get_url(), values);
-			
-			System.out.println("base string: " + base_string);
-			
-			
+
+
 			// get signature
 			isignature sig;
 			

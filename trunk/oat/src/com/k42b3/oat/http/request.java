@@ -91,7 +91,7 @@ public class request extends message
 		String header = "";
 		String body = "";
 
-		int pos = request.indexOf("\n\n");
+		int pos = request.indexOf(System.getProperty("line.separator") + System.getProperty("line.separator"));
 
 		if(pos == -1)
 		{
@@ -110,7 +110,7 @@ public class request extends message
 
 
 		// parse header
-		this.set_headers(util.parse_header(header, "\n"));
+		this.set_headers(util.parse_header(header, System.getProperty("line.separator")));
 
 		this.add_header("Host", this.host);
 		

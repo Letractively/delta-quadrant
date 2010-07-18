@@ -39,14 +39,14 @@ import javax.swing.event.ListDataListener;
 import com.k42b3.oat.config_filter;
 
 /**
- * basicauth_config
+ * useragent_config
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class agent_config extends config_filter
+public class useragent_config extends config_filter
 {
 	private JCheckBox ckb_active;
 	private JComboBox cbo_agent;
@@ -75,7 +75,7 @@ public class agent_config extends config_filter
 		return this.ckb_active.isSelected();
 	}
 
-	public agent_config()
+	public useragent_config()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
