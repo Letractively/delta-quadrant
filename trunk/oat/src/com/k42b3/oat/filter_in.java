@@ -86,6 +86,7 @@ public class filter_in extends JFrame
 		
 		filters.add("basicauth");
 		filters.add("oauth");
+		filters.add("agent");
 
 		
 		// parse filters
