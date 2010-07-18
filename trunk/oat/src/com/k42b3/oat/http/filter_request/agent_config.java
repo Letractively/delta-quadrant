@@ -34,8 +34,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
 import com.k42b3.oat.config_filter;

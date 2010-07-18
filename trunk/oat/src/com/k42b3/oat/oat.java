@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
