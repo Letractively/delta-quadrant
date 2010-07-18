@@ -23,6 +23,7 @@
 
 package com.k42b3.oat.http;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -126,6 +127,27 @@ public class util
 		}
 		
 		return false;
+	}
+	
+	public static Charset get_content_type_charset(String content_type)
+	{
+		// default charset
+		String charset = "UTF-8";
+
+		
+		// we look in the content-type header for an charset
+		if(content_type != null)
+		{
+			int pos = content_type.indexOf("charset=");
+			
+			if(pos != -1)
+			{
+				charset = content_type.substring(pos + 8).trim();
+			}
+		}
+
+
+		return Charset.forName(charset);
 	}
 	
 	public static HashMap<String, String> parse_header(String raw_header, String delimiter)
