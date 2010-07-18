@@ -313,7 +313,7 @@ public class http implements Runnable
 							for(int i = header_end; i < this.buffer_size; i++)
 							{
 								buffer_body.put(j, buffer.get(i));
-								
+
 								j++;
 							}
 

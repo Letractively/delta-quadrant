@@ -72,10 +72,11 @@ public class gzip implements iresponse_filter
 					// decode
 					StringBuilder buffer = new StringBuilder();
 					char[] buf = new char[512];
-
-					while(br.read(buf) > 0)
+					int len;
+					
+					while((len = br.read(buf)) > 0)
 					{
-						buffer.append(buf);
+						buffer.append(buf, 0, len);
 					}
 
 
