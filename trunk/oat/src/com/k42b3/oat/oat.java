@@ -419,8 +419,9 @@ public class oat extends JFrame
 			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
 			out.append("An application with that you can make raw http requests to any url. You can" + "\n");
-			out.append("save a request for later use. The application uses the java nio library to" + "\n");
-			out.append("make non-blocking requests so the requests should work fluently." + "\n");
+			out.append("save a request for later use. You can apply on the request and the response" + "\n");
+			out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
+			out.append("to make non-blocking requests so it should work fluently." + "\n");
 			out.append("\n");
 			out.append("best regards\n");
 			out.append("k42b3\n");
