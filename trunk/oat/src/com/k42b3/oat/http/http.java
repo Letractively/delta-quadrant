@@ -47,7 +47,7 @@ import com.k42b3.oat.iresponse_filter;
  * This is the main class wich handles all http requests. The class uses the NIO
  * library to make non-blocking requests. We write the http request to the
  * socket and start reading the response. We first read 1024 bytes and search
- * for the byte sequence "0xD 0xA 0xD 0xA" wich means \n\r\n\r. We split the
+ * for the byte sequence "0xD 0xA 0xD 0xA" wich means \r\n\r\n. We split the
  * byte buffer into the header (everything before) and body (everything after).
  * We encode the header in UTF-8 and look for the content-lenght and 
  * content-type header fields. If the body length is greater or equal content 
@@ -70,14 +70,14 @@ import com.k42b3.oat.iresponse_filter;
  * +--------------
  * | 1    = [data]
  * | .    = [data]
- * | 1023 = 0xD = \n
- * | 1024 = 0xA = \r
+ * | 1023 = 0xD = \r
+ * | 1024 = 0xA = \n
  * +----------
  * 
  * second buffer
  * +--------
- * | 1    = 0xD = \n
- * | 2    = 0xA = \r
+ * | 1    = 0xD = \r
+ * | 2    = 0xA = \n
  * | .    = [data]
  * | 1024 = [data]
  * +--------
@@ -307,7 +307,7 @@ public class http implements Runnable
 
 							// add rest to body
 							ByteBuffer buffer_body;
-							
+
 							if(this.buffer_size > this.content_length)
 							{
 								buffer_body = ByteBuffer.allocateDirect(this.content_length);
@@ -370,12 +370,12 @@ public class http implements Runnable
 
 						// clear buffer
 						buffer.clear();
-						
+
 						char_buffer.clear();
 					}
 					else if(key.isWritable())
 					{
-						key_channel.write(default_encoder.encode(CharBuffer.wrap(request.toString())));
+						key_channel.write(default_encoder.encode(CharBuffer.wrap(request.get_http_message())));
 
 						channel.register(selector, SelectionKey.OP_READ);
 					}
