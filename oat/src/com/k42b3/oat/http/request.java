@@ -123,7 +123,7 @@ public class request extends message
 	{
 		// get request line
 		String raw_line;
-		int pos = raw_request.indexOf("\n");
+		int pos = raw_request.indexOf(System.getProperty("line.separator"));
 		
 		if(pos == -1)
 		{
@@ -199,9 +199,14 @@ public class request extends message
 
 		return method + " " + path + " " + type;
 	}
-	
+
 	public String toString()
 	{
-		return util.build_message(this.line, this.header, this.body);
+		return util.build_message(this.line, this.header, this.body, System.getProperty("line.separator"));
+	}
+
+	public String get_http_message()
+	{
+		return util.build_message(this.line, this.header, this.body, http.new_line);
 	}
 }

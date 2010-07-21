@@ -114,7 +114,7 @@ public class response extends message
 	{
 		// get response line
 		String raw_line;
-		int pos = raw_response.indexOf("\n");
+		int pos = raw_response.indexOf(http.new_line);
 		
 		if(pos == -1)
 		{
@@ -130,6 +130,11 @@ public class response extends message
 	
 	public String toString()
 	{
-		return util.build_message(this.line, this.header, this.body);
+		return util.build_message(this.line, this.header, this.body, System.getProperty("line.separator"));
+	}
+
+	public String get_http_message()
+	{
+		return util.build_message(this.line, this.header, this.body, http.new_line);
 	}
 }

@@ -179,22 +179,22 @@ public class util
 		return headers;
 	}
 	
-	public static String build_message(String status_line, HashMap<String, String> header, String body)
+	public static String build_message(String status_line, HashMap<String, String> header, String body, String delimter)
 	{
 		StringBuilder str = new StringBuilder();
 
 		Iterator<Entry<String, String>> itr = header.entrySet().iterator();
 
-		str.append(status_line + http.new_line);
+		str.append(status_line + delimter);
 
 		while(itr.hasNext())
 		{
 			Entry<String, String> e = itr.next();
 
-			str.append(e.getKey() + ": " + e.getValue() + http.new_line);
+			str.append(e.getKey() + ": " + e.getValue() + delimter);
 		}
 
-		str.append(http.new_line);
+		str.append(delimter);
 
 		if(!body.isEmpty())
 		{
