@@ -91,7 +91,7 @@ public class request extends message
 		String header = "";
 		String body = "";
 
-		int pos = request.indexOf(System.getProperty("line.separator") + System.getProperty("line.separator"));
+		int pos = request.indexOf("\n\n");
 
 		if(pos == -1)
 		{
@@ -110,7 +110,7 @@ public class request extends message
 
 
 		// parse header
-		this.set_headers(util.parse_header(header, System.getProperty("line.separator")));
+		this.set_headers(util.parse_header(header, "\n"));
 
 		this.set_header("Host", this.host);
 
@@ -121,9 +121,8 @@ public class request extends message
 
 	private String parse_request_line(String raw_request)
 	{
-		// get request line
 		String raw_line;
-		int pos = raw_request.indexOf(System.getProperty("line.separator"));
+		int pos = raw_request.indexOf("\n");
 		
 		if(pos == -1)
 		{
@@ -202,7 +201,7 @@ public class request extends message
 
 	public String toString()
 	{
-		return util.build_message(this.line, this.header, this.body, System.getProperty("line.separator"));
+		return util.build_message(this.line, this.header, this.body, "\n");
 	}
 
 	public String get_http_message()

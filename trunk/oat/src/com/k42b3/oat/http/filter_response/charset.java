@@ -46,7 +46,7 @@ public class charset implements iresponse_filter
 	public void exec(response response) 
 	{
 		// default charset
-		String charset_name = this.config.getProperty("charset");;
+		String charset_name = this.config.getProperty("charset");
 
 		
 		// we look in the content-type header for an charset
@@ -65,7 +65,7 @@ public class charset implements iresponse_filter
 
 		// get charset
 		Charset charset = Charset.forName("UTF-8");
-		
+
 		try
 		{
 			charset = Charset.forName(charset_name);
