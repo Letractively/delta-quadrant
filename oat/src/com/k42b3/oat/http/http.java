@@ -46,23 +46,16 @@ import com.k42b3.oat.iresponse_filter;
  *
  * This is the main class wich handles all http requests. The class uses the NIO
  * library to make non-blocking requests. We write the http request to the
- * socket and start reading the response. We first read 1024 bytes and search
- * for the byte sequence "0xD 0xA 0xD 0xA" wich means \r\n\r\n. We split the
- * byte buffer into the header (everything before) and body (everything after).
- * We encode the header in UTF-8 and look for the content-lenght header field. 
- * If no content length header is set we close the channel if there are no more 
- * bytes to read.
- *
- * We first read the header in UTF-8 the raw body as an ByteBuffer is added to
- * the response. The filter charset transforms the raw body into text with the
- * provided charset.
+ * socket and start reading the response. We first try to find the end of the
+ * header response so we search for the byte sequence "0xD 0xA 0xD 0xA" wich 
+ * means \r\n\r\n. We split the byte buffer into the header (everything before) 
+ * and body (everything after). We encode the header in UTF-8 and look for the 
+ * content-lenght header field. If no content length header is set we look 
+ * whether transfer-encoding is equal to chunked else we throw an exception.
  *
  * This works all fine but there are a few problems with this implementation in
- * some cases. If the header is greater then the buffer means 1024 bytes then
- * we are not able to get the header fields so we throw an "Max header size 
- * exceeded" exception. Probably you ask yourself why not reading the header
- * in the next round the problem is that the byte sequence "0xD 0xA 0xD 0xA" can
- * always be between two buffers so we dont find the header. In example:
+ * some cases. The problem is that the byte sequence "0xD 0xA 0xD 0xA" can be
+ * always between two buffers so we dont find the header. In example:
  * 
  * first buffer
  * +--------------
@@ -81,12 +74,9 @@ import com.k42b3.oat.iresponse_filter;
  * +--------
  *
  * In this case we dont find the byte sequence "0xD 0xA 0xD 0xA" not in the 
- * first buffer nor in the second. In most cases the header should not exceed
- * 1024 bytes but if you expect larger headers you can increase the byte buffer
- * size. Sure we could solve this problem by looking at the end of the buffer 
- * and at the beginning of the next buffer but because this case doesnt often
- * occure the expenditure is greater then the benefit ... if you have a fix do 
- * not hesiatte to contact me
+ * first buffer nor in the second. In most cases the header should not be 
+ * between two buffers but if you have problems change the buffer size to 
+ * another value. 
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -112,7 +102,7 @@ public class http implements Runnable
 	/**
 	 * The response header as string
 	 */
-	private String header;
+	private String header = "";
 
 	/**
 	 * Holds the complete body in binary format the byte buffer is build from
@@ -135,7 +125,8 @@ public class http implements Runnable
 	 */
 	private boolean chunked = false;
 
-	private ArrayList<ByteBuffer> buffer_list = new ArrayList<ByteBuffer>();
+	private ArrayList<ByteBuffer> buffer_header_list = new ArrayList<ByteBuffer>();
+	private ArrayList<ByteBuffer> buffer_body_list = new ArrayList<ByteBuffer>();
 	
 	private int read = 0;
 	
@@ -196,9 +187,8 @@ public class http implements Runnable
 
 
 			// allocate buffer
-			ByteBuffer buffer_header = ByteBuffer.allocateDirect(this.buffer_size);
+			ByteBuffer buffer_temp;
 			ByteBuffer buffer = ByteBuffer.allocateDirect(this.buffer_size);
-			CharBuffer char_buffer_header = CharBuffer.allocate(this.buffer_size);
 
 
 			// connect
@@ -240,7 +230,6 @@ public class http implements Runnable
 						buffer.flip();
 
 
-						// parse the first response for the header
 						if(!this.found_header)
 						{
 							// search the byte buffer for \r\n\r\n add the
@@ -248,8 +237,6 @@ public class http implements Runnable
 							// to the body buffer
 							for(int i = 0; i < buffer.remaining(); i++)
 							{
-								buffer_header.put(i, buffer.get(i));
-
 								// look whether we are at \r\n\r\n
 								if(i > 3 &&
 								buffer.get(i - 3) == 0xD && 
@@ -271,50 +258,80 @@ public class http implements Runnable
 							// parse the response
 							if(!this.found_header)
 							{
-								throw new Exception("Max header size exceeded");
-							}
-							
-							
-							// decode header as UTF-8
-							this.default_decoder.decode(buffer_header, char_buffer_header, false);
+								this.read+= buffer.limit();
+								
+								buffer_temp = ByteBuffer.allocateDirect(buffer.limit());
 
-							char_buffer_header.flip();
+								buffer_temp.put(buffer);
 
-
-							// parse header
-							this.header = char_buffer_header.toString();
-
-
-							// search for content-length or transfer-encoding
-							Map<String, String> header = util.parse_header(this.header, http.new_line);
-
-							if(header.containsKey("Content-Length"))
-							{
-								this.content_length = Integer.parseInt(header.get("Content-Length"));
-							}
-							else if(header.containsKey("Transfer-Encoding") && header.get("Transfer-Encoding").equals("chunked"))
-							{
-								this.chunked = true;
+								this.buffer_header_list.add(buffer_temp);
 							}
 							else
 							{
-								throw new Exception("Couldnt find Content-Length or Transfer-Encoding header in response");
+								this.read+= buffer.position();
+
+								buffer_temp = ByteBuffer.allocateDirect(buffer.position());
+
+								for(int i = 0; i < buffer.position(); i++)
+								{
+									buffer_temp.put(buffer.get(i));
+								}
+
+								this.buffer_header_list.add(buffer_temp);
+
+
+								// get complete header
+								ByteBuffer buffer_header = this.merge_buffer(this.buffer_header_list, this.read);
+
+								
+								// decode header as UTF-8
+								CharBuffer char_buffer_header = CharBuffer.allocate(this.read);
+								
+								this.default_decoder.decode(buffer_header, char_buffer_header, false);
+
+								char_buffer_header.flip();
+
+
+								// reset read count
+								this.read = 0;
+								
+								
+								// parse header
+								this.header = char_buffer_header.toString();
+
+
+								// search for content-length or transfer-encoding
+								Map<String, String> header = util.parse_header(this.header, http.new_line);
+
+								if(header.containsKey("Content-Length"))
+								{
+									this.content_length = Integer.parseInt(header.get("Content-Length"));
+								}
+								else if(header.containsKey("Transfer-Encoding") && header.get("Transfer-Encoding").equals("chunked"))
+								{
+									this.chunked = true;
+								}
+								else
+								{
+									throw new Exception("Couldnt find Content-Length or Transfer-Encoding header in response");
+								}
+
+
+								// clear header buffer
+								char_buffer_header.clear();
+
+
+								// add read
+								this.read+= buffer.limit() - buffer.position();
+
+
+								// add buffer to list
+								buffer_temp = ByteBuffer.allocateDirect(buffer.slice().limit());
+
+								buffer_temp.put(buffer);
+								
+								this.buffer_body_list.add(buffer_temp);
 							}
-
-
-							// clear header buffer
-							char_buffer_header.clear();
-
-
-							// add read
-							this.read+= buffer.limit() - buffer.position();
-
-
-							System.out.println("position: " + buffer.position());
-
-
-							// add buffer to list
-							this.buffer_list.add(buffer.slice());
 						}
 						else
 						{
@@ -323,33 +340,36 @@ public class http implements Runnable
 
 
 							// add buffer to list
-							this.buffer_list.add(buffer.duplicate());
-						}
+							buffer_temp = ByteBuffer.allocateDirect(buffer.limit());
 
-						System.out.println("read: " + this.read);
+							buffer_temp.put(buffer);
 
-						// close channel if ready
-						if(this.chunked)
-						{
-							// check for 0\r\n\r\n
-							int i = buffer.limit();
-
-							if(i > 4 &&
-							buffer.get(i - 4) == 0x30 && 
-							buffer.get(i - 3) == 0xD  && 
-							buffer.get(i - 2) == 0xA  && 
-							buffer.get(i - 1) == 0xD  &&
-							buffer.get(i)     == 0xA)
+							this.buffer_body_list.add(buffer_temp);
+							
+							
+							// close channel if ready
+							if(this.chunked)
 							{
-								channel.close();
+								// check for 0\r\n\r\n
+								int i = buffer.limit();
+
+								if(i > 4 &&
+								buffer.get(i - 4) == 0x30 && 
+								buffer.get(i - 3) == 0xD  && 
+								buffer.get(i - 2) == 0xA  && 
+								buffer.get(i - 1) == 0xD  &&
+								buffer.get(i)     == 0xA)
+								{
+									channel.close();
+								}
 							}
-						}
-						else
-						{
-							// check content length
-							if(this.read >= this.content_length)
+							else
 							{
-								channel.close();
+								// check content length
+								if(this.read >= this.content_length)
+								{
+									channel.close();
+								}
 							}
 						}
 
@@ -386,18 +406,7 @@ public class http implements Runnable
 
 
 			// build body ByteBuffer from buffer_list
-			this.body = ByteBuffer.allocateDirect(this.read);
-			
-			for(int i = 0; i < this.buffer_list.size(); i++)
-			{
-				ByteBuffer buf = this.buffer_list.get(i);
-
-				buf.rewind();
-
-				this.body.put(buf);
-			}
-			
-			System.out.println("complete: " + this.body.limit());
+			this.body = this.merge_buffer(this.buffer_body_list, this.read);
 
 
 			// create response
@@ -423,5 +432,29 @@ public class http implements Runnable
 	public response get_response()
 	{
 		return this.response;
+	}
+	
+	private ByteBuffer merge_buffer(ArrayList<ByteBuffer> list, int capacity)
+	{
+		ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
+
+		for(int i = 0; i < list.size(); i++)
+		{
+			ByteBuffer buf = list.get(i);
+
+			buf.rewind();
+
+			for(int j = 0; j < buf.remaining(); j++)
+			{
+				if(buffer.hasRemaining())
+				{
+					buffer.put(buf.get(j));
+				}
+			}
+		}
+
+		buffer.flip();
+		
+		return buffer;
 	}
 }
