@@ -60,7 +60,7 @@ public class response extends message
 		{
 			if(i > 0 && i % 16 == 0)
 			{
-				body.append(System.getProperty("line.separator"));
+				body.append("\n");
 			}
 			
 			
@@ -99,7 +99,7 @@ public class response extends message
 	
 	public String toString()
 	{
-		return util.build_message(this.line, this.header, this.body, System.getProperty("line.separator"));
+		return util.build_message(this.line, this.header, this.body, "\n");
 	}
 
 	public String get_http_message()

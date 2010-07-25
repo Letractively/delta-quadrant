@@ -198,7 +198,7 @@ public class util
 
 		str.append(delimter);
 
-		if(!body.isEmpty())
+		if(body != null && !body.isEmpty())
 		{
 			str.append(body);
 		}
