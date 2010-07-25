@@ -23,6 +23,8 @@
 
 package com.k42b3.oat.http;
 
+import java.nio.ByteBuffer;
+
 /**
  * response
  *
@@ -33,81 +35,48 @@ package com.k42b3.oat.http;
  */
 public class response extends message
 {
-	public response(String response)
+	public response(String header, ByteBuffer raw_body)
 	{
-		this.parse(response);
-	}
-
-	public String get_charset()
-	{
-		// default charset
-		String charset = "UTF-8";
-
-		
-		// we look in the content-type header for an charset
-		String content_type = this.get_header().get("Content-Type");
-		
-		if(content_type != null)
-		{
-			int pos = content_type.indexOf("charset=");
-			
-			if(pos != -1)
-			{
-				charset = content_type.substring(pos + 8).trim();
-			}
-		}
-
-
-		// map aliases
-		charset = charset.toUpperCase();
-		
-		if(charset.equals("ISO-8859-1"))
-		{
-			charset = "ISO8859_1";
-		}
-		else if(charset.equals("UTF-8"))
-		{
-			charset = "UTF8";
-		}
-		else if(charset.equals("US-ASCII"))
-		{
-			charset = "ASCII";
-		}
-	
-
-		return charset;
-	}
-	
-	private void parse(String response)
-	{
-		// split header body
-		String header = "";
-		String body = "";
-
-		int pos = response.indexOf(http.new_line + http.new_line);
-
-		if(pos == -1)
-		{
-			header = response;
-			body   = "";
-		}
-		else
-		{
-			header = response.substring(0, pos).trim();
-			body   = response.substring(pos + (http.new_line + http.new_line).length());
-		}
-		
-		
 		// get request line
 		this.set_line(this.parse_response_line(header));
 		
 		
 		// parse header
 		this.set_headers(util.parse_header(header, http.new_line));
+		
+		
+		// set raw body
+		this.set_raw_body(raw_body);
 
 
-		// set body
-		this.set_body(body);
+		// set body in hex format
+		StringBuilder body = new StringBuilder();
+		String hex;
+		int i = 0;
+
+		raw_body.rewind();
+
+		while(i < raw_body.remaining())
+		{
+			if(i > 0 && i % 16 == 0)
+			{
+				body.append(System.getProperty("line.separator"));
+			}
+			
+			
+			hex = (Integer.toHexString(raw_body.get(i))).toUpperCase();
+			
+			if(hex.length() == 1)
+			{
+				hex = "0" + hex;
+			}
+			
+			body.append(hex + " ");
+			
+			i++;
+		}
+		
+		this.set_body(body.toString());
 	}
 
 	private String parse_response_line(String raw_response)

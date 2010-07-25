@@ -26,6 +26,8 @@ package com.k42b3.oat.http;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -150,9 +152,9 @@ public class util
 		return Charset.forName(charset);
 	}
 	
-	public static HashMap<String, String> parse_header(String raw_header, String delimiter)
+	public static Map<String, String> parse_header(String raw_header, String delimiter)
 	{
-		HashMap<String, String> headers = new HashMap<String, String>();
+		LinkedHashMap<String, String> headers = new LinkedHashMap<String, String>();
 		
 		String[] lines = raw_header.split(delimiter);
 
@@ -168,7 +170,7 @@ public class util
 					String key = lines[i].substring(0, pos).trim();
 					String value = lines[i].substring(pos + 1).trim();
 
-					if(!headers.containsKey(key))
+					if(!key.isEmpty() && !value.isEmpty())
 					{
 						headers.put(key, value);
 					}
@@ -179,7 +181,7 @@ public class util
 		return headers;
 	}
 	
-	public static String build_message(String status_line, HashMap<String, String> header, String body, String delimter)
+	public static String build_message(String status_line, Map<String, String> header, String body, String delimter)
 	{
 		StringBuilder str = new StringBuilder();
 
