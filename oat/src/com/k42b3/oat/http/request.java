@@ -112,8 +112,8 @@ public class request extends message
 		// parse header
 		this.set_headers(util.parse_header(header, System.getProperty("line.separator")));
 
-		this.add_header("Host", this.host);
-		
+		this.set_header("Host", this.host);
+
 
 		// set body
 		this.set_body(body);

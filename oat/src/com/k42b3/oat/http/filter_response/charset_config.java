@@ -21,7 +21,7 @@
  * along with tajet. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filter_request;
+package com.k42b3.oat.http.filter_response;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -29,39 +29,50 @@ import java.awt.GridLayout;
 import java.util.Properties;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.k42b3.oat.config_filter;
 
 /**
- * contentlength_config
+ * charset_config
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class contentlength_config extends config_filter
+public class charset_config extends config_filter
 {
 	private JCheckBox ckb_active;
+	private JComboBox cbo_charset;
 	
 	public String get_name()
 	{
-		return "Content length";
+		return "Charset";
 	}
 	
 	public Properties on_save() 
 	{
-		return null;
+		Properties props = new Properties();
+		
+		Object item = this.cbo_charset.getSelectedItem();
+		
+		if(item != null)
+		{
+			props.setProperty("agent", item.toString());
+		}
+
+		return props;
 	}
 	
 	public boolean is_active()
 	{
 		return this.ckb_active.isSelected();
 	}
-
-	public contentlength_config()
+	
+	public charset_config()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
@@ -92,7 +103,33 @@ public class contentlength_config extends config_filter
 		
 		panel.add(panel_active);
 		
-	
+		
+		
+		// charset
+		JPanel panel_charset = new JPanel();
+
+		panel_charset.setLayout(new FlowLayout());
+
+
+		JLabel lbl_charset = new JLabel("Fallback charset:");
+
+		lbl_charset.setPreferredSize(new Dimension(100, 24));
+
+		panel_charset.add(lbl_charset);
+
+
+		String[] charsets = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"};
+
+		this.cbo_charset = new JComboBox(charsets);
+		
+		this.cbo_charset.setPreferredSize(new Dimension(200, 24));
+
+		panel_charset.add(this.cbo_charset);
+
+
+		panel.add(panel_charset);
+		
+		
 		this.add(panel);
 	}
 }

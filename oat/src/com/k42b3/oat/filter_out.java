@@ -84,6 +84,7 @@ public class filter_out extends JFrame
 		// add filters
 		ArrayList<String> filters = new ArrayList<String>();
 
+		filters.add("charset");
 		filters.add("gzip");
 
 		
