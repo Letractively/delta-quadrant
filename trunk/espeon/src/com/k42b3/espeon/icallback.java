@@ -1,37 +1,38 @@
 /**
- * oat
+ * espeon
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to generate php classes for the psx framework (phpsx.org). It
+ * should make development of new applications easier and with fewer errors.
+ * You can connect to a mysql database select a tabel and generate the php 
+ * classes
  * 
  * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
  * 
- * This file is part of oat. oat is free software: you can 
+ * This file is part of espeon. espeon is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
  * General Public License as published by the Free Software Foundation, 
  * either version 3 of the License, or at any later version.
  * 
- * oat is distributed in the hope that it will be useful,
+ * espeon is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with oat. If not, see <http://www.gnu.org/licenses/>.
+ * along with espeon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filter_request.oauth_signature;
+package com.k42b3.espeon;
 
 /**
- * isignature
+ * icallback
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public interface isignature 
+public interface icallback 
 {
-	public String build(String base_string, String consumer_secret, String token_secret);
+	public void connect(String host, String db, String user, String pw);
 }
