@@ -22,7 +22,7 @@
  * along with espeon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.espeon;
+package com.k42b3.espeon.model;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,7 +41,7 @@ import javax.swing.table.TableModel;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 31 $
  */
 public class table implements TableModel
 {

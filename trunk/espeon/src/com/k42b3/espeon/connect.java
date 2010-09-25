@@ -46,6 +46,8 @@ import javax.swing.JTextField;
  */
 public class connect extends JFrame
 {
+	public static boolean is_active = false;
+	
 	private JTextField txt_host;
 	private JTextField txt_db;
 	private JTextField txt_user;
@@ -54,16 +56,20 @@ public class connect extends JFrame
 	private JButton btn_connect;
 	private JButton btn_cancel;
 	
-	private icallback callback;
+	private iconnect callback;
 	
 	public connect()
 	{
+		connect.is_active = true;
+
 		this.setLocationRelativeTo(null);
 		
 		this.setSize(200, 180);
 
 		this.setMinimumSize(this.getSize());
 
+		this.setResizable(false);
+		
 		this.setLayout(new GridLayout(0, 1));
 
 
@@ -153,18 +159,25 @@ public class connect extends JFrame
 		this.add(panel_buttons);
 	}
 	
-	public void set_callback(icallback callback)
+	public void set_callback(iconnect callback)
 	{
 		this.callback = callback;
 	}
 
+	public void close()
+	{
+		setVisible(false);
+		
+		connect.is_active = false;
+	}
+	
 	public class connect_handler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
 			callback.connect(txt_host.getText(), txt_db.getText(), txt_user.getText(), txt_pw.getText());
 
-			setVisible(false);
+			close();
 		}
 	}
 	
@@ -172,7 +185,7 @@ public class connect extends JFrame
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
-			setVisible(false);
+			close();
 		}
 	}
 }

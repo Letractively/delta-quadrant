@@ -12,11 +12,9 @@ class ${namespace}_${name} extends psx_data_record
 	{
 		$this->offsetSet('${field}', $${field});
 	}
-	</#list>
 
+	</#list>
 	public static function convert(array $data)
 	{
 	}
 }
-
-

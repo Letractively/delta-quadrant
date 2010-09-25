@@ -28,12 +28,16 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -48,6 +52,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.k42b3.espeon.model.table;
+
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
+
 /**
  * espeon
  *
@@ -59,7 +69,8 @@ import javax.swing.event.ListSelectionListener;
 public class espeon extends JFrame
 {
 	public static String ver = "0.0.1 beta";
-	
+	public static String path = "templates";
+
 	private JList list;
 	private DefaultListModel lm;
 	private JTable table;
@@ -67,6 +78,8 @@ public class espeon extends JFrame
 	private toolbar toolbar;
 	
 	private Connection con;
+	
+	private Configuration cfg;
 	
 	public espeon()
 	{
@@ -135,11 +148,26 @@ public class espeon extends JFrame
 		scr_list.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		scr_list.setPreferredSize(new Dimension(128, 400));
-		
+
 		this.add(scr_list, BorderLayout.WEST);
 
-		
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		
+		// set template config
+		try
+		{
+			this.cfg = new Configuration();
+
+			this.cfg.setDirectoryForTemplateLoading(new File(espeon.path));
+
+			this.cfg.setObjectWrapper(new DefaultObjectWrapper());
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public class connect_handler implements ActionListener
@@ -154,7 +182,7 @@ public class espeon extends JFrame
 
 					win.pack();
 
-					win.set_callback(new icallback(){
+					win.set_callback(new iconnect(){
 
 						public void connect(String host, String db, String user, String pw) {
 
@@ -207,31 +235,77 @@ public class espeon extends JFrame
 
 	public class generate_handler implements ActionListener
 	{
+		private HashMap<String, Object> table;
+
 		public void actionPerformed(ActionEvent e) 
 		{
-			ArrayList<String> columns = new ArrayList<String>();
-
-			for(int i = 0; i < tm.getRowCount(); i++)
+			if(list.getSelectedIndex() != -1)
 			{
-				if((Boolean) tm.getValueAt(i, 0))
+				this.table = new HashMap<String, Object>();
+
+				ArrayList<Object> fields = new ArrayList<Object>();
+				Object id = "";
+
+				for(int i = 0; i < tm.getRowCount(); i++)
 				{
-					columns.add(tm.getValueAt(i, 1).toString());
+					if((Boolean) tm.getValueAt(i, 0))
+					{
+						if(i == 0)
+						{
+							id = tm.getValueAt(i, 1);
+						}
+
+						fields.add(tm.getValueAt(i, 1));
+					}
 				}
-			}
-			
-			
-			SwingUtilities.invokeLater(new Runnable(){
 
-				public void run() 
-				{
-					generate win = new generate();
+				this.table.put("table", list.getSelectedValue());
+				this.table.put("id", id);
+				this.table.put("fields", fields.toArray());
 
-					win.pack();
+
+				SwingUtilities.invokeLater(new Runnable(){
+
+					public void run() 
+					{
+						generate win = new generate(table);
+
+						win.pack();
+						
+						win.set_callback(new igenerate(){
+
+							public void generate(ArrayList<String> templates, HashMap<String, Object> table)
+							{
+								try
+								{
+									for(int i = 0; i < templates.size(); i++)
+									{
+										Template temp = cfg.getTemplate(templates.get(i));
+
+										Writer out = new OutputStreamWriter(System.out);
+
+										temp.process(table, out);
+
+										out.flush();
+									}
+								}
+								catch(Exception ex)
+								{
+									ex.printStackTrace();
+								}
+							}
+
+						});
+
+						win.setVisible(true);
+					}
 					
-					win.setVisible(true);
-				}
-				
-			});
+				});
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "Please select a table", "Information", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 	}
 	
@@ -269,9 +343,12 @@ public class espeon extends JFrame
 	{
 		public void valueChanged(ListSelectionEvent e) 
 		{
-			JList list = (JList) e.getSource();
-			
-			tm.load_table(con, list.getSelectedValue().toString());
+			if(e.getValueIsAdjusting())
+			{
+				JList list = (JList) e.getSource();
+				
+				tm.load_table(con, list.getSelectedValue().toString());
+			}
 		}
 	}
 }
