@@ -1,10 +1,10 @@
 /**
  * espeon
  * 
- * An application to generate php classes for the psx framework (phpsx.org). It
- * should make development of new applications easier and with fewer errors.
- * You can connect to a mysql database select a tabel and generate the php 
- * classes
+ * With espeon you can generate sourcecode from database structures. It was 
+ * mainly developed to generate PHP classes for the psx framework (phpsx.org) 
+ * but because it uses a template engine (FreeMarker) you can use it for any 
+ * purpose you like.
  * 
  * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
  * 

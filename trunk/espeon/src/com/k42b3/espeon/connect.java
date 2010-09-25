@@ -1,10 +1,10 @@
 /**
  * espeon
  * 
- * An application to generate php classes for the psx framework (phpsx.org). It
- * should make development of new applications easier and with fewer errors.
- * You can connect to a mysql database select a tabel and generate the php 
- * classes
+ * With espeon you can generate sourcecode from database structures. It was 
+ * mainly developed to generate PHP classes for the psx framework (phpsx.org) 
+ * but because it uses a template engine (FreeMarker) you can use it for any 
+ * purpose you like.
  * 
  * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
  * 
@@ -69,7 +69,9 @@ public class connect extends JFrame
 		this.setMinimumSize(this.getSize());
 
 		this.setResizable(false);
-		
+
+		this.setTitle("Connect");
+
 		this.setLayout(new GridLayout(0, 1));
 
 
@@ -78,11 +80,11 @@ public class connect extends JFrame
 		panel_host.setLayout(new FlowLayout());
 
 		JLabel lbl_host = new JLabel("Host:");
-		lbl_host.setPreferredSize(new Dimension(100, 20));
+		lbl_host.setPreferredSize(new Dimension(80, 20));
 		
 		this.txt_host = new JTextField();
 		this.txt_host.setText("localhost");
-		this.txt_host.setPreferredSize(new Dimension(100, 20));
+		this.txt_host.setPreferredSize(new Dimension(120, 24));
 		
 		panel_host.add(lbl_host);
 		panel_host.add(this.txt_host);
@@ -95,11 +97,11 @@ public class connect extends JFrame
 		panel_db.setLayout(new FlowLayout());
 
 		JLabel lbl_db = new JLabel("Database:");
-		lbl_db.setPreferredSize(new Dimension(100, 20));
+		lbl_db.setPreferredSize(new Dimension(80, 20));
 		
 		this.txt_db = new JTextField();
 		this.txt_db.setText("cms");
-		this.txt_db.setPreferredSize(new Dimension(100, 20));
+		this.txt_db.setPreferredSize(new Dimension(120, 24));
 		
 		panel_db.add(lbl_db);
 		panel_db.add(this.txt_db);
@@ -112,11 +114,11 @@ public class connect extends JFrame
 		panel_user.setLayout(new FlowLayout());
 
 		JLabel lbl_user = new JLabel("User:");
-		lbl_user.setPreferredSize(new Dimension(100, 20));
+		lbl_user.setPreferredSize(new Dimension(80, 20));
 		
 		this.txt_user = new JTextField();
 		this.txt_user.setText("root");
-		this.txt_user.setPreferredSize(new Dimension(100, 20));
+		this.txt_user.setPreferredSize(new Dimension(120, 24));
 		
 		panel_user.add(lbl_user);
 		panel_user.add(this.txt_user);
@@ -129,10 +131,10 @@ public class connect extends JFrame
 		panel_pw.setLayout(new FlowLayout());
 
 		JLabel lbl_pw = new JLabel("Password:");
-		lbl_pw.setPreferredSize(new Dimension(100, 20));
+		lbl_pw.setPreferredSize(new Dimension(80, 20));
 		
 		this.txt_pw = new JTextField();
-		this.txt_pw.setPreferredSize(new Dimension(100, 20));
+		this.txt_pw.setPreferredSize(new Dimension(120, 24));
 		
 		panel_pw.add(lbl_pw);
 		panel_pw.add(this.txt_pw);

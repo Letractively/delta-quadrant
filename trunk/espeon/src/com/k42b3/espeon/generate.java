@@ -1,10 +1,10 @@
 /**
  * espeon
  * 
- * An application to generate php classes for the psx framework (phpsx.org). It
- * should make development of new applications easier and with fewer errors.
- * You can connect to a mysql database select a tabel and generate the php 
- * classes
+ * With espeon you can generate sourcecode from database structures. It was 
+ * mainly developed to generate PHP classes for the psx framework (phpsx.org) 
+ * but because it uses a template engine (FreeMarker) you can use it for any 
+ * purpose you like.
  * 
  * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
  * 
@@ -64,6 +64,8 @@ public class generate extends JFrame
 	
 	private JTextField txt_name;
 	private JTextField txt_ns;
+	private JTextField txt_table;
+	private JTextField txt_id;
 
 	private JButton btn_generate;
 	private JButton btn_cancel;
@@ -71,44 +73,108 @@ public class generate extends JFrame
 	private template tm;
 
 	private igenerate callback;
-	
+
 	public generate(HashMap<String, Object> table)
 	{
 		this.table = table;
-		
-		
+
+
 		this.setLocationRelativeTo(null);
-		
+
 		this.setSize(200, 180);
 
 		this.setMinimumSize(this.getSize());
 
 		this.setResizable(false);
-		
+
+		this.setTitle("Generate");
+
 		this.setLayout(new BorderLayout());
 
 
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new GridLayout(0, 1));
+
+
+		String table_name = table.get("table").toString();
+		int pos = table_name.lastIndexOf('_');
+		String name = table_name.substring(pos + 1);
+		String ns = table_name.substring(0, pos);
+		String table_id = table.get("id").toString();
+
+		
 		JPanel panel_name = new JPanel();
 
 		panel_name.setLayout(new FlowLayout());
 
-		this.txt_ns = new JTextField();
-		this.txt_ns.setText("psx_data");
-		this.txt_ns.setPreferredSize(new Dimension(120, 20));
-		
-		JLabel lbl_underscore = new JLabel("_");
-		
+		JLabel lbl_name = new JLabel("Name");
+		lbl_name.setPreferredSize(new Dimension(80, 20));
+
 		this.txt_name = new JTextField();
-		this.txt_name.setText("user");
-		this.txt_name.setPreferredSize(new Dimension(64, 20));
-		
-		panel_name.add(this.txt_ns);
-		panel_name.add(lbl_underscore);
+		this.txt_name.setText(name);
+		this.txt_name.setPreferredSize(new Dimension(120, 24));
+
+		panel_name.add(lbl_name);
 		panel_name.add(this.txt_name);
 		
-		this.add(panel_name, BorderLayout.NORTH);
+		panel.add(panel_name);
 
 
+		JPanel panel_ns = new JPanel();
+
+		panel_ns.setLayout(new FlowLayout());
+
+		JLabel lbl_ns = new JLabel("Namespace");
+		lbl_ns.setPreferredSize(new Dimension(80, 20));
+		
+		this.txt_ns = new JTextField();
+		this.txt_ns.setText(ns);
+		this.txt_ns.setPreferredSize(new Dimension(120, 24));
+		
+		panel_ns.add(lbl_ns);
+		panel_ns.add(this.txt_ns);
+		
+		panel.add(panel_ns);
+
+
+		JPanel panel_table = new JPanel();
+		
+		panel_table.setLayout(new FlowLayout());
+
+		JLabel lbl_table = new JLabel("Table");
+		lbl_table.setPreferredSize(new Dimension(80, 20));
+		
+		this.txt_table = new JTextField();
+		this.txt_table.setText(table_name);
+		this.txt_table.setPreferredSize(new Dimension(120, 24));
+		
+		panel_table.add(lbl_table);
+		panel_table.add(this.txt_table);
+		
+		panel.add(panel_table);
+		
+		
+		JPanel panel_id = new JPanel();
+		
+		panel_id.setLayout(new FlowLayout());
+
+		JLabel lbl_id = new JLabel("ID");
+		lbl_id.setPreferredSize(new Dimension(80, 20));
+		
+		this.txt_id = new JTextField();
+		this.txt_id.setText(table_id);
+		this.txt_id.setPreferredSize(new Dimension(120, 24));
+		
+		panel_id.add(lbl_id);
+		panel_id.add(this.txt_id);
+		
+		panel.add(panel_id);
+		
+		
+		this.add(panel, BorderLayout.NORTH);
+		
+		
 		this.tm = new template();
 
 		JScrollPane scr_table = new JScrollPane(new JTable(this.tm));
