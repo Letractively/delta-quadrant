@@ -15,7 +15,7 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 
 		'start'  => 0,
 		'length' => 16,
-		'sort'   => '${id}',
+		'sort'   => '${primary_key}',
 		'dir'    => 'DESC',
 
 	);
@@ -103,7 +103,7 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 
 
 		// get complete count
-		$sql = 'SELECT COUNT(${id}) AS count FROM ${table} ' . $this->count_condition->get_statment();
+		$sql = 'SELECT COUNT(${primary_key}) AS count FROM ${table} ' . $this->count_condition->get_statment();
 
 		$total_results = intval($this->sql->get_field($sql, $this->count_condition->get_values()));
 
@@ -127,7 +127,7 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 
 		if(empty($fields))
 		{
-			throw new psx_exception('You have not select any field');
+			throw new psx_exception('You have not selected any field');
 		}
 		else
 		{
@@ -143,7 +143,7 @@ SELECT
 
 		{$this->select_condition->get_statment()}
 
-		ORDER BY ${name}.${id} {$sort_order}
+		ORDER BY ${name}.${primary_key} {$sort_order}
 
 			LIMIT {$start_index}, {$count}
 SQL;
@@ -167,7 +167,7 @@ SELECT
 
 	FROM ${table} ${name}
 
-		WHERE ${name}.${id} = ?
+		WHERE ${name}.${primary_key} = ?
 SQL;
 
 		$result = $this->sql->get_row($sql, array($id));

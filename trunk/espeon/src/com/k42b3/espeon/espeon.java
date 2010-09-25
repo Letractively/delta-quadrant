@@ -29,6 +29,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.sql.Connection;
@@ -41,6 +42,7 @@ import java.util.HashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -243,25 +245,77 @@ public class espeon extends JFrame
 			{
 				this.table = new HashMap<String, Object>();
 
+				Object first_column = "";
+				Object last_column = "";
+				Object primary_key = "";
+				ArrayList<Object> unqiue_key = new ArrayList<Object>();
 				ArrayList<Object> fields = new ArrayList<Object>();
-				Object id = "";
+				ArrayList<HashMap<String, String>> columns = new ArrayList<HashMap<String, String>>();
 
 				for(int i = 0; i < tm.getRowCount(); i++)
 				{
 					if((Boolean) tm.getValueAt(i, 0))
 					{
+						String r_field = tm.getValueAt(i, 1) != null ? tm.getValueAt(i, 1).toString() : "";
+						String r_type = tm.getValueAt(i, 2) != null ? tm.getValueAt(i, 2).toString() : "";
+						String r_null = tm.getValueAt(i, 3) != null ? tm.getValueAt(i, 3).toString() : "";
+						String r_key = tm.getValueAt(i, 4) != null ? tm.getValueAt(i, 4).toString() : "";
+						String r_default = tm.getValueAt(i, 5) != null ? tm.getValueAt(i, 5).toString() : "";
+						String r_extra = tm.getValueAt(i, 6) != null ? tm.getValueAt(i, 6).toString() : "";
+
+
+						last_column = r_field;
+
 						if(i == 0)
 						{
-							id = tm.getValueAt(i, 1);
+							first_column = r_field;
 						}
 
-						fields.add(tm.getValueAt(i, 1));
+						if(r_key.equals("PRI"))
+						{
+							primary_key = r_field;
+						}
+
+						if(r_key.equals("UNI"))
+						{
+							unqiue_key.add(r_field);
+						}
+
+
+						fields.add(r_field);
+
+
+						String r_length = "";
+						int pos = r_type.indexOf('(');
+
+						if(pos != -1)
+						{
+							String raw_length = r_type.substring(pos + 1);
+							r_length = raw_length.substring(0, raw_length.length() - 1);
+							r_type = r_type.substring(0, pos);
+						}
+
+						HashMap<String, String> c = new HashMap<String, String>();
+
+						c.put("field", r_field);
+						c.put("type", r_type);
+						c.put("length", r_length);
+						c.put("null", r_null);
+						c.put("key", r_key);
+						c.put("default", r_default);
+						c.put("extra", r_extra);
+
+						columns.add(c);
 					}
 				}
 
 				this.table.put("table", list.getSelectedValue());
-				this.table.put("id", id);
-				this.table.put("fields", fields.toArray());
+				this.table.put("first_column", first_column);
+				this.table.put("last_column", last_column);
+				this.table.put("primary_key", primary_key);
+				this.table.put("unqiue_key", unqiue_key);
+				this.table.put("fields", fields);
+				this.table.put("columns", columns);
 
 
 				SwingUtilities.invokeLater(new Runnable(){
@@ -278,16 +332,27 @@ public class espeon extends JFrame
 							{
 								try
 								{
+									/*
+									JFileChooser jfc = new JFileChooser();
+									jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+									if(jfc.showSaveDialog(espeon.this) == JFileChooser.APPROVE_OPTION)
+									{
+									}
+									*/
+
 									for(int i = 0; i < templates.size(); i++)
 									{
 										Template temp = cfg.getTemplate(templates.get(i));
 
-										Writer out = new OutputStreamWriter(System.out);
+										Writer out = new FileWriter(templates.get(i));
 
 										temp.process(table, out);
 
 										out.flush();
 									}
+
+									JOptionPane.showMessageDialog(null, "You have successful generated the code", "Informations", JOptionPane.INFORMATION_MESSAGE);
 								}
 								catch(Exception ex)
 								{
