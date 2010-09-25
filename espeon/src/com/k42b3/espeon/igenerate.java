@@ -24,15 +24,18 @@
 
 package com.k42b3.espeon;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
- * icallback
+ * igenerate
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 31 $
  */
-public interface icallback 
+public interface igenerate 
 {
-	public void connect(String host, String db, String user, String pw);
+	public void generate(ArrayList<String> templates, HashMap<String, Object> table);
 }

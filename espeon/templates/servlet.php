@@ -2,7 +2,7 @@
 
 class ${namespace}_${name}_servlet implements psx_data_servlet
 {
-	private $supported_fields = array(<#list fields as field>'${field}'<#if field_has_next>,</#if></#list>);
+	private $supported_fields = array(<#list fields as field>'${field}'<#if field_has_next>, </#if></#list>);
 
 	private $config;
 	private $sql;
@@ -125,7 +125,14 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 			}
 		}
 
-		$select = implode(',', $fields);
+		if(empty($fields))
+		{
+			throw new psx_exception('You have not select any field');
+		}
+		else
+		{
+			$select = implode(',', $fields);
+		}
 
 		$sql = <<<SQL
 SELECT
@@ -167,7 +174,7 @@ SQL;
 
 		if(!empty($result))
 		{
-			return new amun_content_gadget_record($result);
+			return new ${namespace}_${name}($result);
 		}
 		else
 		{

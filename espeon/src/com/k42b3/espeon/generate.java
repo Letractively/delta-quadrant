@@ -24,18 +24,26 @@
 
 package com.k42b3.espeon;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+
+import com.k42b3.espeon.model.template;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -50,103 +58,77 @@ import freemarker.template.DefaultObjectWrapper;
  */
 public class generate extends JFrame
 {
-	private JTextField txt_host;
-	private JTextField txt_db;
-	private JTextField txt_user;
-	private JTextField txt_pw;
+	public static boolean is_active = false;
+	
+	private HashMap<String, Object> table;
+	
+	private JTextField txt_name;
+	private JTextField txt_ns;
 
-	private JButton btn_connect;
+	private JButton btn_generate;
 	private JButton btn_cancel;
 	
-	private icallback callback;
+	private template tm;
+
+	private igenerate callback;
 	
-	public generate()
+	public generate(HashMap<String, Object> table)
 	{
+		this.table = table;
+		
+		
 		this.setLocationRelativeTo(null);
 		
 		this.setSize(200, 180);
 
 		this.setMinimumSize(this.getSize());
 
-		this.setLayout(new GridLayout(0, 1));
+		this.setResizable(false);
+		
+		this.setLayout(new BorderLayout());
 
 
-		JPanel panel_host = new JPanel();
+		JPanel panel_name = new JPanel();
 
-		panel_host.setLayout(new FlowLayout());
+		panel_name.setLayout(new FlowLayout());
 
-		JLabel lbl_host = new JLabel("Host:");
-		lbl_host.setPreferredSize(new Dimension(100, 20));
+		this.txt_ns = new JTextField();
+		this.txt_ns.setText("psx_data");
+		this.txt_ns.setPreferredSize(new Dimension(120, 20));
 		
-		this.txt_host = new JTextField();
-		this.txt_host.setText("localhost");
-		this.txt_host.setPreferredSize(new Dimension(100, 20));
+		JLabel lbl_underscore = new JLabel("_");
 		
-		panel_host.add(lbl_host);
-		panel_host.add(this.txt_host);
+		this.txt_name = new JTextField();
+		this.txt_name.setText("user");
+		this.txt_name.setPreferredSize(new Dimension(64, 20));
 		
-		this.add(panel_host);
+		panel_name.add(this.txt_ns);
+		panel_name.add(lbl_underscore);
+		panel_name.add(this.txt_name);
 		
-		
-		JPanel panel_db = new JPanel();
-		
-		panel_db.setLayout(new FlowLayout());
+		this.add(panel_name, BorderLayout.NORTH);
 
-		JLabel lbl_db = new JLabel("Database:");
-		lbl_db.setPreferredSize(new Dimension(100, 20));
-		
-		this.txt_db = new JTextField();
-		this.txt_db.setText("cms");
-		this.txt_db.setPreferredSize(new Dimension(100, 20));
-		
-		panel_db.add(lbl_db);
-		panel_db.add(this.txt_db);
-		
-		this.add(panel_db);
-		
-		
-		JPanel panel_user = new JPanel();
-		
-		panel_user.setLayout(new FlowLayout());
 
-		JLabel lbl_user = new JLabel("User:");
-		lbl_user.setPreferredSize(new Dimension(100, 20));
-		
-		this.txt_user = new JTextField();
-		this.txt_user.setText("root");
-		this.txt_user.setPreferredSize(new Dimension(100, 20));
-		
-		panel_user.add(lbl_user);
-		panel_user.add(this.txt_user);
-		
-		this.add(panel_user);
-		
+		this.tm = new template();
 
-		JPanel panel_pw = new JPanel();
+		JScrollPane scr_table = new JScrollPane(new JTable(this.tm));
 		
-		panel_pw.setLayout(new FlowLayout());
+		scr_table.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));		
+		
+		scr_table.setPreferredSize(new Dimension(180, 120));
+		
+		this.add(scr_table, BorderLayout.CENTER);
 
-		JLabel lbl_pw = new JLabel("Password:");
-		lbl_pw.setPreferredSize(new Dimension(100, 20));
-		
-		this.txt_pw = new JTextField();
-		this.txt_pw.setPreferredSize(new Dimension(100, 20));
-		
-		panel_pw.add(lbl_pw);
-		panel_pw.add(this.txt_pw);
-		
-		this.add(panel_pw);
-		
 		
 		JPanel panel_buttons = new JPanel();
 		
 		panel_buttons.setLayout(new FlowLayout());
 		
-		this.btn_connect = new JButton("Connect");
-		this.btn_connect.setPreferredSize(new Dimension(100, 24));
-		this.btn_connect.addActionListener(new generate_handler());
+		this.btn_generate = new JButton("Generate");
+		this.btn_generate.setPreferredSize(new Dimension(100, 24));
+		this.btn_generate.addActionListener(new generate_handler());
 		
-		panel_buttons.add(this.btn_connect);
+		panel_buttons.add(this.btn_generate);
 		
 		this.btn_cancel = new JButton("Cancel");
 		this.btn_cancel.setPreferredSize(new Dimension(100, 24));
@@ -154,32 +136,43 @@ public class generate extends JFrame
 		
 		panel_buttons.add(this.btn_cancel);
 		
-		this.add(panel_buttons);
+		this.add(panel_buttons, BorderLayout.SOUTH);
 	}
 	
-	public void set_callback(icallback callback)
+	public void set_callback(igenerate callback)
 	{
 		this.callback = callback;
 	}
 
+	public void close()
+	{
+		setVisible(false);
+		
+		generate.is_active = false;
+	}
+	
 	public class generate_handler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
-			try
+			ArrayList<String> templates = new ArrayList<String>();
+
+			for(int i = 0; i < tm.getRowCount(); i++)
 			{
-				Configuration cfg = new Configuration();
-	
-				cfg.setDirectoryForTemplateLoading(new File("/templates"));
-	
-				cfg.setObjectWrapper(new DefaultObjectWrapper());
-	
-				setVisible(false);
+				if((Boolean) tm.getValueAt(i, 0))
+				{
+					templates.add((String) tm.getValueAt(i, 1));
+				}
 			}
-			catch(Exception ex)
-			{
-				ex.printStackTrace();
-			}
+
+
+			table.put("name", txt_name.getText());
+			table.put("namespace", txt_ns.getText());
+
+
+			callback.generate(templates, table);
+
+			close();
 		}
 	}
 	
@@ -187,7 +180,7 @@ public class generate extends JFrame
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
-			setVisible(false);
+			close();
 		}
 	}
 }
