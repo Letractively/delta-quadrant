@@ -30,8 +30,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -155,16 +158,25 @@ public class espeon extends JFrame
 
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		
+
+
 		// set template config
 		try
 		{
-			this.cfg = new Configuration();
+			File template_path = new File(espeon.path);
+			
+			if(template_path.isDirectory())
+			{
+				this.cfg = new Configuration();
 
-			this.cfg.setDirectoryForTemplateLoading(new File(espeon.path));
+				this.cfg.setDirectoryForTemplateLoading(new File(espeon.path));
 
-			this.cfg.setObjectWrapper(new DefaultObjectWrapper());
+				this.cfg.setObjectWrapper(new DefaultObjectWrapper());
+			}
+			else
+			{
+				throw new Exception("You have to create a dir called '" + espeon.path + "' where the templates are located");
+			}
 		}
 		catch(Exception e)
 		{
