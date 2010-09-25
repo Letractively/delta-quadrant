@@ -65,7 +65,7 @@ public class generate extends JFrame
 	private JTextField txt_name;
 	private JTextField txt_ns;
 	private JTextField txt_table;
-	private JTextField txt_id;
+	private JTextField txt_primary_key;
 
 	private JButton btn_generate;
 	private JButton btn_cancel;
@@ -101,9 +101,9 @@ public class generate extends JFrame
 		int pos = table_name.lastIndexOf('_');
 		String name = table_name.substring(pos + 1);
 		String ns = table_name.substring(0, pos);
-		String table_id = table.get("id").toString();
+		String table_primary_key = table.get("primary_key") != null ? table.get("primary_key").toString() : "";
 
-		
+
 		JPanel panel_name = new JPanel();
 
 		panel_name.setLayout(new FlowLayout());
@@ -155,21 +155,21 @@ public class generate extends JFrame
 		panel.add(panel_table);
 		
 		
-		JPanel panel_id = new JPanel();
+		JPanel panel_primary_key = new JPanel();
 		
-		panel_id.setLayout(new FlowLayout());
+		panel_primary_key.setLayout(new FlowLayout());
 
-		JLabel lbl_id = new JLabel("ID");
-		lbl_id.setPreferredSize(new Dimension(80, 20));
+		JLabel lbl_primary_key = new JLabel("Primary Key");
+		lbl_primary_key.setPreferredSize(new Dimension(80, 20));
 		
-		this.txt_id = new JTextField();
-		this.txt_id.setText(table_id);
-		this.txt_id.setPreferredSize(new Dimension(120, 24));
+		this.txt_primary_key = new JTextField();
+		this.txt_primary_key.setText(table_primary_key);
+		this.txt_primary_key.setPreferredSize(new Dimension(120, 24));
 		
-		panel_id.add(lbl_id);
-		panel_id.add(this.txt_id);
+		panel_primary_key.add(lbl_primary_key);
+		panel_primary_key.add(this.txt_primary_key);
 		
-		panel.add(panel_id);
+		panel.add(panel_primary_key);
 		
 		
 		this.add(panel, BorderLayout.NORTH);
