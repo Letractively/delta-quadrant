@@ -2,8 +2,14 @@
 
 class ${namespace}_${name}_servlet implements psx_data_servlet
 {
-	private $supported_fields = array(<#list fields as field>'${field}'<#if field_has_next>, </#if></#list>);
+	private $supported_fields = array(
 
+		<#list fields as field>
+		'${field}' => '${name}.${field}',
+		</#list>
+
+	);
+	
 	private $config;
 	private $sql;
 
@@ -31,7 +37,7 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 
 	public function get_supported_fields()
 	{
-		$this->supported_fields;
+		return array_keys($this->supported_fields);
 	}
 
 	public function set_fields(array $fields)
@@ -66,7 +72,7 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 		// get params
 		$start_index = !empty($start_index) ? intval($start_index) : 0;
 
-		$count = !empty($count) ? intval($count) : 8;
+		$count = !empty($count) ? intval($count) : $this->default['length'];
 
 		$sort_order = strcasecmp($sort_order, 'ascending') == 0 ? 'ASC' : 'DESC';
 
@@ -76,26 +82,26 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 			{
 				case 'contains':
 
-					$this->select_condition->add_condition($filter_by, 'LIKE', '%' . $filter_value . '%');
+					$this->select_condition->add($this->supported_fields[$filter_by], 'LIKE', '%' . $filter_value . '%');
 
 					break;
 
 				case 'equals':
 
-					$this->select_condition->add_condition($filter_by, '=', $filter_value);
+					$this->select_condition->add($this->supported_fields[$filter_by], '=', $filter_value);
 
 					break;
 
 				case 'startsWith':
 
-					$this->select_condition->add_condition($filter_by, 'LIKE', $filter_value . '%');
+					$this->select_condition->add($this->supported_fields[$filter_by], 'LIKE', $filter_value . '%');
 
 					break;
 
 				case 'present':
 
-					$this->select_condition->add_condition($filter_by, 'IS NOT', 'NULL', 'AND');
-					$this->select_condition->add_condition($filter_by, 'NOT LIKE', '');
+					$this->select_condition->add($this->supported_fields[$filter_by], 'IS NOT', 'NULL', 'AND');
+					$this->select_condition->add($this->supported_fields[$filter_by], 'NOT LIKE', '');
 
 					break;
 			}
@@ -109,19 +115,13 @@ class ${namespace}_${name}_servlet implements psx_data_servlet
 
 
 		// get all
-		$fields = array(
+		$fields = array();
 
-			<#list fields as field>
-			'${field}' => '${name}.${field} AS `${field}`'<#if field_has_next>,</#if>
-			</#list>
-
-		);
-
-		foreach($fields as $k => $v)
+		foreach($this->supported_fields as $k => $v)
 		{
-			if(!in_array($k, $this->fields))
+			if(in_array($k, $this->fields))
 			{
-				unset($fields[$k])
+				$fields[] = $v . ' AS `' . $k . '`';
 			}
 		}
 
