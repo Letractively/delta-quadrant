@@ -464,14 +464,14 @@ public class arceus extends JFrame
 		public void actionPerformed(ActionEvent e) 
 		{
 			StringBuilder out = new StringBuilder();
-			
+
 			out.append("arceus version " + ver + "\n");
 			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
-			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
 			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
-			out.append("arceus is a little tool to train converting numbers into different numeric systems" + "\n");
-			
+			out.append("arceus is a little tool to train converting p-adic numbers with" + "\n");
+			out.append("different bases 2 (Bin), 10 (Dez) and 16 (Hex) into each other");
+
 			JOptionPane.showMessageDialog(null, out, "About", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
