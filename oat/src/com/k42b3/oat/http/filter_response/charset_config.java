@@ -61,7 +61,7 @@ public class charset_config extends config_filter
 		
 		if(item != null)
 		{
-			props.setProperty("agent", item.toString());
+			props.setProperty("charset", item.toString());
 		}
 
 		return props;
