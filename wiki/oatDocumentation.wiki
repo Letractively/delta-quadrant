@@ -1,0 +1,3 @@
+= Introduction =
+
+An application with that you can make raw http requests to any url. You can save a request for later use. You can apply on the request and the response filters wich can modify the content. The application uses the java nio library to make non-blocking requests so it should work fluently 
