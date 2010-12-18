@@ -83,8 +83,6 @@ public class Inventory extends JPanel implements MouseListener
 
 	protected void paintComponent(Graphics g)
 	{
-		System.out.println("paint inv");
-
 		g.setColor(this.getBackground());
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 

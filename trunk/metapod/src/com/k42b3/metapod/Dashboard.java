@@ -109,7 +109,7 @@ public class Dashboard extends JPanel
 
 	public Race getSelectedRace()
 	{
-		return RaceFactory.getRace(cbo_race.getSelectedItem().toString());
+		return rm.getSelectedItem();
 	}
 
 	public void setObjects(ArrayList<AbstractObject> objects)
