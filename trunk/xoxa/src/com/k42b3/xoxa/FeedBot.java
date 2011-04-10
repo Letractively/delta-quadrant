@@ -74,19 +74,22 @@ public class FeedBot extends BotAbstract
 				URL url = new URL(this.sources.get(i));
 				List<SyndEntry> entries = this.requestFeed(this.sources.get(i));
 
-				for(int j = 0; j < entries.size() && resources.size() < limit; j++)
+				if(entries != null)
 				{
-					SyndEntry entry = entries.get(j);
-
-					if(entry.getPublishedDate().after(this.getLastUpdated()))
+					for(int j = 0; j < entries.size() && resources.size() < limit; j++)
 					{
-						Resource res = new Resource();
-						res.setId(entry.getUri());
-						res.setTitle(url.getHost() + ": " + entry.getTitle());
-						res.setLink(entry.getUri());
-						res.setDate(entry.getPublishedDate());
+						SyndEntry entry = entries.get(j);
 
-						resources.add(res);
+						if(entry.getPublishedDate().after(this.getLastUpdated()))
+						{
+							Resource res = new Resource();
+							res.setId(entry.getUri());
+							res.setTitle(url.getHost() + ": " + entry.getTitle());
+							res.setLink(entry.getUri());
+							res.setDate(entry.getPublishedDate());
+
+							resources.add(res);
+						}
 					}
 				}
 			}
