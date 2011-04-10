@@ -4,7 +4,8 @@
  * An IRC bot wich you can configure via an XML file. The bot can create 
  * multiple users wich can join a specific channel. The main task of the bot
  * is to deliver real time messages from different sources (feeds, twitter,
- * gmail, etc.)
+ * gmail, etc.). It pushs every x seconds for new resources and post it directly
+ * to the channel if anything is new.
  * 
  * Copyright (c) 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
@@ -35,6 +36,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * Xoxa
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public final class Xoxa
 {
 	public final static String version = "0.0.2";
@@ -65,39 +74,57 @@ public final class Xoxa
 				rootElement.hasAttribute("channel") && 
 				rootElement.hasAttribute("ssl"))
 			{
-				String host = rootElement.getAttribute("host");
-				int port = Integer.parseInt(rootElement.getAttribute("port"));
-				String channel = rootElement.getAttribute("channel");
-				boolean ssl = Boolean.parseBoolean(rootElement.getAttribute("ssl"));
+				String attrHost = rootElement.getAttribute("host");
+				String attrPort = rootElement.getAttribute("port");
+				String attrChannel = rootElement.getAttribute("channel");
+				String attrSsl = rootElement.getAttribute("ssl");
 
-				NodeList botList = doc.getElementsByTagName("bot");
-
-				for(int i = 0; i < botList.getLength(); i++) 
+				if(attrHost != null &&
+					attrPort != null &&
+					attrChannel != null &&
+					attrSsl != null &&
+					!attrPort.isEmpty() &&
+					attrHost.length() > 3 &&
+					attrChannel.length() > 3 &&
+					!attrSsl.isEmpty())
 				{
-					Node botNode = botList.item(i);
-					Element botElement = (Element) botNode;
+					String host = attrHost;
+					int port = Integer.parseInt(attrPort);
+					String channel = attrChannel;
+					boolean ssl = Boolean.parseBoolean(attrSsl);
 
-					try
+					NodeList botList = doc.getElementsByTagName("bot");
+
+					for(int i = 0; i < botList.getLength(); i++) 
 					{
-						BotAbstract bot = BotFactory.getInstance(host, port, channel, ssl, botElement);
+						Node botNode = botList.item(i);
+						Element botElement = (Element) botNode;
 
-						if(bot != null)
+						try
 						{
-							logger.info("Create bot instance " + botElement.getAttribute("nick") + " successful");
+							BotAbstract bot = BotFactory.getInstance(host, port, channel, ssl, botElement);
 
-							// wait betwen 2 and 4 minutes to join the next bot
-							int min = 60000 * 2;
-							int max = 60000 * 4;
-							int wait = min + (int) (Math.random() * (max - min) + 0.5);
+							if(bot != null)
+							{
+								logger.info("Create bot instance " + botElement.getAttribute("nick") + " successful");
 
-							Thread.sleep(wait);
+								// wait betwen 2 and 4 minutes to join the next bot
+								int min = 60000 * 2;
+								int max = 60000 * 4;
+								int wait = min + (int) (Math.random() * (max - min) + 0.5);
+
+								Thread.sleep(wait);
+							}
+						}
+						catch(Exception e)
+						{
+							logger.warning(e.getMessage());
 						}
 					}
-					catch(Exception e)
-					{
-						e.printStackTrace();
-						logger.warning(e.getMessage());
-					}
+				}
+				else
+				{
+					logger.warning("Missing values in the xoxa configuration");
 				}
 			}
 			else
@@ -106,7 +133,8 @@ public final class Xoxa
 			}
 		}
 		catch(Exception e)
-		{
+		{						e.printStackTrace();
+
 			logger.warning(e.getMessage());
 		}
 	}

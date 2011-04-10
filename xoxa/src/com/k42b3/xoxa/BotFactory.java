@@ -4,7 +4,8 @@
  * An IRC bot wich you can configure via an XML file. The bot can create 
  * multiple users wich can join a specific channel. The main task of the bot
  * is to deliver real time messages from different sources (feeds, twitter,
- * gmail, etc.)
+ * gmail, etc.). It pushs every x seconds for new resources and post it directly
+ * to the channel if anything is new.
  * 
  * Copyright (c) 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
@@ -33,6 +34,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+/**
+ * BotFactory
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class BotFactory 
 {
 	public static BotAbstract getInstance(String host, int port, String channel, boolean ssl, Element bot)
@@ -44,7 +53,7 @@ public class BotFactory
 			int minInterval;
 			int maxInterval;
 
-			if(bot.getAttribute("minInterval") != null)
+			if(bot.getAttribute("minInterval") != null && !bot.getAttribute("minInterval").isEmpty())
 			{
 				minInterval = Integer.parseInt(bot.getAttribute("minInterval"));
 			}
@@ -53,7 +62,7 @@ public class BotFactory
 				minInterval = 300;
 			}
 
-			if(bot.getAttribute("minInterval") != null)
+			if(bot.getAttribute("maxInterval") != null && !bot.getAttribute("maxInterval").isEmpty())
 			{
 				maxInterval = Integer.parseInt(bot.getAttribute("maxInterval"));
 			}
