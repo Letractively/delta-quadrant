@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xoxa host="" port="" channel="" ssl="false">
+	<bot class="FeedBot" nick="XoxaFeedBot" pass="" minInterval="300" maxInterval="600">
+		<src>http://news.google.de/news?pz=1&amp;cf=all&amp;ned=de&amp;hl=de&amp;topic=t&amp;output=rss</src>
+		<src>http://www.heise.de/newsticker/heise.rdf</src>
+	</bot>
+	<bot class="TwitterBot" nick="XoxaTwitterBot" pass="" minInterval="300" maxInterval="600">
+		<consumerKey></consumerKey>
+		<consumerSecret></consumerSecret>
+		<accessToken></accessToken>
+		<accessTokenSecret></accessTokenSecret>
+	</bot>
+	<bot class="GmailBot" nick="XoxaGmailBot" pass="" minInterval="300" maxInterval="600">
+		<username></username>
+		<password></password>
+	</bot>
+</xoxa>
