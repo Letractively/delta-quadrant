@@ -1,0 +1,3 @@
+= Introduction =
+
+An IRC bot wich you can configure via an XML file. The bot can create multiple users wich can join a specific channel. The main task of the bot is to deliver real time messages from different sources (feeds, twitter, gmail, etc.). It pushs every x seconds for new resources and post it directly to the channel if anything is new.
