@@ -4,7 +4,8 @@
  * An IRC bot wich you can configure via an XML file. The bot can create 
  * multiple users wich can join a specific channel. The main task of the bot
  * is to deliver real time messages from different sources (feeds, twitter,
- * gmail, etc.)
+ * gmail, etc.). It pushs every x seconds for new resources and post it directly
+ * to the channel if anything is new.
  * 
  * Copyright (c) 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
@@ -26,6 +27,14 @@ package com.k42b3.xoxa;
 
 import java.util.ArrayList;
 
+/**
+ * FacebookBot
+ *
+ * @author     Christoph Kappestein <k42b3.x@gmail.com>
+ * @license    http://www.gnu.org/licenses/gpl.html GPLv3
+ * @link       http://code.google.com/p/delta-quadrant
+ * @version    $Revision$
+ */
 public class FacebookBot extends BotAbstract
 {
 	protected String accessToken;
