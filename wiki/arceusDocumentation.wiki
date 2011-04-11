@@ -1,3 +1,0 @@
-= Introduction =
-
-arceus is a little tool to train converting numbers into different numeric systems
