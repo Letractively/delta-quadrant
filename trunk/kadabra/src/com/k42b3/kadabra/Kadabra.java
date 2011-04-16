@@ -77,14 +77,9 @@ public class Kadabra
 		{
 			Project project = this.getProject(projectId);
 
-			FTPClient client = project.getClient();
-
-			client.enterLocalPassiveMode();
-			client.setFileType(FTPClient.ASCII_FILE_TYPE);
-
 			this.mirrorFolder(project, true, "");
 			
-			client.disconnect();
+			project.close();
 		}
 		catch(Exception e)
 		{
@@ -98,14 +93,9 @@ public class Kadabra
 		{
 			Project project = this.getProject(projectId);
 
-			FTPClient client = project.getClient();
-
-			client.enterLocalPassiveMode();
-			client.setFileType(FTPClient.ASCII_FILE_TYPE);
-
 			this.mirrorFolder(project, false, "");
 			
-			client.disconnect();
+			project.close();
 		}
 		catch(Exception e)
 		{
@@ -254,38 +244,54 @@ public class Kadabra
 		}
 	}
 
+	private File[] getLocalFiles(Project project, String path) throws Exception
+	{
+		File list = new File(project.getLocalPath() + "/" + path);
+
+		if(!list.isDirectory())
+		{
+			throw new Exception(project.getLocalPath() + "/" + path + " is not a directory");
+		}
+
+		return list.listFiles();
+	}
+
+	private FTPFile[] getRemoteFiles(Project project, String path) throws Exception
+	{
+		FTPFile[] remoteFiles = project.getClient().listFiles(project.getRemotePath() + "/" + path);
+
+		if(project.getClient().getReplyCode() != FTPReply.CODE_226)
+		{
+			throw new Exception(path + " ist not a directory");
+		}
+		
+		return remoteFiles;
+	}
+
 	private void mirrorFolder(Project project, boolean testRun, String path)
 	{
 		try
 		{
 			// get local files
-			File list = new File(project.getLocalPath() + "/" + path);
-
-			if(!list.isDirectory())
-			{
-				throw new Exception("localPath is not a directory");
-			}
-
-			File[] localFiles = list.listFiles();
-
+			File[] localFiles = this.getLocalFiles(project, path);
 
 			// get remote files
-			FTPClient client = project.getClient();
-
-			client.changeWorkingDirectory(project.getRemotePath() + "/" + path);
-
-			if(client.getReplyCode() != FTPReply.CODE_250)
-			{
-				throw new Exception("remotePath ist not valid");
-			}
-
-			FTPFile[] remoteFiles = client.listFiles();
-
+			FTPFile[] remoteFiles = this.getRemoteFiles(project, path);
 
 			// compare
 			for(int i = 0; i < localFiles.length; i++)
 			{
 				File localItem = localFiles[i];
+				String localPath;
+
+				if(path.isEmpty())
+				{
+					localPath = localItem.getName();
+				}
+				else
+				{
+					localPath = path + "/" + localItem.getName();
+				}
 
 				if(localItem.getName().charAt(0) == '.')
 				{
@@ -296,25 +302,18 @@ public class Kadabra
 				{
 					if(this.hasFolder(localItem, remoteFiles))
 					{
-						if(path.isEmpty())
-						{
-							this.mirrorFolder(project, testRun, localItem.getName());
-						}
-						else
-						{
-							this.mirrorFolder(project, testRun, path + "/" + localItem.getName());
-						}
+						this.mirrorFolder(project, testRun, localPath);
 					}
 					else
 					{
-						console.printf("A " + project.getRemotePath() + "/" + path + "/" + localItem.getName() + "%n");
+						console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
 
 						if(!testRun)
 						{
-							client.makeDirectory(localItem.getName());
+							project.getClient().makeDirectory(project.getRemotePath() + "/" + localPath);
 						}
 
-						this.uploadDir(project, testRun, path + "/" + localItem.getName());
+						this.uploadDir(project, testRun, localPath);
 					}
 				}
 
@@ -326,11 +325,12 @@ public class Kadabra
 						ByteArrayOutputStream baosLocal = new ByteArrayOutputStream();
 						FileInputStream is = new FileInputStream(localItem);
 
+						int len;
 						byte[] tmp = new byte[1024];
 
-						while(is.read(tmp) != -1)
+						while((len = is.read(tmp)) != -1)
 						{
-							baosLocal.write(tmp);
+							baosLocal.write(tmp, 0, len);
 						}
 
 						baosLocal.flush();
@@ -340,7 +340,7 @@ public class Kadabra
 						// get remote content
 						ByteArrayOutputStream baosRemote = new ByteArrayOutputStream();
 
-						client.retrieveFile(localItem.getName(), baosRemote);
+						project.getClient().retrieveFile(project.getRemotePath() + "/" + localPath, baosRemote);
 
 						baosRemote.flush();
 						baosRemote.close();
@@ -349,21 +349,24 @@ public class Kadabra
 						// compare content
 						if(!Arrays.equals(baosLocal.toByteArray(), baosRemote.toByteArray()))
 						{
-							console.printf("U " + project.getRemotePath() + "/" + path + "/" + localItem.getName() + " (" + baosLocal.toByteArray().length + "/" + baosRemote.toByteArray().length + ")%n");
+							int localLen = baosLocal.toByteArray().length;
+							int remoteLen = baosRemote.toByteArray().length;
+
+							console.printf("U " + project.getRemotePath() + "/" + localPath + " (" + localLen + "/" + remoteLen + ")%n");
 
 							if(!testRun)
 							{
-								this.uploadFile(client, localItem);
+								this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
 							}
 						}
 					}
 					else
 					{
-						console.printf("A " + project.getRemotePath() + "/" + path + "/" + localItem.getName() + "%n");
+						console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
 
 						if(!testRun)
 						{
-							this.uploadFile(client, localItem);
+							this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
 						}
 					}
 				}
@@ -375,11 +378,11 @@ public class Kadabra
 		}
 	}
 
-	private void uploadFile(FTPClient client, File localItem) throws Exception
+	private void uploadFile(FTPClient client, File localItem, String dest) throws Exception
 	{
 		InputStream fis = new FileInputStream(localItem);
 
-		if(!client.storeFile(localItem.getName(), fis))
+		if(!client.storeFile(dest, fis))
 		{
 			throw new Exception("Could not upload file");
 		}
@@ -414,34 +417,26 @@ public class Kadabra
 	private void uploadDir(Project project, boolean testRun, String path) throws Exception
 	{
 		// get local files
-		File list = new File(project.getLocalPath() + "/" + path);
+		File[] localFiles = this.getLocalFiles(project, path);
 
-		if(!list.isDirectory())
-		{
-			throw new Exception("localPath is not a directory");
-		}
-
-		File[] localFiles = list.listFiles();
-
-		
 		// get remote files
-		FTPClient client = project.getClient();
+		FTPFile[] remoteFiles = this.getRemoteFiles(project, path);
 
-		client.changeWorkingDirectory(project.getRemotePath() + "/" + path);
-
-		if(client.getReplyCode() != FTPReply.CODE_250)
-		{
-			throw new Exception("remotePath ist not valid");
-		}
-
-		FTPFile[] remoteFiles = client.listFiles();
-
-		
 		// upload
 		for(int i = 0; i < localFiles.length; i++)
 		{
 			File localItem = localFiles[i];
+			String localPath;
 
+			if(path.isEmpty())
+			{
+				localPath = localItem.getName();
+			}
+			else
+			{
+				localPath = path + "/" + localItem.getName();
+			}
+			
 			if(localItem.getName().charAt(0) == '.')
 			{
 				continue;
@@ -449,23 +444,23 @@ public class Kadabra
 
 			if(localItem.isDirectory())
 			{
-				console.printf("A " + project.getRemotePath() + "/" + path + "/" + localItem.getName() + "%n");
-				
+				console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
+
 				if(!testRun)
 				{
-					client.makeDirectory(localItem.getName());
+					project.getClient().makeDirectory(project.getRemotePath() + "/" + localPath);
 				}
 
-				this.uploadDir(project, testRun, path + "/" + localItem.getName());
+				this.uploadDir(project, testRun, localPath);
 			}
 
 			if(localItem.isFile())
 			{
-				console.printf("A " + project.getRemotePath() + "/" + path + "/" + localItem.getName() + "%n");
+				console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
 
 				if(!testRun)
 				{
-					this.uploadFile(client, localItem);
+					this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
 				}
 			}
 		}

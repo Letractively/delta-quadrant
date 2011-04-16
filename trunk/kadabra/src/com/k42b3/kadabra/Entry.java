@@ -25,6 +25,8 @@
 package com.k42b3.kadabra;
 
 import java.io.Console;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Entry
@@ -41,11 +43,12 @@ public class Entry
 		try
 		{
 			// disable logging
-			//Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-			//Logger.getLogger("com.k42b3.kadabra").setLevel(Level.OFF);
+			Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
+			Logger.getLogger("com.k42b3.kadabra").setLevel(Level.OFF);
 
 
 			// start kadabra
+			Console console = System.console();
 			Kadabra instance = new Kadabra();
 
 			if(args.length == 2 && args[0].equals("--status"))
@@ -66,8 +69,6 @@ public class Entry
 			}
 			else if(args.length == 1 && args[0].equals("--add"))
 			{
-				Console console = System.console();
-
 				String host = console.readLine("Host: ");
 				int port = Integer.parseInt(console.readLine("Port: "));
 				String user = console.readLine("User: ");

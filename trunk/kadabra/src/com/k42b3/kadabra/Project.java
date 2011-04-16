@@ -25,9 +25,7 @@
 package com.k42b3.kadabra;
 
 import java.io.File;
-import java.io.PrintWriter;
 
-import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -135,8 +133,10 @@ public class Project
 
 	public void setLocalPath(String localPath) throws Exception
 	{
+		localPath = localPath.trim();
+
 		File file = new File(localPath);
-		
+
 		if(file.isDirectory())
 		{
 			this.localPath = file.getAbsolutePath();
@@ -154,11 +154,18 @@ public class Project
 
 	public void setRemotePath(String remotePath) throws Exception
 	{
+		remotePath = remotePath.trim();
+
+		if(remotePath.endsWith("/"))
+		{
+			remotePath = remotePath.substring(0, remotePath.length() - 1);
+		}
+
 		FTPClient client = this.getClient();
 
-		client.changeWorkingDirectory(remotePath);
-
-		if(client.getReplyCode() == FTPReply.CODE_250)
+		client.listFiles(remotePath);
+		
+		if(client.getReplyCode() == FTPReply.CODE_226)
 		{
 			this.remotePath = remotePath;
 		}
@@ -174,13 +181,22 @@ public class Project
 		{
 			client = new FTPClient();
 
-			client.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));
+			client.addProtocolCommandListener(new CommandLogger());
 
 			client.connect(this.getHost(), this.getPort());
 
 			client.login(this.getUser(), this.getPw());
+
+			client.enterLocalPassiveMode();
+
+			client.setFileType(FTPClient.BINARY_FILE_TYPE);
 		}
 
 		return client;
+	}
+	
+	public void close() throws Exception
+	{
+		client.disconnect();
 	}
 }
