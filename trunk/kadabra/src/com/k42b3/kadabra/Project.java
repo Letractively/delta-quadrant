@@ -39,6 +39,7 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 public class Project 
 {
+	private int id;
 	private String host;
 	private int port;
 	private String user;
@@ -48,14 +49,25 @@ public class Project
 
 	private FTPClient client;
 
-	public Project(String host, int port, String user, String pw, String localPath, String remotePath) throws Exception
+	public Project(int id, String host, int port, String user, String pw, String localPath, String remotePath) throws Exception
 	{
+		this.setId(id);
 		this.setHost(host);
 		this.setPort(port);
 		this.setUser(user);
 		this.setPw(pw);
 		this.setLocalPath(localPath);
 		this.setRemotePath(remotePath);
+	}
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId(int id)
+	{
+		this.id = id;
 	}
 
 	public String getHost() 

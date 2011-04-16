@@ -76,7 +76,7 @@ public class Entry
 				String localPath = console.readLine("Local path: ");
 				String remotePath = console.readLine("Remote path: ");
 
-				Project project = new Project(host, port, user, pw, localPath, remotePath);
+				Project project = new Project(0, host, port, user, pw, localPath, remotePath);
 
 				instance.addProject(project);
 			}

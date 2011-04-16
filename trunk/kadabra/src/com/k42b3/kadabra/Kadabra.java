@@ -94,7 +94,23 @@ public class Kadabra
 			Project project = this.getProject(projectId);
 
 			this.mirrorFolder(project, false, "");
+
 			
+			// add release
+			String sql = "INSERT INTO releases (" +
+							"projectId, " +
+							"date" +
+						") VALUES (?, datetime())";
+
+			SQLiteStatement st = db.prepare(sql);
+
+			st.bind(1, project.getId());
+
+			st.step();
+
+			console.printf("Project release successful%n");
+
+
 			project.close();
 		}
 		catch(Exception e)
@@ -107,15 +123,27 @@ public class Kadabra
 	{
 		try
 		{
-			SQLiteStatement st = db.prepare("SELECT id, host, port, user, pw, localPath, remotePath FROM projects");
+			String sql = "SELECT " +
+							"id, " +
+							"host, " +
+							"port, " +
+							"user, " +
+							"pw, " +
+							"localPath, " +
+							"remotePath, " +
+							"date, " +
+							"(SELECT COUNT(id) FROM releases WHERE releases.projectId = projects.id) AS count " +
+						"FROM projects";
 
-			String formatString = "%1$-4s %2$-16s %3$-32s %4$-32s%n";
+			SQLiteStatement st = db.prepare(sql);
 
-			console.printf(formatString, "Id", "Host", "LocalPath", "RemotePath");
+			String formatString = "%1$-4s %2$-16s %3$-32s %4$-32s %5$-6s%n";
+
+			console.printf(formatString, "Id", "Host", "LocalPath", "RemotePath", "Releases");
 
 			while(st.step())
 			{
-				console.printf(formatString, st.columnString(0), st.columnString(1), st.columnString(5), st.columnString(6));
+				console.printf(formatString, st.columnString(0), st.columnString(1), st.columnString(5), st.columnString(6), st.columnString(8));
 			}
 		}
 		catch(Exception e)
@@ -128,7 +156,15 @@ public class Kadabra
 	{
 		try
 		{
-			String sql = "INSERT INTO projects (host, port, user, pw, localPath, remotePath) VALUES (?, ?, ?, ?, ?, ?)";
+			String sql = "INSERT INTO projects (" +
+							"host, " +
+							"port, " +
+							"user, " +
+							"pw, " +
+							"localPath, " +
+							"remotePath, " +
+							"date" +
+						") VALUES (?, ?, ?, ?, ?, ?, datetime())";
 
 			SQLiteStatement st = db.prepare(sql);
 
@@ -145,6 +181,8 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
+			console.printf(e.getMessage() + "%n");
+
 			logger.warning(e.getMessage());
 		}
 	}
@@ -169,19 +207,30 @@ public class Kadabra
 	{
 		try
 		{
+			// projects
 			String sql = "CREATE TABLE IF NOT EXISTS projects (" +
-				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-				"host VARCHAR(128)," +
-				"port INTEGER," +
-				"user VARCHAR(128)," +
-				"pw VARCHAR(128)," +
-				"localPath VARCHAR(256)," +
-				"remotePath VARCHAR(256)" +
+							"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+							"host VARCHAR(128)," +
+							"port INTEGER," +
+							"user VARCHAR(128)," +
+							"pw VARCHAR(128)," +
+							"localPath VARCHAR(256)," +
+							"remotePath VARCHAR(256)," +
+							"date DATETIME" +
+						")";
+
+			db.exec(sql);
+
+			// releases
+			sql = "CREATE TABLE IF NOT EXISTS releases (" +
+					"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+					"projectId INTEGER," +
+					"date DATETIME" +
 				")";
 
-			db.exec(sql); 
+			db.exec(sql);
 
-			console.printf("Building table successful%n");
+			console.printf("Building tables successful%n");
 		}
 		catch(Exception e)
 		{
@@ -209,32 +258,33 @@ public class Kadabra
 		String formatString = "%1$-32s %2$-64s%n";
 
 		console.printf(formatString, "Argument", "Description");
-		console.printf(formatString, "--status [projectId]", "Shows wich files will be updated but without making any action");
+		console.printf(formatString, "--status [projectId]", "Shows wich files will be updated but without making any actions");
 		console.printf(formatString, "--release [projectId]", "Mirros the local folder to the remote folder");
 		console.printf(formatString, "--list", "List all available projects with theri project id");
 		console.printf(formatString, "--add", "Add a new project to the database");
 		console.printf(formatString, "--del [projectId]", "Delete a project");
-		console.printf(formatString, "--build", "Build the project table in the database if it not exists");
+		console.printf(formatString, "--build", "Build the tables in the database if it not exists");
 		console.printf(formatString, "--about", "Shows informations about the application");
 	}
 
 	private Project getProject(int projectId) throws Exception
 	{
-		SQLiteStatement st = db.prepare("SELECT host, port, user, pw, localPath, remotePath FROM projects WHERE id = ?");
+		SQLiteStatement st = db.prepare("SELECT id, host, port, user, pw, localPath, remotePath FROM projects WHERE id = ?");
 		st.bind(1, projectId);
 
 		st.step();
 
 		if(st.hasRow())
 		{
-			String host = st.columnString(0);
-			int port = st.columnInt(1);
-			String user = st.columnString(2);
-			String pw = st.columnString(3);
-			String localPath = st.columnString(4);
-			String remotePath = st.columnString(5);
+			int id = st.columnInt(0);
+			String host = st.columnString(1);
+			int port = st.columnInt(2);
+			String user = st.columnString(3);
+			String pw = st.columnString(4);
+			String localPath = st.columnString(5);
+			String remotePath = st.columnString(6);
 
-			Project project = new Project(host, port, user, pw, localPath, remotePath);
+			Project project = new Project(id, host, port, user, pw, localPath, remotePath);
 
 			return project;
 		}
@@ -418,9 +468,6 @@ public class Kadabra
 	{
 		// get local files
 		File[] localFiles = this.getLocalFiles(project, path);
-
-		// get remote files
-		FTPFile[] remoteFiles = this.getRemoteFiles(project, path);
 
 		// upload
 		for(int i = 0; i < localFiles.length; i++)
