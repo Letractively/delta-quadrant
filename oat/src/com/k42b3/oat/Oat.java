@@ -409,7 +409,7 @@ public class Oat extends JFrame
 				}
 				catch(Exception ex)
 				{
-					ex.printStackTrace();
+					out.setText(ex.getMessage());
 				}
 			}
 		}
@@ -425,7 +425,7 @@ public class Oat extends JFrame
 			}
 			catch(Exception ex)
 			{
-				out.setText(ex.getStackTrace().toString());
+				out.setText(ex.getMessage());
 			}
 		}
 	}
@@ -491,7 +491,7 @@ public class Oat extends JFrame
 			}
 			catch(Exception ex)
 			{
-				out.setText(ex.getStackTrace().toString());
+				out.setText(ex.getMessage());
 			}
 		}
 	}
