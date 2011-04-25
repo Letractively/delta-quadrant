@@ -1,0 +1,96 @@
+
+.loading_splash
+{
+	width:100%;
+	height:100%;
+	background-image:url(../img/amun_loading.png);
+	background-repeat:no-repeat;
+	background-position:50% 50%;
+}
+
+.loading
+{
+	font-family:'Lucida Grande',Tahoma,Arial,sans-serif;
+	font-size:11px;
+}
+
+.content
+{
+	font-family:'Lucida Grande',Tahoma,Arial,sans-serif;
+	font-size:11px;
+	padding:4px;
+}
+
+.backtrace
+{
+	padding:4px;
+	font-size:1.2em;
+}
+
+.sourcecode
+{
+	font-family:'Courier New',Courier,monospace;
+	font-size:1em;
+}
+
+.dashboard-gadget
+{
+	font-family:'Lucida Grande',Tahoma,Arial,sans-serif;
+	font-size:12px;
+	margin-bottom:10px;
+}
+
+.dashboard-gadget p
+{
+	margin:4px;
+}
+
+.x-form-item-label
+{
+	overflow:hidden;
+}
+
+
+/* icons */
+.add { background-image:url(../img/icons/add.png) !important; }
+.edit { background-image:url(../img/icons/edit.png) !important; }
+.delete { background-image:url(../img/icons/delete.png) !important; }
+.install { background-image:url(../img/icons/install.png) !important; }
+.uninstall { background-image:url(../img/icons/uninstall.png) !important; }
+.logout { background-image:url(../img/icons/logout.png) !important; }
+.refresh { background-image:url(../img/icons/refresh.png) !important; }
+.key { background-image:url(../img/icons/key.png) !important; }
+.search { background-image:url(../img/icons/search.png) !important; }
+
+/* content */
+.gadget { background-image:url(../img/icons/content/gadget.png) !important; }
+.media { background-image:url(../img/icons/content/media.png) !important; }
+.page { background-image:url(../img/icons/content/page.png) !important; }
+.service { background-image:url(../img/icons/content/service.png) !important; }
+
+/* system */
+.api { background-image:url(../img/icons/system/api.png) !important; }
+.approval { background-image:url(../img/icons/system/approval.png) !important; }
+.country { background-image:url(../img/icons/system/country.png) !important; }
+.event { background-image:url(../img/icons/system/event.png) !important; }
+.log { background-image:url(../img/icons/system/log.png) !important; }
+.info { background-image:url(../img/icons/system/info.png) !important; }
+.vars { background-image:url(../img/icons/system/vars.png) !important; }
+
+/* user */
+.account { background-image:url(../img/icons/user/account.png) !important; }
+.activity { background-image:url(../img/icons/user/activity.png) !important; }
+.friend { background-image:url(../img/icons/user/friend.png) !important; }
+.group { background-image:url(../img/icons/user/group.png) !important; }
+.level { background-image:url(../img/icons/user/level.png) !important; }
+.right { background-image:url(../img/icons/user/right.png) !important; }
+
+/* help */
+.about { background-image:url(../img/icons/help/about.png) !important; }
+.bug { background-image:url(../img/icons/help/bug.png) !important; }
+.donate { background-image:url(../img/icons/help/donate.png) !important; }
+.website { background-image:url(../img/icons/help/website.png) !important; }
+.help { background-image:url(../img/icons/help/help.png) !important; }
+
+
+
