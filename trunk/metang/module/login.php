@@ -2,9 +2,16 @@
 
 class login extends PSX_ModuleAbstract
 {
+	private $validate;
+	private $session;
+
 	public function onLoad()
 	{
-		$this->registry['Template']->set('login.tpl');
+		$this->validate = new PSX_Validate();
+
+		$this->session = new PSX_Session('metang', $this->validate);
+
+		$this->template->set('login.tpl');
 	}
 
 	public function onPost()
@@ -25,8 +32,8 @@ class login extends PSX_ModuleAbstract
 			{
 				// @todo save token and token secret probably in file
 				// or db
-				$_SESSION['token']        = $token;
-				$_SESSION['tokenSecret'] = $token_secret;
+				$_SESSION['token']       = $token;
+				$_SESSION['tokenSecret'] = $tokenSecret;
 
 
 				// send redirect url

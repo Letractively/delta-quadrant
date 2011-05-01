@@ -2,65 +2,73 @@
 
 class proxy extends PSX_ModuleAbstract
 {
+	private $validate;
+	private $session;
+	private $get;
+
 	public function onLoad()
 	{
+		$this->validate = new PSX_Validate();
+
+		$this->session = new PSX_Session('metang', $this->validate);
+
+		$this->get = new PSX_Get($this->validate);
+
 		try
 		{
-			$url = isset($_GET['url']) ? trim($_GET['url']) : '';
-			$url = filter_var($url, FILTER_VALIDATE_URL);
+			$url = $this->get->url('string', array(new PSX_Filter_Length(7, 256), new PSX_Filter_Url(), new PSX_Filter_Urldecode()));
 
 			unset($_GET['url']);
 
 			if(empty($url))
 			{
-				throw new Exception('Invalid url');
+				throw new PSX_Exception('Invalid url');
 			}
 
-			$url = urldecode($url);
-
-			if(isset($_SESSION['authed']) && $_SESSION['authed'] === true)
+			if($this->session->authed === true)
 			{
-				$request_headers = get_request_header();
+				$requestHeaders = PSX_Config::getRequestHeader();
 
-				$body = trim(get_raw_input());
+				$body = trim(PSX_Config::getRawInput()));
 				$body = !empty($body) ? $body : false;
 
-				$root = new psx_type_url(AMUN_URL);
-				$url  = new psx_type_url($url);
+				$root = new PSX_Url($this->config['metang_url']);
+				$url  = new PSX_Url($url);
 
 
 				// check host
-				if(strcasecmp($root->get_host(), $url->get_host()) != 0)
+				if(strcasecmp($root->getHost(), $url->getHost()) != 0)
 				{
-					throw new Exception('URL has an invalid host');
+					throw new PSX_Exception('URL has an invalid host');
 				}
 
 
 				// add params
 				foreach($_GET as $k => $v)
 				{
-					$url->add_param($k, $v);
+					$url->addParam($k, $v);
 				}
 
 
-				$http = new psx_http(new psx_http_handler_curl());
+				$http = new PSX_Http(new PSX_Http_Handler_Curl());
+				$oauth = new PSX_Oauth($http);
 
-				$query = http_build_query($url->get_query());
+				$query = http_build_query($url->getQuery());
 				$query = !empty($query) ? '?' . $query : '';
 
 				$headers = array(
 
-					$_SERVER['REQUEST_METHOD'] . ' ' . $url->get_path() . '' . $query . ' HTTP/1.1',
-					'Host: ' . $url->get_host(),
+					$_SERVER['REQUEST_METHOD'] . ' ' . $url->getPath() . '' . $query . ' HTTP/1.1',
+					'Host: ' . $url->getHost(),
 					'Accept: */*',
-					'User-Agent: amun backend (v 0.0.1)',
-					'Authorization: ' . build_oauth_header($url, $request_headers),
+					'User-Agent: metang ' . $this->config['metang_version'],
+					'Authorization: ' . $oauth->getAuthorizationHeader($url, $this->config['metang_consumer_key'], $this->config['metang_consumer_secret'], $this->session->token, $this->session->tokenSecret, 'HMAC-SHA1', $_SERVER['REQUEST_METHOD']),
 
 				);
 
-				if(isset($request_headers['content-type']))
+				if(isset($requestHeaders['content-type']))
 				{
-					$headers[] = 'Content-type: ' . $request_headers['content-type'];
+					$headers[] = 'Content-type: ' . $requestHeaders['content-type'];
 				}
 
 				if($body !== false)
@@ -68,14 +76,45 @@ class proxy extends PSX_ModuleAbstract
 					$headers[] = 'Content-length: ' . strlen($body);
 				}
 
-				if(isset($request_headers['x-http-method-override']))
+				if(isset($requestHeaders['x-http-method-override']))
 				{
-					$headers[] = 'X-Http-Method-Override: ' . $request_headers['x-http-method-override'];
+					$headers[] = 'X-Http-Method-Override: ' . $requestHeaders['x-http-method-override'];
 				}
 
 
-				$response   = $http->request($url, $headers, $body);
-				$last_error = $http->get_last_error();
+				switch($_SERVER['REQUEST_METHOD'])
+				{
+					case 'GET':
+
+						$request = new PSX_Http_GetRequest($url, $headers);
+
+						break;
+
+					case 'POST':
+
+						$request = new PSX_Http_PostRequest($url, $headers, $body);
+
+						break;
+
+					case 'PUT':
+
+						$request = new PSX_Http_PutRequest($url, $headers, $body);
+
+						break;
+
+					case 'DELETE':
+
+						$request = new PSX_Http_DeleteRequest($url, $headers, $body);
+
+						break;
+
+					default:
+
+						break;
+				}
+
+				$response  = $http->request($request);
+				$lastError = $http->getLastError();
 
 				/*
 				$h = fopen('log.txt', 'a+');
@@ -83,137 +122,44 @@ class proxy extends PSX_ModuleAbstract
 				fclose($h);
 				*/
 
-				if(empty($last_error))
+				if(empty($lastError))
 				{
 					$response = psx_http::parse_response($response);
 
 
-					header($response['scheme'] . ' ' . $response['code'] . ' ' . $response['message']);
+					header($response->getScheme() . ' ' . $response->getCode() . ' ' . $response->getMessage());
 
-					foreach($response['header'] as $k => $v)
+					foreach($response->getHeader() as $k => $v)
 					{
 						header($k . ': ' . $v);
 					}
 
 
-					echo $response['body'];
+					echo $response->getBody();
 				}
 				else
 				{
-					throw new Exception($last_error);
+					throw new Exception($lastError);
 				}
 			}
 			else
 			{
-				throw new Exception('Not authenticated');
+				throw new PSX_Exception('Not authenticated');
 			}
 
 
 			// clear the session where the access token is stored
-			if(isset($_GET['logout']))
+			if($this->get->logout('string'))
 			{
-				$_SESSION['token']        = '';
-				$_SESSION['token_secret'] = '';
-				$_SESSION['authed']       = false;
+				$this->session->token       = null;
+				$this->session->tokenSecret = null;
+				$this->session->authed      = false;
 			}
 		}
 		catch(Exception $e)
 		{
 			echo json_encode(array('success' => false, 'message' => $e->getMessage()));
 		}
-	}
-}
-
-require_once('config.php');
-
-
-
-
-function build_oauth_header(psx_type_url $url, array $request_headers)
-{
-	$token        = isset($_SESSION['token']) ? $_SESSION['token'] : false;
-	$token_secret = isset($_SESSION['token_secret']) ? $_SESSION['token_secret'] : false;
-	$method       = 'HMAC-SHA1';
-
-	if(empty($token) || empty($token_secret))
-	{
-		throw new Exception('Token not set');
-	}
-
-	$values = array(
-
-		'oauth_consumer_key'     => AMUN_CONSUMER_KEY,
-		'oauth_token'            => $token,
-		'oauth_signature_method' => $method,
-		'oauth_timestamp'        => psx_net_oauth::get_timestamp(),
-		'oauth_nonce'            => psx_net_oauth::get_nonce(),
-		'oauth_version'          => psx_net_oauth::get_version(),
-
-	);
-
-
-	// build the base string
-	$request_method = isset($request_headers['x-http-method-override']) ? $request_headers['x-http-method-override'] : $_SERVER['REQUEST_METHOD'];
-
-	$base_string = psx_net_oauth::build_basestring($request_method, strval($url), array_merge($values, $url->get_params()));
-
-
-	// get the signature object
-	$signature = psx_net_oauth::get_signature($method);
-
-
-	// generate the signature
-	$values['oauth_signature'] = $signature->build($base_string, AMUN_CONSUMER_SECRET, $token_secret);
-
-
-	return 'OAuth realm="psx", ' . psx_net_oauth::build_auth_string($values);
-}
-
-function get_raw_input()
-{
-	return file_get_contents('php://input');
-}
-
-function get_request_header($key = false)
-{
-	static $headers;
-
-	if(empty($headers))
-	{
-		if(function_exists('apache_request_headers'))
-		{
-			$headers = apache_request_headers();
-
-			foreach($headers as $k => $v)
-			{
-				$k = strtolower($k);
-
-				$headers[$k] = $v;
-			}
-		}
-		else
-		{
-			foreach($_SERVER as $k => $v)
-			{
-				if(substr($k, 0, 5) == 'HTTP_')
-				{
-					$k = str_replace('_', '-', strtolower(substr($k, 5)));
-
-					$headers[$k] = $v;
-				}
-			}
-		}
-	}
-
-	if($key === false)
-	{
-		return $headers;
-	}
-	else
-	{
-		$key = strtolower($key);
-
-		return isset($headers[$key]) ? $headers[$key] : false;
 	}
 }
 
