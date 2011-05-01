@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: index.php 271 2011-04-16 20:05:57Z k42b3.x $
+ *  $Id: index.php 274 2011-04-27 21:43:46Z k42b3.x $
  *
  * psx
  * A object oriented and modular based PHP framework for developing
@@ -32,30 +32,23 @@ $bootstrap = new PSX_Bootstrap($config);
 try
 {
 	// load core libraries
-	$registry = new PSX_Registry();
 	$template = new PSX_Template($config);
-	$loader   = new PSX_Loader($config, $registry);
+	$loader   = new PSX_Loader($config, $template);
 
 
 	// add routes
 	//$loader->addRoute('/.well-known/host-meta', 'sample');
 
 
-	// add core libraries to the registry
-	$registry->set($config);
-	$registry->set($loader);
-	$registry->set($template);
-
-
 	ob_start();
 
 
 	// prolog modules
-	// $loader->load('psx/sql');
+	// $loader->load('bar/foo');
 
 
 	// load module
-	loadModule($config, $loader);
+	$module = loadModule($config, $loader);
 
 
 	// epilog modules
@@ -73,10 +66,10 @@ try
 	echo $response;
 
 
-	// cache handling
-	if($config['psx_cache_enabled'] === true && $registry->has('cache') && $registry['cache']->write === true)
+	// proccess response
+	if($module !== null)
 	{
-		$registry['cache']->write($response);
+		$module->processResponse($response);
 	}
 }
 catch(Exception $e)
@@ -196,7 +189,7 @@ function loadModule(PSX_Config $config, PSX_Loader $loader)
 		}
 	}
 
-	$loader->load($x);
+	return $loader->load($x);
 }
 
 
