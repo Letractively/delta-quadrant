@@ -34,7 +34,7 @@ Ext.ns('amun.system.log');
  */
 
 
-amun.system.log.url = amun_url + '/index.php/api/system/log?format=json';
+amun.system.log.url = amun_url + 'api/system/log?format=json';
 
 
 amun.system.log.store = new Ext.data.Store({

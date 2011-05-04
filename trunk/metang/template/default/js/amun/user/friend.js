@@ -34,7 +34,7 @@ Ext.ns('amun.user.friend');
  */
 
 
-amun.user.friend.url = amun_url + '/index.php/api/user/friend?format=json';
+amun.user.friend.url = amun_url + 'api/user/friend?format=json';
 
 
 amun.user.friend.store = new Ext.data.Store({

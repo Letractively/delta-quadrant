@@ -34,7 +34,7 @@ Ext.ns('amun.user.level');
  */
 
 
-amun.user.level.url = amun_url + '/index.php/api/user/level?format=json';
+amun.user.level.url = amun_url + 'api/user/level?format=json';
 
 
 amun.user.level.store = new Ext.data.GroupingStore({

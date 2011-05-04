@@ -56,7 +56,14 @@ class loader extends PSX_ModuleAbstract
 
 		header('Content-type: text/javascript');
 
-		echo $script;
+		if(!empty($script))
+		{
+			echo $script;
+		}
+		else
+		{
+			echo '/* no content */';
+		}
 	}
 }
 

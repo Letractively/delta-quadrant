@@ -34,7 +34,7 @@ Ext.ns('amun.user.activity');
  */
 
 
-amun.user.activity.url = amun_url + '/index.php/api/user/activity?format=json';
+amun.user.activity.url = amun_url + 'api/user/activity?format=json';
 
 
 amun.user.activity.store = new Ext.data.Store({

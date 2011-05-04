@@ -34,7 +34,7 @@ Ext.ns('amun.system.country');
  */
 
 
-amun.system.country.url = amun_url + '/index.php/api/system/country?format=json';
+amun.system.country.url = amun_url + 'api/system/country?format=json';
 
 
 amun.system.country.store = new Ext.data.Store({

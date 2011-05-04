@@ -32,8 +32,9 @@ class login extends PSX_ModuleAbstract
 			{
 				// @todo save token and token secret probably in file
 				// or db
-				$_SESSION['token']       = $token;
-				$_SESSION['tokenSecret'] = $tokenSecret;
+				$this->session->set('token', $token);
+				$this->session->set('tokenSecret', $tokenSecret);
+				$this->session->set('authed', true);
 
 
 				// send redirect url

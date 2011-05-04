@@ -34,7 +34,7 @@ Ext.ns('amun.system.vars');
  */
 
 
-amun.system.vars.url = amun_url + '/index.php/api/system/vars?format=json';
+amun.system.vars.url = amun_url + 'api/system/vars?format=json';
 
 
 amun.system.vars.store = new Ext.data.Store({

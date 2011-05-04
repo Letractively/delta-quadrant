@@ -34,7 +34,7 @@ Ext.ns('amun.content.media');
  */
 
 
-amun.content.media.url = amun_url + '/index.php/api/content/media?format=json';
+amun.content.media.url = amun_url + 'api/content/media?format=json';
 
 
 amun.content.media.store = new Ext.data.Store({
