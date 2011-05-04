@@ -29,7 +29,7 @@ class proxy extends PSX_ModuleAbstract
 			{
 				$requestHeaders = PSX_Config::getRequestHeader();
 
-				$body = trim(PSX_Config::getRawInput()));
+				$body = trim(PSX_Config::getRawInput());
 				$body = !empty($body) ? $body : false;
 
 				$root = new PSX_Url($this->config['metang_url']);
@@ -124,9 +124,6 @@ class proxy extends PSX_ModuleAbstract
 
 				if(empty($lastError))
 				{
-					$response = psx_http::parse_response($response);
-
-
 					header($response->getScheme() . ' ' . $response->getCode() . ' ' . $response->getMessage());
 
 					foreach($response->getHeader() as $k => $v)

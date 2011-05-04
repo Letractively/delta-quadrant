@@ -34,7 +34,7 @@ Ext.ns('amun.content.service');
  */
 
 
-amun.content.service.url = amun_url + '/index.php/api/content/service?format=json';
+amun.content.service.url = amun_url + 'api/content/service?format=json';
 
 
 amun.content.service.store = new Ext.data.Store({

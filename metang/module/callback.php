@@ -4,15 +4,21 @@ class callback extends PSX_ModuleAbstract
 {
 	public function onLoad()
 	{
+		$this->validate = new PSX_Validate();
+
+		$this->session = new PSX_Session('metang', $this->validate);
+
+		$this->get = new PSX_Get($this->validate);
+
 		try
 		{
 			$http  = new PSX_Http(new PSX_Http_Handler_Curl());
 			$oauth = new PSX_Oauth($http);
 
-			$token       = $_SESSION['token'];
-			$tokenSecret = $_SESSION['tokenSecret'];
-			$verifier    = isset($_GET['oauth_verifier']) ? $_GET['oauth_verifier'] : false;
-			$error       = isset($_GET['x_oauth_error']) ? $_GET['x_oauth_error'] : false;
+			$token       = $this->session->token;
+			$tokenSecret = $this->session->tokenSecret;
+			$verifier    = $this->get->oauth_verifier('string');
+			$error       = $this->get->x_oauth_error('string');
 
 			if(!empty($error))
 			{
@@ -35,9 +41,9 @@ class callback extends PSX_ModuleAbstract
 			{
 				// @todo save token and token secret probably in file
 				// or db
-				$_SESSION['token']       = $token;
-				$_SESSION['tokenSecret'] = $tokenSecret;
-				$_SESSION['authed']      = true;
+				$this->session->set('token', $token);
+				$this->session->set('tokenSecret', $tokenSecret);
+				$this->session->set('authed', true);
 
 
 				// redirect to url

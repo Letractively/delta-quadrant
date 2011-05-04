@@ -301,7 +301,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 							scope: this,
 							success: function(response){
 
-								window.location = 'login.php';
+								window.location = metang_url + 'login';
 
 							}
 
@@ -409,7 +409,7 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 
 		con.request({
 
-			url: get_proxy_url(amun_url + '/index.php/api/content/page/buildTree?format=json'),
+			url: get_proxy_url(amun_url + 'api/content/page/buildTree?format=json'),
 			method: 'GET',
 			scope: this,
 			success: function(response){
@@ -605,7 +605,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 
 			if(oldParent == newParent){
 
-				var url    = amun_url + '/index.php/api/content/page/reorderPage?format=json';
+				var url    = amun_url + 'api/content/page/reorderPage?format=json';
 				var params = {'pageId': node.id, 'delta': (position - this.o_nav.get(0).oldPosition)};
 
 			} else {
@@ -615,7 +615,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 				return false;
 
 				/*
-				var url    = amun_url + '/index.php/api/content/page/reparentPage?format=json';
+				var url    = amun_url + 'api/content/page/reparentPage?format=json';
 				var params = {'pageId': node.id, 'parentId': newParent.id, 'position': position};
 				*/
 
@@ -872,7 +872,7 @@ Ext.onReady(function(){
 					}
 					else
 					{
-
+						Ext.Msg.alert('Error', 'Couldnt request services.');
 					}
 
 				},

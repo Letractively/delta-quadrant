@@ -33,8 +33,8 @@ Ext.ns('amun.system.event');
  * @version    $Revision: 171 $
  */
 
-amun.system.event.url = amun_url + '/index.php/api/system/event?format=json';
-amun.system.event.action_url = amun_url + '/index.php/api/system/event/action?format=json';
+amun.system.event.url = amun_url + 'api/system/event?format=json';
+amun.system.event.action_url = amun_url + 'api/system/event/action?format=json';
 
 
 amun.system.event.store = new Ext.data.Store({

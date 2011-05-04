@@ -33,7 +33,7 @@ Ext.ns('amun.system.approval');
  * @version    $Revision: 170 $
  */
 
-amun.system.approval.url = amun_url + '/index.php/api/system/approval?format=json';
+amun.system.approval.url = amun_url + 'api/system/approval?format=json';
 
 
 amun.system.approval.store = new Ext.data.Store({

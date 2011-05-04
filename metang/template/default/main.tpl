@@ -14,7 +14,7 @@
 
 	<script type="text/javascript">
 	<!--
-	var amun_url = '<?php echo $config['metang_url']; ?>';
+	var amun_url   = '<?php echo $config['metang_url']; ?>';
 	var metang_url = '<?php echo $url; ?>';
 
 	function get_proxy_url(url, params)
@@ -26,7 +26,7 @@
 			param+= '&' + k + '=' + encodeURIComponent(params[k]);
 		}
 
-		return 'proxy.php?url=' + encodeURIComponent(url) + param;
+		return metang_url + 'proxy?url=' + encodeURIComponent(url) + param;
 	}
 	-->
 	</script>

@@ -33,7 +33,7 @@ Ext.ns('amun.system.api');
  * @version    $Revision: 170 $
  */
 
-amun.system.api.url = amun_url + '/index.php/api/system/api?format=json';
+amun.system.api.url = amun_url + 'api/system/api?format=json';
 
 
 amun.system.api.store = new Ext.data.Store({

@@ -34,7 +34,7 @@ Ext.ns('amun.user.group');
  */
 
 
-amun.user.group.url = amun_url + '/index.php/api/user/group?format=json';
+amun.user.group.url = amun_url + 'api/user/group?format=json';
 
 
 amun.user.group.store = new Ext.data.Store({

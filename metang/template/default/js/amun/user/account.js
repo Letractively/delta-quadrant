@@ -34,7 +34,7 @@ Ext.ns('amun.user.account');
  */
 
 
-amun.user.account.url = amun_url + '/index.php/api/user/account?format=json';
+amun.user.account.url = amun_url + 'api/user/account?format=json';
 
 
 amun.user.account.store = new Ext.data.Store({

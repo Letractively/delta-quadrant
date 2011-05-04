@@ -34,7 +34,7 @@ Ext.ns('amun.user.right');
  */
 
 
-amun.user.right.url = amun_url + '/index.php/api/user/right?format=json';
+amun.user.right.url = amun_url + 'api/user/right?format=json';
 
 
 amun.user.right.store = new Ext.data.Store({

@@ -34,7 +34,7 @@ Ext.ns('amun.content.gadget');
  */
 
 
-amun.content.gadget.url = amun_url + '/index.php/api/content/gadget?format=json';
+amun.content.gadget.url = amun_url + 'api/content/gadget?format=json';
 
 
 amun.content.gadget.store = new Ext.data.Store({
