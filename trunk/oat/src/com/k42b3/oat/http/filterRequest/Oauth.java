@@ -23,6 +23,8 @@
 
 package com.k42b3.oat.http.filterRequest;
 
+import java.awt.Desktop;
+import java.net.URI;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -33,6 +35,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Map.Entry;
+
+import javax.swing.JOptionPane;
+
+import org.apache.commons.codec.digest.DigestUtils;
 
 import com.k42b3.oat.RequestFilterInterface;
 import com.k42b3.oat.http.Request;
@@ -61,8 +67,8 @@ public class Oauth implements RequestFilterInterface
 			String token = this.config.getProperty("token");
 			String token_secret = this.config.getProperty("token_secret");
 			String method = this.config.getProperty("method");
-			
-			
+
+
 			// add values
 			HashMap<String, String> values = new HashMap<String, String>();
 			
@@ -84,9 +90,9 @@ public class Oauth implements RequestFilterInterface
 
 			// get signature
 			SignatureInterface sig;
-			
-			String cls = "com.k42b3.oat.http.filter_request.oauth_signature." + method;
-			
+
+			String cls = "com.k42b3.oat.http.filterRequest.oauthSignature." + method;
+
 			Class c = Class.forName(cls);
 			
 			sig = (SignatureInterface) c.newInstance();
@@ -115,7 +121,7 @@ public class Oauth implements RequestFilterInterface
 		{
 			Entry<String, String> e = it.next();
 
-			auth_string.append(Util.url_encode(e.getKey()) + "=\"" + Util.url_encode(e.getValue()) + "\", ");
+			auth_string.append(Util.urlEncode(e.getKey()) + "=\"" + Util.urlEncode(e.getValue()) + "\", ");
 		}
 
 		String str = auth_string.toString();
@@ -132,15 +138,15 @@ public class Oauth implements RequestFilterInterface
 	{
 		StringBuilder base = new StringBuilder();
 		
-		base.append(Util.url_encode(this.get_normalized_method(request_method)));
+		base.append(Util.urlEncode(this.get_normalized_method(request_method)));
 
 		base.append('&');
 		
-		base.append(Util.url_encode(this.get_normalized_url(url)));
+		base.append(Util.urlEncode(this.get_normalized_url(url)));
 
 		base.append('&');
 		
-		base.append(Util.url_encode(this.get_normalized_parameters(params)));
+		base.append(Util.urlEncode(this.get_normalized_parameters(params)));
 
 		return base.toString();
 	}
@@ -168,7 +174,7 @@ public class Oauth implements RequestFilterInterface
 
 		for(int i = 0; i < keys.size(); i++)
 		{
-			normalized_params.append(Util.url_encode(keys.get(i)) + "=" + Util.url_encode(params.get(keys.get(i))) + "&");
+			normalized_params.append(Util.urlEncode(keys.get(i)) + "=" + Util.urlEncode(params.get(keys.get(i))) + "&");
 		}
 
 		String str = normalized_params.toString();
@@ -180,7 +186,7 @@ public class Oauth implements RequestFilterInterface
 
 		return str;
 	}
-	
+
 	private String get_normalized_url(String raw_url)
 	{
 		try
@@ -203,16 +209,16 @@ public class Oauth implements RequestFilterInterface
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			
+
 			return null;
 		}
 	}
-	
+
 	private String get_normalized_method(String method)
 	{
 		return method.toUpperCase();
 	}
-	
+
 	private String get_timestamp()
 	{
 		return "" + (System.currentTimeMillis() / 1000);
@@ -223,20 +229,19 @@ public class Oauth implements RequestFilterInterface
 		try
 		{
 			byte[] nonce = new byte[32];
-			
+
 			Random rand;
-			
+
 			rand = SecureRandom.getInstance("SHA1PRNG");
-			
+
 			rand.nextBytes(nonce);
-			
-			return Util.md5(rand.toString());
+
+
+			return DigestUtils.md5Hex(rand.toString());
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
-			
-			return Util.md5("" + System.currentTimeMillis());
+			return DigestUtils.md5Hex("" + System.currentTimeMillis());
 		}
 	}
 

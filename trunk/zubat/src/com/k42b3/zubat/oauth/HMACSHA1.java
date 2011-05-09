@@ -21,22 +21,53 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filterRequest.oauthSignature;
+package com.k42b3.zubat.oauth;
+
+import java.nio.charset.Charset;
+
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Base64;
+
+import com.k42b3.zubat.Oauth;
 
 /**
- * PLAINTEXT
+ * HMACSHA1
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 72 $
  */
-public class PLAINTEXT implements SignatureInterface
+public class HMACSHA1 implements SignatureInterface
 {
-	public String build(String base_string, String consumer_secret, String token_secret)
+	public String build(String baseString, String consumerSecret, String tokenSecret)
 	{
-		String key = Util.urlEncode(consumer_secret) + "&" + Util.urlEncode(token_secret);
+		try
+		{
+			String key = Oauth.urlEncode(consumerSecret) + "&" + Oauth.urlEncode(tokenSecret);
 
-		return key;
+
+			Charset charset = Charset.defaultCharset();
+
+			SecretKey sk = new SecretKeySpec(key.getBytes(charset), "HmacSHA1");
+
+			Mac mac = Mac.getInstance("HmacSHA1");
+
+			mac.init(sk);
+
+			byte[] result = mac.doFinal(baseString.getBytes(charset));
+
+
+			return Base64.encodeBase64String(result);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			
+			return null;
+		}
 	}
 }
