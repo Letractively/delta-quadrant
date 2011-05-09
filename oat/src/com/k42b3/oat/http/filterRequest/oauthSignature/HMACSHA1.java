@@ -27,6 +27,8 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+
 /**
  * HMACSHA1
  *
@@ -41,7 +43,7 @@ public class HMACSHA1 implements SignatureInterface
 	{
 		try
 		{
-			String key = Util.url_encode(consumer_secret) + "&" + Util.url_encode(token_secret);
+			String key = Util.urlEncode(consumer_secret) + "&" + Util.urlEncode(token_secret);
 
 
 			KeyGenerator kg = KeyGenerator.getInstance("HmacSHA1");
@@ -55,7 +57,7 @@ public class HMACSHA1 implements SignatureInterface
 			byte[] result = mac.doFinal(key.getBytes());
 
 
-			return Util.base64_encode(result);
+			return Base64.encode(result);
 		}
 		catch(Exception e)
 		{

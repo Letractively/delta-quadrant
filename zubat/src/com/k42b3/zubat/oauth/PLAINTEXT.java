@@ -21,7 +21,10 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filterRequest.oauthSignature;
+package com.k42b3.zubat.oauth;
+
+import com.k42b3.zubat.Oauth;
+
 
 /**
  * PLAINTEXT
@@ -29,13 +32,13 @@ package com.k42b3.oat.http.filterRequest.oauthSignature;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 72 $
  */
 public class PLAINTEXT implements SignatureInterface
 {
-	public String build(String base_string, String consumer_secret, String token_secret)
+	public String build(String baseString, String consumerSecret, String tokenSecret)
 	{
-		String key = Util.urlEncode(consumer_secret) + "&" + Util.urlEncode(token_secret);
+		String key = Oauth.urlEncode(consumerSecret) + "&" + Oauth.urlEncode(tokenSecret);
 
 		return key;
 	}
