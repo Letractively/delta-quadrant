@@ -1,11 +1,11 @@
 /**
- * oat
+ * zubat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An java application to access the API of amun. It is used to debug and
+ * control a website based on amun. This is the reference implementation 
+ * howto access the api. So feel free to hack and extend.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -25,14 +25,13 @@ package com.k42b3.zubat.oauth;
 
 import com.k42b3.zubat.Oauth;
 
-
 /**
  * PLAINTEXT
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 72 $
+ * @version    $Revision$
  */
 public class PLAINTEXT implements SignatureInterface
 {
