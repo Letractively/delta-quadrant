@@ -56,20 +56,24 @@ public class ZubatTablelModel extends AbstractTableModel
 	private String url;
 
 	private ArrayList<String> supportedFields = new ArrayList<String>();
-	private String[] fields;
+	private ArrayList<String> fields;
 	private Object[][] rows;
 
 	private int totalResults;
 	private int startIndex;
 	private int itemsPerPage;
 
-	public ZubatTablelModel(String url, String[] fields) throws Exception
+	public ZubatTablelModel(String url) throws Exception
 	{
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 		this.url = url;
-		this.fields = fields;
 
-		this.getSupportedFields(url);
+		this.requestSupportedFields(url);
+	}
+
+	public void loadData(ArrayList<String> fields) throws Exception
+	{
+		this.fields = fields;
 
 		this.request(url);
 	}
@@ -86,6 +90,11 @@ public class ZubatTablelModel extends AbstractTableModel
 		int index = (startIndex - itemsPerPage) > 0 ? startIndex - itemsPerPage : 0;
 
 		this.request(url + "?count=" + itemsPerPage + "&startIndex=" + index);
+	}
+
+	public ArrayList<String> getSupportedFields()
+	{
+		return this.supportedFields;
 	}
 
 	public int getTotalResults()
@@ -105,12 +114,12 @@ public class ZubatTablelModel extends AbstractTableModel
 
 	public int getColumnCount()
 	{
-		return fields.length;
+		return fields.size();
 	}
 
 	public String getColumnName(int columnIndex)
 	{
-		return fields[columnIndex];
+		return fields.get(columnIndex);
 	}
 
 	public int getRowCount() 
@@ -140,11 +149,11 @@ public class ZubatTablelModel extends AbstractTableModel
 
 		StringBuilder queryFields = new StringBuilder();
 
-		for(int i = 0; i < fields.length; i++)
+		for(int i = 0; i < fields.size(); i++)
 		{
-			if(this.supportedFields.contains(fields[i]))
+			if(this.supportedFields.contains(fields.get(i)))
 			{
-				queryFields.append(fields[i] + ",");
+				queryFields.append(fields.get(i) + ",");
 			}
 		}
 
@@ -195,7 +204,7 @@ public class ZubatTablelModel extends AbstractTableModel
 		// build row
 		int rowSize = totalResults > itemsPerPage ? itemsPerPage : totalResults;
 
-		rows = new Object[rowSize][fields.length];
+		rows = new Object[rowSize][fields.size()];
 
 
 		// parse entries
@@ -206,9 +215,9 @@ public class ZubatTablelModel extends AbstractTableModel
 			Node serviceNode = entryList.item(i);
 			Element serviceElement = (Element) serviceNode;
 
-			for(int j = 0; j < fields.length; j++)
+			for(int j = 0; j < fields.size(); j++)
 			{
-				Element valueElement = (Element) serviceElement.getElementsByTagName(fields[j]).item(0);
+				Element valueElement = (Element) serviceElement.getElementsByTagName(fields.get(j)).item(0);
 
 				if(valueElement != null)
 				{
@@ -222,7 +231,7 @@ public class ZubatTablelModel extends AbstractTableModel
 		}
 	}
 	
-	private void getSupportedFields(String url) throws Exception
+	private void requestSupportedFields(String url) throws Exception
 	{
 		// build request
 		HttpParams httpParams = new BasicHttpParams();

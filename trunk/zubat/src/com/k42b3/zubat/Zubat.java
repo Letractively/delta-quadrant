@@ -24,12 +24,23 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.GridLayout;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -63,9 +74,17 @@ public class Zubat extends JFrame
 	private static Oauth oauth;
 
 	private String baseUrl;
-	private HashMap<String, String> services = new HashMap<String, String>();
-
 	private Logger logger;
+
+	private ZubatListModel lm;
+	private JList list;
+	
+	private ZubatTablelModel tm;
+	private JTable table;
+
+	private JTabbedPane tabPane;
+
+	private ServiceItem selectedService;
 
 	public Zubat()
 	{
@@ -82,6 +101,56 @@ public class Zubat extends JFrame
 		this.setLayout(new BorderLayout());
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+		// create tab
+		tabPane = new JTabbedPane();
+
+		tabPane.addTab("View", null);
+		tabPane.addTab("Create", null);
+		tabPane.addTab("Update", null);
+		tabPane.addTab("Delete", null);
+
+		tabPane.setEnabledAt(2, false);
+		tabPane.setEnabledAt(3, false);
+
+
+		tabPane.addChangeListener(new ChangeListener() {
+
+			public void stateChanged(ChangeEvent e)
+			{
+				switch(tabPane.getSelectedIndex())
+				{
+					case 3:
+
+						loadForm(selectedService.getUri() + "/form?method=delete");
+
+						break;
+
+					case 2:
+
+						loadForm(selectedService.getUri() + "/form?method=update");
+
+						break;
+
+					case 1:
+
+						loadForm(selectedService.getUri() + "/form?method=create");
+
+						break;
+
+					default:
+					case 0:
+
+						loadTable(selectedService.getUri());
+
+						break;
+				}
+			}
+
+		});
+
+		this.add(tabPane, BorderLayout.CENTER);
 
 
 		// @todo this should com frome an config file
@@ -107,8 +176,8 @@ public class Zubat extends JFrame
 			oauth.setTokenSecret(tokenSecret);
 
 			loadServices();
-
-			setVisible(true);
+			
+			onReady();
 		}
 		else
 		{
@@ -117,30 +186,59 @@ public class Zubat extends JFrame
 				public void call()
 				{
 					loadServices();
-
-					setVisible(true);
+					
+					onReady();
 				}
 
 			});
 		}
 	}
 
+	public void onReady()
+	{
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run()
+			{
+				setVisible(true);
+			}
+
+		});
+	}
+
 	public void loadTable(String uri)
 	{
 		try
 		{
-			String[] fields = {"id", "parentId", "application", "url", "title", "template", "date"};
+			tm = new ZubatTablelModel(uri);
+			tm.loadData(tm.getSupportedFields());
 
-			ZubatTablelModel tm = new ZubatTablelModel(baseUrl + "api/content/page", fields);
-			JTable table = new JTable(tm);
+			table = new JTable(tm);
 
-			this.add(table, BorderLayout.CENTER);
 
-			this.doLayout();
+			tabPane.setComponentAt(0, new JScrollPane(table));
+
+			tabPane.validate();
 		}
 		catch(Exception e)
 		{
-			logger.info(e.getMessage());
+			Zubat.handleException(e);
+		}
+	}
+
+	private void loadForm(String url)
+	{
+		try
+		{
+			ZubatForm form = new ZubatForm(url);
+
+			tabPane.setComponentAt(1, new JScrollPane(form));
+
+			tabPane.validate();
+		}
+		catch(Exception e)
+		{
+			Zubat.handleException(e);
 		}
 	}
 
@@ -148,28 +246,46 @@ public class Zubat extends JFrame
 	{
 		try
 		{
-			ZubatListModel lm = new ZubatListModel(baseUrl);
-			JList list = new JList(lm);
+			lm = new ZubatListModel(baseUrl);
+			list = new JList(lm);
 
-			ServiceItem item = (ServiceItem) lm.getElementAt(0);
+			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-			lm.getUri(baseUrl + "/");
+			list.addListSelectionListener(new ListSelectionListener() {
 
-			if(item != null)
-			{
-				this.loadTable(item.getUri());
-			}
+				public void valueChanged(ListSelectionEvent e) 
+				{
+					ServiceItem item = (ServiceItem) list.getSelectedValue();
 
-			this.add(list, BorderLayout.NORTH);
+					if(item != null && !e.getValueIsAdjusting())
+					{
+						selectedService = item;
+
+						loadTable(item.getUri());
+					}
+				}
+
+			});
+
+			list.setSelectedIndex(0);
+
+			this.add(new JScrollPane(list), BorderLayout.WEST);
 		}
 		catch(Exception e)
 		{
-			logger.info(e.getMessage());
+			Zubat.handleException(e);
 		}
 	}
 
 	public static Oauth getOauth()
 	{
 		return oauth;
+	}
+	
+	public static void handleException(Exception e)
+	{
+		e.printStackTrace();
+
+		Logger.getLogger("com.k42b3.zubat").warning(e.getMessage());
 	}
 }
