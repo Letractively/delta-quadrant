@@ -104,7 +104,7 @@ public class ZubatListModel extends AbstractListModel
 		HttpEntity entity = httpResponse.getEntity();
 
 
-		// parse xrds
+		// parse xml
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(entity.getContent());
@@ -112,6 +112,12 @@ public class ZubatListModel extends AbstractListModel
 		Element rootElement = (Element) doc.getDocumentElement();
 
 		rootElement.normalize();
+
+		if(Zubat.hasError(rootElement))
+		{
+			throw new Exception("API error occured");
+		}
+
 
 		NodeList serviceList = doc.getElementsByTagName("Service");
 

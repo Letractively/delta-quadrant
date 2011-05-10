@@ -23,16 +23,20 @@
 
 package com.k42b3.zubat;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.JFrame;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -65,13 +69,26 @@ public class ZubatForm extends JPanel
 	private String requestUrl;
 	private ArrayList<String> requestFields = new ArrayList<String>();
 
+	private Container body;
+	private JButton btnSend;
+
 	public ZubatForm(String url) throws Exception
 	{
 		this.url = url;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 
-		this.setLayout(new GridLayout());
+		this.setLayout(new BorderLayout());
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+		body = new JPanel();
+		body.setLayout(new GridLayout(0, 1));
+
+		panel.add(body);
+
+		this.add(panel, BorderLayout.CENTER);
 
 
 		// build request
@@ -101,91 +118,104 @@ public class ZubatForm extends JPanel
 
 		rootElement.normalize();
 
+		if(Zubat.hasError(rootElement))
+		{
+			throw new Exception("API error occured");
+		}
 
-		FormItem item = this.parseItemElement(rootElement);
 
-		requestMethod = item.getMethod();
-		requestUrl = item.getValue();
+		this.parseForm(body, this.getChildNodes(rootElement, "items"));
 
-		this.parseForm(item);
+
+		// buttons
+		JPanel buttons = new JPanel();
+
+		this.btnSend = new JButton("Send");
+
+		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+		buttons.add(this.btnSend);
+
+		this.add(buttons, BorderLayout.SOUTH);
 	}
 
-	private void parseForm(FormItem item)
+	private void parseForm(Container container, ArrayList<Node> items)
 	{
-		for(int i = 0; i < item.getItems().size(); i++)
+		for(int i = 0; i < items.size(); i++)
 		{
-			if(item.getClassType().equals("input"))
+			Node childNode = items.get(i);
+
+			if(childNode.getNodeType() != Node.ELEMENT_NODE)
 			{
-				JPanel panelItem = new JPanel();
+				continue;
+			}
 
-				panelItem.setLayout(new FlowLayout());
+			Node nodeClass = this.getChildNode(childNode, "class");
+			Node nodeRef = this.getChildNode(childNode, "ref");
+			Node nodeLabel = this.getChildNode(childNode, "label");
+			Node nodeValue = this.getChildNode(childNode, "value");
 
-				JLabel label = new JLabel(item.getLabel());
-				label.setPreferredSize(new Dimension(100, 40));
+			if(nodeClass.getTextContent().equals("input"))
+			{
+				JPanel item = new JPanel();
+				item.setLayout(new FlowLayout());
+
+				JLabel label = new JLabel(nodeLabel.getTextContent());
+				label.setPreferredSize(new Dimension(100, 22));
 				JTextField input = new JTextField();
-				input.setPreferredSize(new Dimension(300, 35));
+				input.setPreferredSize(new Dimension(300, 22));
 
-				panelItem.add(label);
-				panelItem.add(input);
+				item.add(label);
+				item.add(input);
 
-				this.add(panelItem);
+				container.add(item);
 			}
 		}
 	}
-
-	private FormItem parseItemElement(Node node)
+	
+	private ArrayList<Node> getChildNodes(Node node, String nodeName)
 	{
-		FormItem item = new FormItem();
+		ArrayList<Node> nodes = new ArrayList<Node>();
+
 		NodeList childList = node.getChildNodes();
 
-		for(int j = 0; j < childList.getLength(); j++)
+		for(int i = 0; i < childList.getLength(); i++)
 		{
-			Element childElement = (Element) childList.item(j);
+			Node childNode = childList.item(i);
 
-			if(childElement.getLocalName().equals("class"))
+			if(childNode.getNodeType() != Node.ELEMENT_NODE)
 			{
-				item.setClassType(childElement.getTextContent());
+				continue;
 			}
 
-			if(childElement.getLocalName().equals("ref"))
+			if(childNode.getNodeName().equals(nodeName))
 			{
-				item.setRef(childElement.getTextContent());
-			}
-
-			if(childElement.getLocalName().equals("label"))
-			{
-				item.setLabel(childElement.getTextContent());
-			}
-
-			if(childElement.getLocalName().equals("type"))
-			{
-				item.setType(childElement.getTextContent());
-			}
-
-			if(childElement.getLocalName().equals("value"))
-			{
-				item.setValue(childElement.getTextContent());
-			}
-
-			if(childElement.getLocalName().equals("method"))
-			{
-				item.setMethod(childElement.getTextContent());
-			}
-
-			if(childElement.getLocalName().equals("items"))
-			{
-				ArrayList<FormItem> items = new ArrayList<FormItem>();
-				NodeList childNodes = childElement.getChildNodes();
-
-				for(int i = 0; i < childNodes.getLength(); i++)
-				{
-					items.add(this.parseItemElement(childNodes.item(i)));
-				}
-
-				item.setItems(items);
+				nodes.add(childNode);
 			}
 		}
 
-		return item;
+		return nodes;
+	}
+	
+	private Node getChildNode(Node node, String nodeName)
+	{
+		NodeList childList = node.getChildNodes();
+
+		for(int i = 0; i < childList.getLength(); i++)
+		{
+			Node childNode = childList.item(i);
+
+			if(childNode.getNodeType() != Node.ELEMENT_NODE)
+			{
+				continue;
+			}
+
+			if(childNode.getNodeName().equals(nodeName))
+			{
+				return childNode;
+			}
+		}
+
+		return null;
 	}
 }
