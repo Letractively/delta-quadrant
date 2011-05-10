@@ -24,14 +24,11 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.GridLayout;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -41,20 +38,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.zubat.oauth.OauthProvider;
@@ -232,6 +217,7 @@ public class Zubat extends JFrame
 		{
 			ZubatForm form = new ZubatForm(url);
 
+
 			tabPane.setComponentAt(1, new JScrollPane(form));
 
 			tabPane.validate();
@@ -261,6 +247,8 @@ public class Zubat extends JFrame
 					{
 						selectedService = item;
 
+						tabPane.setSelectedIndex(0);
+
 						loadTable(item.getUri());
 					}
 				}
@@ -287,5 +275,39 @@ public class Zubat extends JFrame
 		e.printStackTrace();
 
 		Logger.getLogger("com.k42b3.zubat").warning(e.getMessage());
+	}
+
+	public static boolean hasError(Element element)
+	{
+		NodeList childs = element.getChildNodes();
+
+		String text = "";
+		boolean success = true;
+
+		for(int i = 0; i < childs.getLength(); i++)
+		{
+			if(childs.item(i).getNodeName().equals("text"))
+			{
+				text = childs.item(i).getTextContent();
+			}
+
+			if(childs.item(i).getNodeName().equals("success"))
+			{
+				success = !childs.item(i).getTextContent().equals("false");
+			}
+		}
+
+		if(!success)
+		{
+			text = text.isEmpty() ? "An unknown error occured" : text;
+
+			JOptionPane.showMessageDialog(null, text);
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

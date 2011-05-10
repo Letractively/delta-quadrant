@@ -179,6 +179,11 @@ public class ZubatTablelModel extends AbstractTableModel
 
 		rootElement.normalize();
 
+		if(Zubat.hasError(rootElement))
+		{
+			throw new Exception("API error occured");
+		}
+
 
 		// get meta
 		Element totalResultsElement = (Element) doc.getElementsByTagName("totalResults").item(0);
@@ -259,6 +264,11 @@ public class ZubatTablelModel extends AbstractTableModel
 		Element rootElement = (Element) doc.getDocumentElement();
 
 		rootElement.normalize();
+
+		if(Zubat.hasError(rootElement))
+		{
+			throw new Exception("API error occured");
+		}
 
 
 		NodeList itemList = doc.getElementsByTagName("item");
