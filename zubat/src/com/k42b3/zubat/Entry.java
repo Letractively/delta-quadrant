@@ -48,7 +48,7 @@ public class Entry
         }
         catch(Exception e)
         {
-        	System.err.print(e.getMessage());
+        	Zubat.handleException(e);
         }
 	}
 }

@@ -192,7 +192,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 			
 			return false;
 		}
@@ -239,7 +239,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 			
 			return false;
 		}
@@ -328,7 +328,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 			
 			return false;
 		}
@@ -374,7 +374,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 		}
 	}
 
@@ -475,7 +475,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 
 			return null;
 		}
@@ -580,7 +580,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 			
 			return null;
 		}
@@ -609,7 +609,7 @@ public class Oauth
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			Zubat.handleException(e);
 
 			return null;
 		}
@@ -662,7 +662,7 @@ public class Oauth
 
 		return map;
 	}
-	
+
 	public static String getEntityContent(HttpEntity entity) throws Exception
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
