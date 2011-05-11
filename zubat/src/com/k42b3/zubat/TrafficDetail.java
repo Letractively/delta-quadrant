@@ -40,22 +40,29 @@ import javax.swing.JTextArea;
  */
 public class TrafficDetail extends JFrame
 {
+	private JTextArea content;
+
 	public TrafficDetail(TrafficItem item)
 	{
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 
 		this.setLocation(100, 100);
 
-		this.setSize(300, 400);
+		this.setSize(600, 400);
 
 		this.setMinimumSize(this.getSize());
 
 		this.setLayout(new BorderLayout());
 		
-		JTextArea response = new JTextArea(item.getResponse());
+		content = new JTextArea(item.getResponse());
 
-		this.add(new JScrollPane(response), BorderLayout.CENTER);
+		this.add(new JScrollPane(content), BorderLayout.CENTER);
 
 		this.setVisible(true);
+	}
+
+	public void setItem(TrafficItem item)
+	{
+		this.content.setText(item.getResponse());
 	}
 }
