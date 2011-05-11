@@ -139,10 +139,23 @@ public class FormPanel extends JPanel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-
-		// parse response
 		String responseContent = Zubat.getEntityContent(entity);
 
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
+		// parse response
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -158,19 +171,6 @@ public class FormPanel extends JPanel
 		if(Zubat.hasError(rootElement))
 		{
 			throw new Exception("API error occured");
-		}
-
-
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
 		}
 
 
