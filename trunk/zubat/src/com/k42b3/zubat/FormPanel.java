@@ -40,6 +40,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -79,10 +80,11 @@ public class FormPanel extends JPanel
 	private Container body;
 	private JButton btnSend;
 
-	public FormPanel(Oauth oauth, String url)
+	public FormPanel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
 	{
 		this.oauth = oauth;
 		this.url = url;
+		this.trafficListener = trafficListener;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 
@@ -97,6 +99,9 @@ public class FormPanel extends JPanel
 		body.setLayout(new GridLayout(0, 1));
 
 		panel.add(body);
+
+		// load data
+		this.request(url);
 
 		this.add(new JScrollPane(panel), BorderLayout.CENTER);
 
@@ -113,16 +118,9 @@ public class FormPanel extends JPanel
 		this.add(buttons, BorderLayout.SOUTH);
 	}
 
-	public FormPanel(Oauth oauth, String url, TrafficListenerInterface trafficListener)
+	public FormPanel(Oauth oauth, String url) throws Exception
 	{
-		this(oauth, url);
-
-		this.trafficListener = trafficListener;
-	}
-
-	public void loadData() throws Exception
-	{
-		this.request(url);
+		this(oauth, url, null);
 	}
 
 	private void request(String url) throws Exception
@@ -145,7 +143,7 @@ public class FormPanel extends JPanel
 
 		String responseContent = Zubat.getEntityContent(entity);
 
-
+		
 		// log traffic
 		if(trafficListener != null)
 		{
@@ -195,15 +193,22 @@ public class FormPanel extends JPanel
 
 			Node nodeClass = this.getChildNode(node, "class");
 
-			if(nodeClass.getTextContent().equals("input"))
+			if(nodeClass.getTextContent().toLowerCase().equals("input"))
 			{
 				container.add(parseInput(node));
 			}
 
-			if(nodeClass.getTextContent().equals("select"))
+			if(nodeClass.getTextContent().toLowerCase().equals("select"))
 			{
 				container.add(parseSelect(node));
 			}
+
+			/*
+			if(nodeClass.getTextContent().toLowerCase().equals("textarea"))
+			{
+				container.add(parseTextarea(node));
+			}
+			*/
 		}
 	}
 
@@ -212,14 +217,26 @@ public class FormPanel extends JPanel
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
 		Node nodeValue = this.getChildNode(node, "value");
+		Node nodeDisabled = this.getChildNode(node, "disabled");
 
 		JPanel item = new JPanel();
 		item.setLayout(new FlowLayout());
 
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
+
 		JTextField input = new JTextField();
 		input.setPreferredSize(new Dimension(300, 22));
+		
+		if(nodeValue != null)
+		{
+			input.setText(nodeValue.getTextContent());
+		}
+
+		if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
+		{
+			input.setEnabled(false);
+		}
 
 		item.add(label);
 		item.add(input);
@@ -232,6 +249,7 @@ public class FormPanel extends JPanel
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
 		Node nodeValue = this.getChildNode(node, "value");
+		Node nodeDisabled = this.getChildNode(node, "disabled");
 
 		JPanel item = new JPanel();
 		item.setLayout(new FlowLayout());
@@ -239,9 +257,48 @@ public class FormPanel extends JPanel
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
 
-
-		JComboBox input = new JComboBox(new DefaultComboBoxModel(this.getSelectOptions(node)));
+		DefaultComboBoxModel model = new DefaultComboBoxModel(this.getSelectOptions(node));
+		JComboBox input = new JComboBox(model);
 		input.setPreferredSize(new Dimension(300, 22));
+
+		if(nodeValue != null)
+		{
+			for(int i = 0; i < model.getSize(); i++)
+			{
+				ComboBoxItem boxItem = (ComboBoxItem) model.getElementAt(i);
+
+				if(boxItem.getKey().equals(nodeValue.getTextContent()))
+				{
+					input.setSelectedIndex(i);
+				}
+			}
+		}
+
+		if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
+		{
+			input.setEnabled(false);
+		}
+
+		item.add(label);
+		item.add(input);
+
+		return item;
+	}
+
+	private Component parseTextarea(Node node)
+	{
+		Node nodeRef = this.getChildNode(node, "ref");
+		Node nodeLabel = this.getChildNode(node, "label");
+		Node nodeValue = this.getChildNode(node, "value");
+
+		JPanel item = new JPanel();
+		item.setLayout(new FlowLayout());
+
+		JLabel label = new JLabel(nodeLabel.getTextContent());
+		label.setPreferredSize(new Dimension(100, 22));
+		JTextArea input = new JTextArea();
+		input.setPreferredSize(new Dimension(300, 120));
+		input.setText(nodeValue.getTextContent());
 
 		item.add(label);
 		item.add(input);
@@ -261,7 +318,7 @@ public class FormPanel extends JPanel
 
 			if(nodeLabel != null && nodeValue != null)
 			{
-				items[i] = new ComboBoxItem(nodeLabel.getTextContent(), nodeValue.getTextContent());
+				items[i] = new ComboBoxItem(nodeValue.getTextContent(), nodeLabel.getTextContent());
 			}
 		}
 

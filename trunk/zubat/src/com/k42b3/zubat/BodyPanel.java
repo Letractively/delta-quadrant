@@ -68,24 +68,37 @@ public class BodyPanel extends JTabbedPane
 				{
 					case 3:
 
-						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=delete&id=" + selectedId);
+						if(selectedId > 0)
+						{
+							zubat.loadForm(getSelectedIndex(), zubat.getSelectedService().getUri() + "/form?method=delete&id=" + selectedId);
+						}
 
 						break;
 
 					case 2:
 
-						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=update&id=" + selectedId);
+						if(selectedId > 0)
+						{
+							zubat.loadForm(getSelectedIndex(), zubat.getSelectedService().getUri() + "/form?method=update&id=" + selectedId);
+						}
 
 						break;
 
 					case 1:
 
-						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=create");
+						zubat.loadForm(getSelectedIndex(), zubat.getSelectedService().getUri() + "/form?method=create");
 
 						break;
 
 					default:
 					case 0:
+
+						selectedId = 0;
+
+						setEnabledAt(2, false);
+						setEnabledAt(3, false);
+
+						setSelectedIndex(0);
 
 						zubat.loadService(zubat.getSelectedService(), zubat.getSelectedFields());
 
@@ -102,10 +115,6 @@ public class BodyPanel extends JTabbedPane
 
 			public void componentRemoved(ContainerEvent e) 
 			{
-				setEnabledAt(2, false);
-				setEnabledAt(3, false);
-
-				selectedId = 0;
 			}
 
 			public void componentAdded(ContainerEvent e) 

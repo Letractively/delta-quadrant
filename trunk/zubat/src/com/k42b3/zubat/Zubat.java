@@ -232,7 +232,7 @@ public class Zubat extends JFrame
 		}
 	}
 
-	public void loadForm(String url)
+	public void loadForm(int tabIndex, String url)
 	{
 		try
 		{
@@ -245,10 +245,8 @@ public class Zubat extends JFrame
 
 			});
 
-			form.loadData();
 
-
-			bodyPanel.setComponentAt(1, form);
+			bodyPanel.setComponentAt(tabIndex, form);
 
 			bodyPanel.validate();
 		}
