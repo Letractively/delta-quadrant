@@ -24,7 +24,6 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
-import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -39,7 +38,7 @@ import org.apache.http.Header;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 86 $
+ * @version    $Revision$
  */
 public class TrafficDetail extends JFrame
 {

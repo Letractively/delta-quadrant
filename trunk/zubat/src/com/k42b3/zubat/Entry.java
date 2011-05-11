@@ -41,7 +41,7 @@ public class Entry
 		{
 			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
-			UIManager.setLookAndFeel(lookAndFeel);
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 
 
 			if(args.length > 0 && args[0].equals("--auth"))

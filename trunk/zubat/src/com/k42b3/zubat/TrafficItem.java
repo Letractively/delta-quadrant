@@ -23,7 +23,6 @@
 
 package com.k42b3.zubat;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
 

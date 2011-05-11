@@ -24,7 +24,6 @@
 package com.k42b3.zubat;
 
 import java.util.ArrayList;
-import java.util.Stack;
 
 import javax.swing.table.AbstractTableModel;
 
