@@ -93,14 +93,18 @@ public class ViewTableModel extends AbstractTableModel
 	{
 		int index = (startIndex + itemsPerPage) <= totalResults ? startIndex + itemsPerPage : totalResults;
 
-		this.request(url + "?count=" + itemsPerPage + "&startIndex=" + index);
+		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+
+		this.request(url);
 	}
 
 	public void prevPage() throws Exception
 	{
 		int index = (startIndex - itemsPerPage) > 0 ? startIndex - itemsPerPage : 0;
 
-		this.request(url + "?count=" + itemsPerPage + "&startIndex=" + index);
+		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+
+		this.request(url);
 	}
 
 	public ArrayList<String> getSupportedFields()
@@ -167,8 +171,10 @@ public class ViewTableModel extends AbstractTableModel
 				queryFields.append(fields.get(i) + ",");
 			}
 		}
+		
+		url = Zubat.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 
-		HttpGet getRequest = new HttpGet(url + "?fields=" + queryFields.substring(0, queryFields.length() - 1));
+		HttpGet getRequest = new HttpGet(url);
 
 		getRequest.addHeader("Accept", "application/xml");
 
@@ -180,10 +186,23 @@ public class ViewTableModel extends AbstractTableModel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-
-		// parse response
 		String responseContent = Zubat.getEntityContent(entity);
 
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
+		// parse response
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -253,19 +272,6 @@ public class ViewTableModel extends AbstractTableModel
 		}
 
 
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
-
-
 		logger.info("Received: " + entryList.getLength() + " rows");
 
 
@@ -291,10 +297,23 @@ public class ViewTableModel extends AbstractTableModel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-		
-		// parse response
 		String responseContent = Zubat.getEntityContent(entity);
 
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
+		// parse response
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -327,18 +346,5 @@ public class ViewTableModel extends AbstractTableModel
 		}
 		
 		logger.info("Found " + this.supportedFields.size() + " supported fields");
-
-
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
 	}
 }

@@ -40,6 +40,15 @@ public class ViewPanel extends JPanel
 
 		tm = new ViewTableModel(oauth, service.getUri(), trafficListener);
 
+		if(fields == null)
+		{
+			tm.loadData(tm.getSupportedFields());
+		}
+		else
+		{
+			tm.loadData(fields);
+		}
+
 		table = new JTable(tm);
 
 		this.add(new JScrollPane(table), BorderLayout.CENTER);
@@ -117,20 +126,6 @@ public class ViewPanel extends JPanel
 	public ViewPanel(Oauth oauth, ServiceItem service, ArrayList<String> fields) throws Exception
 	{
 		this(oauth, service, fields, null);
-	}
-
-	public void loadData() throws Exception
-	{
-		if(fields == null)
-		{
-			tm.loadData(tm.getSupportedFields());
-		}
-		else
-		{
-			tm.loadData(fields);
-		}
-		
-		this.validate();
 	}
 	
 	public JTable getTable()

@@ -220,8 +220,6 @@ public class Zubat extends JFrame
 
 			});
 
-			view.loadData();
-
 
 			bodyPanel.setComponentAt(0, view);
 
@@ -317,5 +315,17 @@ public class Zubat extends JFrame
 		}
 
 		return content.toString();
+	}
+	
+	public static String appendQuery(String url, String query)
+	{
+		if(url.indexOf('?') == -1)
+		{
+			return url + '?' + query;
+		}
+		else
+		{
+			return url + '&' + query;
+		}
 	}
 }
