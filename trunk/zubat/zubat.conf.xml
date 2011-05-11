@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zubat>
+	<baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
+	<consumerKey>b8858501073e5fb54e75b973ed044ec19f21a60d</consumerKey>
+	<consumerSecret>07d8b5173afba2575e57ca5966624a39419b5b70</consumerSecret>
+	<token>9782b074c5263a6de880310685558d8c8d00cc1e</token>
+	<tokenSecret>aea82b8e11530bc0dbdec718c4df935547efb2a5</tokenSecret>
+</zubat>
