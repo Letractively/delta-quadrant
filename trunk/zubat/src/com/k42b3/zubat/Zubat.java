@@ -211,28 +211,19 @@ public class Zubat extends JFrame
 			selectedFields = fields;
 
 
-			ViewTablelModel tm = new ViewTablelModel(oauth, service.getUri(), new TrafficListenerInterface() {
+			ViewPanel view = new ViewPanel(oauth, service, fields, new TrafficListenerInterface() {
 
-				public void handleRequest(TrafficItem item) 
+				public void handleRequest(TrafficItem item)
 				{
 					trafficTm.addTraffic(item);
 				}
 
 			});
 
-			if(fields == null)
-			{
-				tm.loadData(tm.getSupportedFields());
-			}
-			else
-			{
-				tm.loadData(fields);
-			}
-
-			JTable table = new JTable(tm);
+			view.loadData();
 
 
-			bodyPanel.setComponentAt(0, new JScrollPane(table));
+			bodyPanel.setComponentAt(0, view);
 
 			bodyPanel.setSelectedIndex(0);
 
@@ -260,7 +251,7 @@ public class Zubat extends JFrame
 			form.loadData();
 
 
-			bodyPanel.setComponentAt(1, new JScrollPane(form));
+			bodyPanel.setComponentAt(1, form);
 
 			bodyPanel.validate();
 		}

@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -80,6 +81,7 @@ public class FormPanel extends JPanel
 		this.url = url;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
+
 		this.setLayout(new BorderLayout());
 
 
@@ -92,7 +94,7 @@ public class FormPanel extends JPanel
 
 		panel.add(body);
 
-		this.add(panel, BorderLayout.CENTER);
+		this.add(new JScrollPane(panel), BorderLayout.CENTER);
 
 
 		// buttons

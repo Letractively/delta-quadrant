@@ -50,38 +50,36 @@ import org.xml.sax.InputSource;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 92 $
  */
-public class ViewTablelModel extends AbstractTableModel
+public class ViewTableModel extends AbstractTableModel
 {
 	private Oauth oauth;
 	private String url;
+	private TrafficListenerInterface trafficListener;
 	private Logger logger;
 
-	private TrafficListenerInterface trafficListener;
-
 	private ArrayList<String> supportedFields = new ArrayList<String>();
-	private ArrayList<String> fields;
+	private ArrayList<String> fields = new ArrayList<String>();
 	private Object[][] rows;
 
 	private int totalResults;
 	private int startIndex;
 	private int itemsPerPage;
 
-	public ViewTablelModel(Oauth oauth, String url) throws Exception
+	public ViewTableModel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
 	{
 		this.oauth = oauth;
 		this.url = url;
+		this.trafficListener = trafficListener;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.requestSupportedFields(url);
 	}
 
-	public ViewTablelModel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
+	public ViewTableModel(Oauth oauth, String url) throws Exception
 	{
-		this(oauth, url);
-
-		this.trafficListener = trafficListener;
+		this(oauth, url, null);
 	}
 
 	public void loadData(ArrayList<String> fields) throws Exception
@@ -266,6 +264,12 @@ public class ViewTablelModel extends AbstractTableModel
 
 			trafficListener.handleRequest(trafficItem);
 		}
+
+
+		logger.info("Received: " + entryList.getLength() + " rows");
+
+
+		this.fireTableDataChanged();
 	}
 
 	private void requestSupportedFields(String url) throws Exception
@@ -281,14 +285,12 @@ public class ViewTablelModel extends AbstractTableModel
 
 		oauth.signRequest(getRequest);
 
-		logger.info("Request: " + getRequest.getRequestLine());
+		logger.info("Request: " + getRequest.getRequestLine().toString());
 
 		HttpResponse httpResponse = httpClient.execute(getRequest);
 
 		HttpEntity entity = httpResponse.getEntity();
 
-
-		System.out.println();
 		
 		// parse response
 		String responseContent = Zubat.getEntityContent(entity);
