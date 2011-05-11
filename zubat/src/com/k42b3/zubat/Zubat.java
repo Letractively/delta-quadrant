@@ -51,6 +51,7 @@ import com.k42b3.zubat.oauth.OauthProvider;
 public class Zubat extends JFrame
 {
 	public static String version = "0.0.1 beta";
+	public static String lastError;
 
 	private Configuration config;
 	private Oauth oauth;
@@ -286,9 +287,16 @@ public class Zubat extends JFrame
 
 		if(!success)
 		{
-			text = text.isEmpty() ? "An unknown error occured" : text;
+			lastError = text.isEmpty() ? "An unknown error occured" : text;
 
-			JOptionPane.showMessageDialog(null, text);
+			SwingUtilities.invokeLater(new Runnable() {
+
+				public void run() 
+				{
+					JOptionPane.showMessageDialog(null, lastError);
+				}
+
+			});
 
 			return true;
 		}
