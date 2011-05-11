@@ -51,7 +51,7 @@ import com.k42b3.zubat.oauth.OauthProvider;
 public class Zubat extends JFrame
 {
 	public static String version = "0.0.1 beta";
-	public static String lastError;
+	public static String lastMessage;
 
 	private Configuration config;
 	private Oauth oauth;
@@ -263,45 +263,40 @@ public class Zubat extends JFrame
 		Logger.getLogger("com.k42b3.zubat").warning(e.getMessage());
 	}
 
-	public static boolean hasError(Element element)
+	public static Message parseResponse(Element element)
 	{
 		NodeList childs = element.getChildNodes();
-
-		String text = "";
-		boolean success = true;
+		Message msg = new Message();
 
 		for(int i = 0; i < childs.getLength(); i++)
 		{
 			if(childs.item(i).getNodeName().equals("text"))
 			{
-				text = childs.item(i).getTextContent();
+				msg.setText(childs.item(i).getTextContent());
 			}
 
 			if(childs.item(i).getNodeName().equals("success"))
 			{
-				success = !childs.item(i).getTextContent().equals("false");
+				msg.setSuccess(!childs.item(i).getTextContent().equals("false"));
 			}
 		}
 
-		if(!success)
-		{
-			lastError = text.isEmpty() ? "An unknown error occured" : text;
 
+		lastMessage = msg.getText();
+
+		if(!lastMessage.isEmpty())
+		{
 			SwingUtilities.invokeLater(new Runnable() {
 
 				public void run() 
 				{
-					JOptionPane.showMessageDialog(null, lastError);
+					JOptionPane.showMessageDialog(null, lastMessage);
 				}
 
 			});
+		}
 
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return msg;
 	}
 
 	public static String getEntityContent(HttpEntity entity) throws Exception

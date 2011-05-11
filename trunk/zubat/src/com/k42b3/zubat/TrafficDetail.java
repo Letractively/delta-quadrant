@@ -75,7 +75,7 @@ public class TrafficDetail extends JFrame
 
 	public void setItem(TrafficItem item)
 	{
-		txtRequest.setText(item.getRequest().getRequestLine() + "\n" + headersToString(item.getRequest().getAllHeaders()));
+		txtRequest.setText(item.getRequest().getRequestLine() + "\n" + headersToString(item.getRequest().getAllHeaders()) + "\n" + item.getRequestContent());
 		txtRequest.setCaretPosition(0);
 
 		txtResponse.setText(item.getResponse().getStatusLine() + "\n" + headersToString(item.getResponse().getAllHeaders()) + "\n" + item.getResponseContent());

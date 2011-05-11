@@ -29,25 +29,47 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -57,6 +79,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import com.k42b3.zubat.form.FormElementInterface;
+import com.k42b3.zubat.form.Input;
+import com.k42b3.zubat.form.Select;
+import com.k42b3.zubat.form.SelectItem;
+import com.k42b3.zubat.form.Textarea;
 
 /**
  * Form
@@ -75,7 +103,7 @@ public class FormPanel extends JPanel
 
 	private String requestMethod;
 	private String requestUrl;
-	private ArrayList<String> requestFields = new ArrayList<String>();
+	private HashMap<String, FormElementInterface> requestFields = new HashMap<String, FormElementInterface>();
 
 	private Container body;
 	private JButton btnSend;
@@ -110,6 +138,22 @@ public class FormPanel extends JPanel
 		JPanel buttons = new JPanel();
 
 		this.btnSend = new JButton("Send");
+
+		this.btnSend.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				try
+				{
+					sendRequest();
+				}
+				catch(Exception ex)
+				{
+					Zubat.handleException(ex);
+				}
+			}
+
+		});
 
 		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
 
@@ -170,14 +214,140 @@ public class FormPanel extends JPanel
 
 		rootElement.normalize();
 
-		if(Zubat.hasError(rootElement))
+
+		// get message
+		Message msg = Zubat.parseResponse(rootElement);
+
+		if(!msg.hasSuccess())
 		{
 			body.removeAll();
 		}
 		else
 		{
+			Node nodeMethod = this.getChildNode(rootElement, "method");
+			Node nodeValue = this.getChildNode(rootElement, "value");
+
+			requestMethod = nodeMethod.getTextContent();
+			requestUrl = nodeValue.getTextContent();
+
 			this.parseForm(body, this.getChildNodes(rootElement, "items"));
 		}
+	}
+
+	private void sendRequest() throws Exception
+	{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.newDocument();
+
+		Set<String> keys = requestFields.keySet();
+
+		Element root = doc.createElement("request");
+
+		for(String key : keys)
+		{
+			Element e = doc.createElement(key);
+			e.setTextContent(requestFields.get(key).getValue());
+
+			root.appendChild(e);
+		}
+
+		doc.appendChild(root);
+
+
+		// xml to string
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+
+		StreamResult result = new StreamResult(new StringWriter());
+		DOMSource source = new DOMSource(doc);
+		transformer.transform(source, result);
+
+		String requestContent = result.getWriter().toString();
+
+
+		// send request
+		HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
+		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+
+		HttpRequestBase request;
+
+		if(requestMethod.equals("GET"))
+		{
+			request = new HttpGet(requestUrl);
+		}
+		else if(requestMethod.equals("POST"))
+		{
+			StringEntity entity = new StringEntity(requestContent);
+
+			request = new HttpPost(requestUrl);
+
+			((HttpPost) request).setEntity(entity);
+		}
+		else if(requestMethod.equals("PUT"))
+		{
+			StringEntity entity = new StringEntity(requestContent);
+
+			request = new HttpPut(requestUrl);
+
+			((HttpPut) request).setEntity(entity);
+		}
+		else if(requestMethod.equals("DELETE"))
+		{
+			request = new HttpDelete(requestUrl);
+		}
+		else
+		{
+			throw new Exception("Invalid request method");
+		}
+
+		
+		
+		request.addHeader("Accept", "application/xml");
+		request.addHeader("Content-type", "application/xml");
+
+		oauth.signRequest(request);
+
+		logger.info("Request: " + request.getRequestLine());
+
+		HttpResponse httpResponse = httpClient.execute(request);
+
+		HttpEntity entity = httpResponse.getEntity();
+
+		String responseContent = Zubat.getEntityContent(entity);
+
+		
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setRequest(request);
+			trafficItem.setRequestContent(requestContent);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
+		// parse response
+		dbf = DocumentBuilderFactory.newInstance();
+		db = dbf.newDocumentBuilder();
+
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(responseContent));
+
+		doc = db.parse(is);
+
+		Element rootElement = (Element) doc.getDocumentElement();
+
+		rootElement.normalize();
+
+
+		// get message
+		Zubat.parseResponse(rootElement);
 	}
 
 	private void parseForm(Container container, ArrayList<Node> items)
@@ -232,7 +402,7 @@ public class FormPanel extends JPanel
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
 
-		JTextField input = new JTextField();
+		Input input = new Input();
 		input.setPreferredSize(new Dimension(300, 22));
 		
 		if(nodeValue != null)
@@ -245,15 +415,22 @@ public class FormPanel extends JPanel
 			input.setEnabled(false);
 		}
 
-		if(nodeType != null && nodeType.getTextContent().equals("hidden"))
-		{
-			return null;
-		}
 
 		item.add(label);
 		item.add(input);
 
-		return item;
+
+		requestFields.put(nodeRef.getTextContent(), input);
+
+
+		if(nodeType != null && nodeType.getTextContent().equals("hidden"))
+		{
+			return null;
+		}
+		else
+		{
+			return item;
+		}
 	}
 
 	private Component parseSelect(Node node)
@@ -270,14 +447,14 @@ public class FormPanel extends JPanel
 		label.setPreferredSize(new Dimension(100, 22));
 
 		DefaultComboBoxModel model = new DefaultComboBoxModel(this.getSelectOptions(node));
-		JComboBox input = new JComboBox(model);
+		Select input = new Select(model);
 		input.setPreferredSize(new Dimension(300, 22));
 
 		if(nodeValue != null)
 		{
 			for(int i = 0; i < model.getSize(); i++)
 			{
-				ComboBoxItem boxItem = (ComboBoxItem) model.getElementAt(i);
+				SelectItem boxItem = (SelectItem) model.getElementAt(i);
 
 				if(boxItem.getKey().equals(nodeValue.getTextContent()))
 				{
@@ -294,6 +471,10 @@ public class FormPanel extends JPanel
 		item.add(label);
 		item.add(input);
 
+
+		requestFields.put(nodeRef.getTextContent(), input);
+
+
 		return item;
 	}
 
@@ -308,20 +489,25 @@ public class FormPanel extends JPanel
 
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
-		JTextArea input = new JTextArea();
+
+		Textarea input = new Textarea();
 		input.setPreferredSize(new Dimension(300, 120));
 		input.setText(nodeValue.getTextContent());
 
 		item.add(label);
 		item.add(input);
 
+
+		requestFields.put(nodeRef.getTextContent(), input);
+
+
 		return item;
 	}
 
-	private ComboBoxItem[] getSelectOptions(Node node)
+	private SelectItem[] getSelectOptions(Node node)
 	{
 		ArrayList<Node> options = this.getChildNodes(node, "items");
-		ComboBoxItem[] items = new ComboBoxItem[options.size()];
+		SelectItem[] items = new SelectItem[options.size()];
 
 		for(int i = 0; i < options.size(); i++)
 		{
@@ -330,7 +516,7 @@ public class FormPanel extends JPanel
 
 			if(nodeLabel != null && nodeValue != null)
 			{
-				items[i] = new ComboBoxItem(nodeValue.getTextContent(), nodeLabel.getTextContent());
+				items[i] = new SelectItem(nodeValue.getTextContent(), nodeLabel.getTextContent());
 			}
 		}
 
@@ -381,42 +567,5 @@ public class FormPanel extends JPanel
 		}
 
 		return null;
-	}
-
-	class ComboBoxItem
-	{
-		private String key;
-		private String value;
-
-		public ComboBoxItem(String key, String value)
-		{
-			this.setKey(key);
-			this.setValue(value);
-		}
-
-		public String getKey() 
-		{
-			return key;
-		}
-
-		public void setKey(String key) 
-		{
-			this.key = key;
-		}
-
-		public String getValue() 
-		{
-			return value;
-		}
-
-		public void setValue(String value) 
-		{
-			this.value = value;
-		}
-		
-		public String toString()
-		{
-			return this.value;
-		}
 	}
 }

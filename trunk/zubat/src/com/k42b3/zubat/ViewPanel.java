@@ -96,7 +96,7 @@ public class ViewPanel extends JPanel
 			{
 				try
 				{
-					tm.prevPage();
+					tm.nextPage();
 				}
 				catch(Exception e)
 				{

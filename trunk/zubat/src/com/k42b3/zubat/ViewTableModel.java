@@ -91,7 +91,7 @@ public class ViewTableModel extends AbstractTableModel
 
 	public void nextPage() throws Exception
 	{
-		int index = (startIndex + itemsPerPage) <= totalResults ? startIndex + itemsPerPage : totalResults;
+		int index = startIndex + itemsPerPage;
 
 		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
 
@@ -100,7 +100,8 @@ public class ViewTableModel extends AbstractTableModel
 
 	public void prevPage() throws Exception
 	{
-		int index = (startIndex - itemsPerPage) > 0 ? startIndex - itemsPerPage : 0;
+		int index = startIndex - itemsPerPage;
+		index = index < 0 ? 0 : index;
 
 		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
 
@@ -215,7 +216,11 @@ public class ViewTableModel extends AbstractTableModel
 
 		rootElement.normalize();
 
-		if(Zubat.hasError(rootElement))
+		
+		// get message
+		Message msg = Zubat.parseResponse(rootElement);
+
+		if(!msg.hasSuccess())
 		{
 			throw new Exception("API error occured");
 		}
@@ -326,7 +331,11 @@ public class ViewTableModel extends AbstractTableModel
 
 		rootElement.normalize();
 
-		if(Zubat.hasError(rootElement))
+
+		// get message
+		Message msg = Zubat.parseResponse(rootElement);
+
+		if(!msg.hasSuccess())
 		{
 			throw new Exception("API error occured");
 		}
