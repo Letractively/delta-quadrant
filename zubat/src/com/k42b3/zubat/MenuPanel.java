@@ -359,6 +359,7 @@ public class MenuPanel extends JMenuBar
 
 			public void actionPerformed(ActionEvent e) 
 			{
+				JOptionPane.showMessageDialog(null, "zubat (version: " + Zubat.version + ")\nDeveloper: Christoph Kappestein <k42b3.x@gmail.com>\nLicense: http://www.gnu.org/licenses/gpl.html GPLv3");
 			}
 
 		});

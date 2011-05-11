@@ -23,7 +23,13 @@
 
 package com.k42b3.zubat;
 
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -38,6 +44,8 @@ import javax.swing.event.ChangeListener;
 public class BodyPanel extends JTabbedPane
 {
 	private Zubat zubat;
+
+	private int selectedId = 0;
 
 	public BodyPanel(Zubat zubatInstance)
 	{
@@ -59,13 +67,13 @@ public class BodyPanel extends JTabbedPane
 				{
 					case 3:
 
-						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=delete");
+						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=delete&id=" + selectedId);
 
 						break;
 
 					case 2:
 
-						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=update");
+						zubat.loadForm(zubat.getSelectedService().getUri() + "/form?method=update&id=" + selectedId);
 
 						break;
 
@@ -85,5 +93,63 @@ public class BodyPanel extends JTabbedPane
 			}
 
 		});
+
+		this.addContainerListener(new ContainerListener() {
+
+			private JTable table;
+			private ViewTableModel tm;
+
+			public void componentRemoved(ContainerEvent e) 
+			{
+				selectedId = 0;
+			}
+
+			public void componentAdded(ContainerEvent e) 
+			{
+				if(e.getComponent() instanceof ViewPanel)
+				{
+					ViewPanel panel = (ViewPanel) e.getComponent();
+
+					table = panel.getTable();
+					tm = (ViewTableModel) table.getModel();
+
+					table.addMouseListener(new MouseListener() {
+
+						public void mouseReleased(MouseEvent e)
+						{
+							Object rawId = tm.getValueAt(table.getSelectedRow(), 0);
+
+							selectedId = Integer.parseInt(rawId.toString());
+
+							setEnabledAt(2, true);
+							setEnabledAt(3, true);
+						}
+
+						public void mousePressed(MouseEvent e) 
+						{
+						}
+
+						public void mouseExited(MouseEvent e) 
+						{
+						}
+
+						public void mouseEntered(MouseEvent e) 
+						{
+						}
+
+						public void mouseClicked(MouseEvent e) 
+						{
+						}
+
+					});
+				}
+			}
+
+		});
+	}
+
+	public int getSelectedId()
+	{
+		return selectedId;
 	}
 }
