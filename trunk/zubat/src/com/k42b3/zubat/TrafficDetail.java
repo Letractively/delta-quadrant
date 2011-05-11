@@ -28,7 +28,10 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+
+import org.apache.http.Header;
 
 /**
  * TrafficDetail
@@ -40,9 +43,11 @@ import javax.swing.JTextArea;
  */
 public class TrafficDetail extends JFrame
 {
-	private JTextArea content;
+	private JTabbedPane tabPane;
+	private JTextArea txtRequest;
+	private JTextArea txtResponse;
 
-	public TrafficDetail(TrafficItem item)
+	public TrafficDetail()
 	{
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 
@@ -53,16 +58,42 @@ public class TrafficDetail extends JFrame
 		this.setMinimumSize(this.getSize());
 
 		this.setLayout(new BorderLayout());
-		
-		content = new JTextArea(item.getResponse());
 
-		this.add(new JScrollPane(content), BorderLayout.CENTER);
+
+		tabPane = new JTabbedPane();
+
+		txtRequest = new JTextArea();
+		txtResponse = new JTextArea();
+
+		tabPane.addTab("Request", new JScrollPane(txtRequest));
+		tabPane.addTab("Response", new JScrollPane(txtResponse));
+
+
+		this.add(tabPane, BorderLayout.CENTER);
 
 		this.setVisible(true);
 	}
 
 	public void setItem(TrafficItem item)
 	{
-		this.content.setText(item.getResponse());
+		txtRequest.setText(item.getRequest().getRequestLine() + "\n" + headersToString(item.getRequest().getAllHeaders()));
+		txtRequest.setCaretPosition(0);
+
+		txtResponse.setText(item.getResponse().getStatusLine() + "\n" + headersToString(item.getResponse().getAllHeaders()) + "\n" + item.getResponseContent());
+		txtResponse.setCaretPosition(0);
+
+		tabPane.setSelectedIndex(1);
+	}
+
+	private String headersToString(Header[] headers)
+	{
+		StringBuilder content = new StringBuilder();
+
+		for(int i = 0; i < headers.length; i++)
+		{
+			content.append(headers[i].getName() + ": " + headers[i].getValue() + "\n");
+		}
+
+		return content.toString();
 	}
 }

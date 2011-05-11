@@ -23,6 +23,10 @@
 
 package com.k42b3.zubat;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+
 /**
  * TrafficItem
  *
@@ -33,49 +37,37 @@ package com.k42b3.zubat;
  */
 public class TrafficItem 
 {
-	private String method;
-	private int responseCode;
-	private String url;
+	private HttpRequestBase request;
+	private HttpResponse response;
+	private String responseContent;
 
-	private String response;
-
-	public String getMethod() 
+	public HttpRequestBase getRequest()
 	{
-		return method;
+		return request;
 	}
 
-	public void setMethod(String method) 
+	public void setRequest(HttpRequestBase request)
 	{
-		this.method = method;
+		this.request = request;
 	}
 
-	public int getResponseCode() 
-	{
-		return responseCode;
-	}
-
-	public void setResponseCode(int responseCode) 
-	{
-		this.responseCode = responseCode;
-	}
-
-	public String getUrl() 
-	{
-		return url;
-	}
-
-	public void setUrl(String url) 
-	{
-		this.url = url;
-	}
-
-	public String getResponse() 
+	public HttpResponse getResponse() 
 	{
 		return response;
 	}
 
-	public void setResponse(String response) 
+	public void setResponse(HttpResponse httpResponse) 
 	{
-		this.response = response;
+		this.response = httpResponse;
+	}
+
+	public String getResponseContent() 
+	{
+		return responseContent;
+	}
+
+	public void setResponseContent(String responseContent) 
+	{
+		this.responseContent = responseContent;
 	}
 }

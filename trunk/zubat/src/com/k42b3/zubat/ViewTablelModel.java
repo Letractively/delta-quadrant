@@ -261,10 +261,9 @@ public class ViewTablelModel extends AbstractTableModel
 		{
 			TrafficItem trafficItem = new TrafficItem();
 
-			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
-			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-			trafficItem.setUrl(getRequest.getURI().toString());
-			trafficItem.setResponse(responseContent);
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}
@@ -293,9 +292,15 @@ public class ViewTablelModel extends AbstractTableModel
 		System.out.println();
 		
 		// parse response
+		String responseContent = Zubat.getEntityContent(entity);
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(entity.getContent());
+
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(responseContent));
+
+		Document doc = db.parse(is);
 
 		Element rootElement = (Element) doc.getDocumentElement();
 
@@ -328,9 +333,9 @@ public class ViewTablelModel extends AbstractTableModel
 		{
 			TrafficItem trafficItem = new TrafficItem();
 
-			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
-			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-			trafficItem.setUrl(getRequest.getURI().toString());
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}

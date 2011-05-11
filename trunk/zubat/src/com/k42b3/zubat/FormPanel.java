@@ -28,6 +28,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -49,6 +50,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * Form
@@ -137,9 +139,15 @@ public class FormPanel extends JPanel
 
 
 		// parse response
+		String responseContent = Zubat.getEntityContent(entity);
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(entity.getContent());
+
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(responseContent));
+
+		Document doc = db.parse(is);
 
 		Element rootElement = (Element) doc.getDocumentElement();
 
@@ -156,9 +164,9 @@ public class FormPanel extends JPanel
 		{
 			TrafficItem trafficItem = new TrafficItem();
 
-			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
-			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-			trafficItem.setUrl(getRequest.getURI().toString());
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}

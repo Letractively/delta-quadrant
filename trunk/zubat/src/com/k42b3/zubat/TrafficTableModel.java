@@ -28,6 +28,9 @@ import java.util.Stack;
 
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpRequestBase;
+
 /**
  * TrafficTableModel
  *
@@ -84,11 +87,14 @@ public class TrafficTableModel extends AbstractTableModel
 	{
 		if(rowIndex >= 0 && rowIndex < rows.size())
 		{
+			HttpRequestBase request = rows.get(rowIndex).getRequest();
+			HttpResponse response = rows.get(rowIndex).getResponse();
+
 			switch(columnIndex)
 			{
-				case 0: return rows.get(rowIndex).getMethod();
-				case 1: return rows.get(rowIndex).getResponseCode();
-				case 2: return rows.get(rowIndex).getUrl();
+				case 0: return request.getMethod();
+				case 1: return response.getStatusLine();
+				case 2: return request.getRequestLine().getUri();
 			}
 		}
 

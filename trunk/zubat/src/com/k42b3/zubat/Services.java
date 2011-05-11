@@ -23,6 +23,7 @@
 
 package com.k42b3.zubat;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -42,6 +43,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * Services
@@ -53,14 +55,26 @@ import org.w3c.dom.NodeList;
  */
 public class Services
 {
+	private String baseUrl;
 	private Logger logger;
 	private TrafficListenerInterface trafficListener;
 	private ArrayList<ServiceItem> services = new ArrayList<ServiceItem>();
 
-	public Services(String baseUrl) throws Exception
+	public Services(String baseUrl)
 	{
+		this.baseUrl = baseUrl;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
+	}
 
+	public Services(String baseUrl, TrafficListenerInterface trafficListener)
+	{
+		this(baseUrl);
+
+		this.trafficListener = trafficListener;
+	}
+
+	public void loadData() throws Exception
+	{
 		String url = this.getXrdsUrl(baseUrl);
 
 		if(url != null)
@@ -72,14 +86,7 @@ public class Services
 			throw new Exception("Could not find xrds location");
 		}
 	}
-
-	public Services(String baseUrl, TrafficListenerInterface trafficListener) throws Exception
-	{
-		this(baseUrl);
-
-		this.trafficListener = trafficListener;
-	}
-
+	
 	public Object getElementAt(int index) 
 	{
 		return services.get(index);
@@ -118,17 +125,24 @@ public class Services
 
 		HttpEntity entity = httpResponse.getEntity();
 
-
+		
 		// find x-xrds-location header
 		Header[] headers = httpResponse.getAllHeaders();
-		
+		String xrdsLocation = null;
+
 		for(int i = 0; i < headers.length; i++)
 		{
 			if(headers[i].getName().toLowerCase().equals("x-xrds-location"))
 			{
-				return headers[i].getValue();
+				xrdsLocation = headers[i].getValue();
+
+				break;
 			}
 		}
+
+
+		// get response content
+		String responseContent = Zubat.getEntityContent(entity);
 
 
 		// log traffic
@@ -136,15 +150,15 @@ public class Services
 		{
 			TrafficItem trafficItem = new TrafficItem();
 
-			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
-			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-			trafficItem.setUrl(getRequest.getURI().toString());
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}
 
 
-		return null;
+		return xrdsLocation;
 	}
 
 	private void request(String url) throws Exception
@@ -164,9 +178,15 @@ public class Services
 
 
 		// parse xml
+		String responseContent = Zubat.getEntityContent(entity);
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(entity.getContent());
+
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(responseContent));
+
+		Document doc = db.parse(is);
 
 		Element rootElement = (Element) doc.getDocumentElement();
 
@@ -205,9 +225,9 @@ public class Services
 		{
 			TrafficItem trafficItem = new TrafficItem();
 
-			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
-			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-			trafficItem.setUrl(getRequest.getURI().toString());
+			trafficItem.setRequest(getRequest);
+			trafficItem.setResponse(httpResponse);
+			trafficItem.setResponseContent(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}
