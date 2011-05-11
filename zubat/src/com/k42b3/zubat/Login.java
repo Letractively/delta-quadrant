@@ -26,10 +26,14 @@ package com.k42b3.zubat;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
+import com.k42b3.zubat.oauth.OauthProvider;
 
 /**
  * Login
@@ -41,13 +45,15 @@ import javax.swing.JFrame;
  */
 public class Login extends JFrame
 {
+	private Configuration config;
+	private Services availableServices;
+	private Oauth oauth;
 	private Logger logger;
-	private CallbackInterface cb;
 
 	public Login()
 	{
-		logger = Logger.getLogger("com.k42b3.zubat");
-		
+		this.logger = Logger.getLogger("com.k42b3.zubat");
+
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 
 		this.setLocation(100, 100);
@@ -61,24 +67,28 @@ public class Login extends JFrame
 		this.setLayout(new BorderLayout());
 
 
-		JButton btn_login = new JButton("Login");
+		// login button
+		JButton btnLogin = new JButton("Login");
 		
-		btn_login.addActionListener(new ActionListener() {
+		btnLogin.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e)
 			{
-				if(Zubat.getOauth().requestToken())
+				if(oauth.requestToken())
 				{
-					if(Zubat.getOauth().authorizeToken())
+					if(oauth.authorizeToken())
 					{
-						if(Zubat.getOauth().accessToken())
+						if(oauth.accessToken())
 						{
-							if(cb != null)
-							{
-								cb.call();
-							}
+							// probably save the token in the config file
+							System.out.println("Token: " + oauth.getToken());
+							System.out.println("Token secret: " + oauth.getTokenSecret());
+
+							JOptionPane.showMessageDialog(null, "You have successful authenticated");
 
 							setVisible(false);
+
+							System.exit(0);
 						}
 						else
 						{
@@ -98,16 +108,31 @@ public class Login extends JFrame
 
 		});
 
-		this.add(btn_login);
+		this.add(btnLogin);
+
+
+		// oauth config
+		try
+		{
+			config = Configuration.parseFile(new File("config.xml"));
+
+			availableServices = new Services(config.getBaseUrl());
+			
+			String requestUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/request");
+			String authorizationUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/authorize");
+			String accessUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/access");
+
+			OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
+			oauth = new Oauth(provider);
+		}
+		catch(Exception e)
+		{
+			Zubat.handleException(e);
+		}
 
 
 		this.setVisible(true);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-
-	public void setCallback(CallbackInterface cb)
-	{
-		this.cb = cb;
 	}
 }

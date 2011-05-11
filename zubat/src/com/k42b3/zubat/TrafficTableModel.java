@@ -23,15 +23,65 @@
 
 package com.k42b3.zubat;
 
+import java.util.ArrayList;
+
+import javax.swing.table.AbstractTableModel;
+
 /**
- * CallbackInterface
+ * TrafficTableModel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-interface CallbackInterface 
+public class TrafficTableModel extends AbstractTableModel
 {
-	public void call();
+	private ArrayList<String> fields = new ArrayList<String>();
+	private ArrayList<TrafficItem> rows = new ArrayList<TrafficItem>();
+	
+	public TrafficTableModel()
+	{
+		// header fields
+		fields.add("Method");
+		fields.add("Response");
+		fields.add("Url");
+	}
+
+	public void addTraffic(TrafficItem item)
+	{
+		rows.add(item);
+		
+		this.fireTableDataChanged();
+	}
+
+	public int getColumnCount()
+	{
+		return fields.size();
+	}
+
+	public String getColumnName(int columnIndex)
+	{
+		return fields.get(columnIndex);
+	}
+
+	public int getRowCount() 
+	{
+		return rows.size();
+	}
+
+	public Object getValueAt(int rowIndex, int columnIndex) 
+	{
+		if(rowIndex >= 0 && rowIndex < rows.size())
+		{
+			switch(columnIndex)
+			{
+				case 0: return rows.get(rowIndex).getMethod();
+				case 1: return rows.get(rowIndex).getResponseCode();
+				case 2: return rows.get(rowIndex).getUrl();
+			}
+		}
+
+		return null;
+	}
 }

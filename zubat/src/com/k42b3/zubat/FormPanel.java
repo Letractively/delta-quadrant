@@ -31,12 +31,10 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SpringLayout;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -58,12 +56,14 @@ import org.w3c.dom.NodeList;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 83 $
+ * @version    $Revision$
  */
-public class ZubatForm extends JPanel
+public class FormPanel extends JPanel
 {
+	private Oauth oauth;
 	private String url;
 	private Logger logger;
+	private TrafficListenerInterface trafficListener;
 
 	private String requestMethod;
 	private String requestUrl;
@@ -72,14 +72,16 @@ public class ZubatForm extends JPanel
 	private Container body;
 	private JButton btnSend;
 
-	public ZubatForm(String url) throws Exception
+	public FormPanel(Oauth oauth, String url)
 	{
+		this.oauth = oauth;
 		this.url = url;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
-
 		this.setLayout(new BorderLayout());
 
+
+		// form panel
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
@@ -91,7 +93,32 @@ public class ZubatForm extends JPanel
 		this.add(panel, BorderLayout.CENTER);
 
 
-		// build request
+		// buttons
+		JPanel buttons = new JPanel();
+
+		this.btnSend = new JButton("Send");
+
+		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+		buttons.add(this.btnSend);
+
+		this.add(buttons, BorderLayout.SOUTH);
+	}
+
+	public FormPanel(Oauth oauth, String url, TrafficListenerInterface trafficListener)
+	{
+		this(oauth, url);
+
+		this.trafficListener = trafficListener;
+	}
+
+	public void loadData() throws Exception
+	{
+		this.request(url);
+	}
+
+	private void request(String url) throws Exception
+	{
 		HttpParams httpParams = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
 		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
@@ -100,7 +127,7 @@ public class ZubatForm extends JPanel
 
 		getRequest.addHeader("Accept", "application/xml");
 
-		Zubat.getOauth().signRequest(getRequest);
+		oauth.signRequest(getRequest);
 
 		logger.info("Request: " + getRequest.getRequestLine());
 
@@ -124,19 +151,20 @@ public class ZubatForm extends JPanel
 		}
 
 
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
+			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+			trafficItem.setUrl(getRequest.getURI().toString());
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
 		this.parseForm(body, this.getChildNodes(rootElement, "items"));
-
-
-		// buttons
-		JPanel buttons = new JPanel();
-
-		this.btnSend = new JButton("Send");
-
-		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
-
-		buttons.add(this.btnSend);
-
-		this.add(buttons, BorderLayout.SOUTH);
 	}
 
 	private void parseForm(Container container, ArrayList<Node> items)

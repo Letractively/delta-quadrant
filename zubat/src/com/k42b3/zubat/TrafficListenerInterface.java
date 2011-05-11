@@ -23,39 +23,15 @@
 
 package com.k42b3.zubat;
 
-import javax.swing.UIManager;
-
 /**
- * Entry
+ * TrafficListenerInterface
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Entry 
+public interface TrafficListenerInterface 
 {
-	public static void main(String[] args)
-	{
-		try
-		{
-			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-
-			UIManager.setLookAndFeel(lookAndFeel);
-
-
-			if(args.length > 0 && args[0].equals("--auth"))
-			{
-				new Login();
-			}
-			else
-			{
-				new Zubat();
-			}
-		}
-		catch(Exception e)
-		{
-			Zubat.handleException(e);
-		}
-	}
+	public void handleRequest(TrafficItem item);
 }

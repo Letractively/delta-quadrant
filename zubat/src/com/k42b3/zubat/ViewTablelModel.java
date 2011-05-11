@@ -41,19 +41,23 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXParseException;
 
 /**
- * ZubatTablelModel
+ * ViewTablelModel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class ZubatTablelModel extends AbstractTableModel
+public class ViewTablelModel extends AbstractTableModel
 {
-	private Logger logger;
+	private Oauth oauth;
 	private String url;
+	private Logger logger;
+
+	private TrafficListenerInterface trafficListener;
 
 	private ArrayList<String> supportedFields = new ArrayList<String>();
 	private ArrayList<String> fields;
@@ -63,12 +67,20 @@ public class ZubatTablelModel extends AbstractTableModel
 	private int startIndex;
 	private int itemsPerPage;
 
-	public ZubatTablelModel(String url) throws Exception
+	public ViewTablelModel(Oauth oauth, String url) throws Exception
 	{
-		this.logger = Logger.getLogger("com.k42b3.zubat");
+		this.oauth = oauth;
 		this.url = url;
+		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.requestSupportedFields(url);
+	}
+
+	public ViewTablelModel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
+	{
+		this(oauth, url);
+
+		this.trafficListener = trafficListener;
 	}
 
 	public void loadData(ArrayList<String> fields) throws Exception
@@ -161,12 +173,12 @@ public class ZubatTablelModel extends AbstractTableModel
 
 		getRequest.addHeader("Accept", "application/xml");
 
-		Zubat.getOauth().signRequest(getRequest);
+		oauth.signRequest(getRequest);
 
 		logger.info("Request: " + getRequest.getRequestLine());
 
 		HttpResponse httpResponse = httpClient.execute(getRequest);
-
+		
 		HttpEntity entity = httpResponse.getEntity();
 
 
@@ -234,8 +246,21 @@ public class ZubatTablelModel extends AbstractTableModel
 				}
 			}
 		}
+
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
+			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+			trafficItem.setUrl(getRequest.getURI().toString());
+
+			trafficListener.handleRequest(trafficItem);
+		}
 	}
-	
+
 	private void requestSupportedFields(String url) throws Exception
 	{
 		// build request
@@ -247,7 +272,7 @@ public class ZubatTablelModel extends AbstractTableModel
 
 		getRequest.addHeader("Accept", "application/xml");
 
-		Zubat.getOauth().signRequest(getRequest);
+		oauth.signRequest(getRequest);
 
 		logger.info("Request: " + getRequest.getRequestLine());
 
@@ -256,6 +281,8 @@ public class ZubatTablelModel extends AbstractTableModel
 		HttpEntity entity = httpResponse.getEntity();
 
 
+		System.out.println();
+		
 		// parse response
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -285,5 +312,18 @@ public class ZubatTablelModel extends AbstractTableModel
 		}
 		
 		logger.info("Found " + this.supportedFields.size() + " supported fields");
+
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
+			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+			trafficItem.setUrl(getRequest.getURI().toString());
+
+			trafficListener.handleRequest(trafficItem);
+		}
 	}
 }
