@@ -26,7 +26,10 @@ package com.k42b3.zubat;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.JButton;
@@ -47,6 +50,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableColumn;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -108,7 +112,7 @@ public class Zubat extends JFrame
 
 			this.doAuthentication();
 
-			this.add(this.buildToolbar(), BorderLayout.NORTH);
+			this.add(this.buildMenu(), BorderLayout.NORTH);
 
 			this.add(this.buildBodyPanel(), BorderLayout.CENTER);
 
@@ -128,9 +132,9 @@ public class Zubat extends JFrame
 
 	private void doAuthentication() throws Exception
 	{
-		String requestUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/request");
-		String authorizationUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/authorize");
-		String accessUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/access");
+		String requestUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request").getUri();
+		String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();
+		String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
 
 		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
 		oauth = new Oauth(provider, new TrafficListenerInterface() {
@@ -164,7 +168,7 @@ public class Zubat extends JFrame
 		});
 	}
 	
-	private Component buildToolbar()
+	private Component buildMenu()
 	{
 		JMenuBar menuBar = new JMenuBar();
 
@@ -172,10 +176,50 @@ public class Zubat extends JFrame
 		// content
 		JMenu contentMenu = new JMenu("Content");
 
-		contentMenu.add(new JMenuItem("Gadget"));
-		contentMenu.add(new JMenuItem("Media"));
-		contentMenu.add(new JMenuItem("Page"));
-		contentMenu.add(new JMenuItem("Service"));
+		JMenuItem contentGadgetItem = new JMenuItem("Gadget");
+		contentGadgetItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/gadget"), null);
+			}
+
+		});
+
+		JMenuItem contentMediaItem = new JMenuItem("Media");
+		contentMediaItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/media"), null);
+			}
+
+		});
+
+		JMenuItem contentPageItem = new JMenuItem("Page");
+		contentPageItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), null);
+			}
+
+		});
+
+		JMenuItem contentServiceItem = new JMenuItem("Service");
+		contentServiceItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/service"), null);
+			}
+
+		});
+
+		contentMenu.add(contentGadgetItem);
+		contentMenu.add(contentMediaItem);
+		contentMenu.add(contentPageItem);
+		contentMenu.add(contentServiceItem);
 
 		menuBar.add(contentMenu);
 
@@ -183,11 +227,61 @@ public class Zubat extends JFrame
 		// system
 		JMenu systemMenu = new JMenu("System");
 
-		systemMenu.add(new JMenuItem("API"));
-		systemMenu.add(new JMenuItem("Approval"));
-		systemMenu.add(new JMenuItem("Country"));
-		systemMenu.add(new JMenuItem("Event"));
-		systemMenu.add(new JMenuItem("Vars"));
+		JMenuItem systemApiItem = new JMenuItem("API");
+		systemApiItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/api"), null);
+			}
+
+		});
+
+		JMenuItem systemApprovalItem = new JMenuItem("Approval");
+		systemApprovalItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/approval"), null);
+			}
+
+		});
+
+		JMenuItem systemCountryItem = new JMenuItem("Country");
+		systemCountryItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/country"), null);
+			}
+
+		});
+
+		JMenuItem systemEventItem = new JMenuItem("Event");
+		systemEventItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/event"), null);
+			}
+
+		});
+
+		JMenuItem systemVarsItem = new JMenuItem("Vars");
+		systemVarsItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/vars"), null);
+			}
+
+		});
+
+		systemMenu.add(systemApiItem);
+		systemMenu.add(systemApprovalItem);
+		systemMenu.add(systemCountryItem);
+		systemMenu.add(systemEventItem);
+		systemMenu.add(systemVarsItem);
 
 		menuBar.add(systemMenu);
 
@@ -195,26 +289,65 @@ public class Zubat extends JFrame
 		// user
 		JMenu userMenu = new JMenu("User");
 
-		userMenu.add(new JMenuItem("Account"));
-		userMenu.add(new JMenuItem("Activity"));
-		userMenu.add(new JMenuItem("Friend"));
-		userMenu.add(new JMenuItem("Group"));
-		userMenu.add(new JMenuItem("Right"));
+		JMenuItem userAccountItem = new JMenuItem("Account");
+		userAccountItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/account"), null);
+			}
+
+		});
+
+		JMenuItem userActivityItem = new JMenuItem("Activity");
+		userActivityItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/activity"), null);
+			}
+
+		});
+
+		JMenuItem userFriendItem = new JMenuItem("Friend");
+		userFriendItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/friend"), null);
+			}
+
+		});
+
+		JMenuItem userGroupItem = new JMenuItem("Friend");
+		userGroupItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/group"), null);
+			}
+
+		});
+
+		JMenuItem userRightItem = new JMenuItem("Right");
+		userRightItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/right"), null);
+			}
+
+		});
+
+		userMenu.add(userAccountItem);
+		userMenu.add(userActivityItem);
+		userMenu.add(userFriendItem);
+		userMenu.add(userGroupItem);
+		userMenu.add(userRightItem);
 
 		menuBar.add(userMenu);
-		
-		/*
-				ServiceItem item = (ServiceItem) list.getSelectedValue();
 
-				if(item != null && !e.getValueIsAdjusting())
-				{
-					selectedService = item;
 
-					tabPane.setSelectedIndex(0);
-
-					loadTable(item.getUri());
-				}
-		 */
 		return menuBar;
 	}
 
@@ -258,7 +391,7 @@ public class Zubat extends JFrame
 					default:
 					case 0:
 
-						loadTable(selectedService.getUri());
+						loadService(selectedService, null);
 
 						break;
 				}
@@ -273,6 +406,12 @@ public class Zubat extends JFrame
 	{
 		trafficTable = new JTable(trafficTm);
 
+		trafficTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+
+		trafficTable.getColumnModel().getColumn(0).setMaxWidth(100); 
+		trafficTable.getColumnModel().getColumn(1).setMaxWidth(100); 
+		trafficTable.getColumnModel().getColumn(2).setMinWidth(600); 
+
 		JScrollPane trafficPane = new JScrollPane(trafficTable);
 		trafficPane.setPreferredSize(new Dimension(600, 200));
 		
@@ -285,12 +424,7 @@ public class Zubat extends JFrame
 
 			public void run()
 			{
-				String url = availableServices.getUri("http://ns.amun-project.org/2011/amun/content/page");
-
-				if(url != null)
-				{
-					loadTable(url);
-				}
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), null);
 
 				setVisible(true);
 			}
@@ -298,11 +432,13 @@ public class Zubat extends JFrame
 		});
 	}
 
-	public void loadTable(String uri)
+	public void loadService(ServiceItem service, ArrayList<String> fields)
 	{
 		try
 		{
-			tm = new ViewTablelModel(oauth, uri, new TrafficListenerInterface() {
+			selectedService = service;
+
+			tm = new ViewTablelModel(oauth, service.getUri(), new TrafficListenerInterface() {
 
 				public void handleRequest(TrafficItem item) 
 				{
@@ -311,8 +447,14 @@ public class Zubat extends JFrame
 
 			});
 
-			tm.loadData(tm.getSupportedFields());
-
+			if(fields == null)
+			{
+				tm.loadData(tm.getSupportedFields());
+			}
+			else
+			{
+				tm.loadData(fields);
+			}
 
 			table = new JTable(tm);
 

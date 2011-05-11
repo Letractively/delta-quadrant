@@ -90,13 +90,13 @@ public class Services
 		return services.size();
 	}
 
-	public String getUri(String type)
+	public ServiceItem getItem(String type)
 	{
 		for(int i = 0; i < services.size(); i++)
 		{
 			if(services.get(i).getType().equals(type))
 			{
-				return services.get(i).getUri();
+				return services.get(i);
 			}
 		}
 
