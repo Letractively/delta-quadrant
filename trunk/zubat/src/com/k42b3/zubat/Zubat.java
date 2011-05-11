@@ -89,6 +89,8 @@ public class Zubat extends JFrame
 	private TrafficTableModel trafficTm;
 	private JTable trafficTable;
 
+	private TrafficDetail trafficDetailFrame;
+	
 	public Zubat()
 	{
 		logger = Logger.getLogger("com.k42b3.zubat");
@@ -500,7 +502,23 @@ public class Zubat extends JFrame
 			{
 				TrafficItem item = trafficTm.getRow(trafficTable.getSelectedRow());
 
-				new TrafficDetail(item);
+				if(item != null)
+				{
+					if(trafficDetailFrame == null)
+					{
+						trafficDetailFrame = new TrafficDetail(item);
+
+						trafficDetailFrame.setVisible(true);
+					}
+					else
+					{
+						trafficDetailFrame.setItem(item);
+
+						trafficDetailFrame.setVisible(true);
+
+						trafficDetailFrame.toFront();
+					}
+				}
 			}
 
 			public void mousePressed(MouseEvent e) 
