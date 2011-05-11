@@ -192,15 +192,21 @@ public class FormPanel extends JPanel
 			}
 
 			Node nodeClass = this.getChildNode(node, "class");
+			Component comp = null;
 
 			if(nodeClass.getTextContent().toLowerCase().equals("input"))
 			{
-				container.add(parseInput(node));
+				comp = parseInput(node);
 			}
 
 			if(nodeClass.getTextContent().toLowerCase().equals("select"))
 			{
-				container.add(parseSelect(node));
+				comp = parseSelect(node);
+			}
+
+			if(comp != null)
+			{
+				container.add(comp);
 			}
 
 			/*
@@ -218,6 +224,7 @@ public class FormPanel extends JPanel
 		Node nodeLabel = this.getChildNode(node, "label");
 		Node nodeValue = this.getChildNode(node, "value");
 		Node nodeDisabled = this.getChildNode(node, "disabled");
+		Node nodeType = this.getChildNode(node, "type");
 
 		JPanel item = new JPanel();
 		item.setLayout(new FlowLayout());
@@ -236,6 +243,11 @@ public class FormPanel extends JPanel
 		if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
 		{
 			input.setEnabled(false);
+		}
+
+		if(nodeType != null && nodeType.getTextContent().equals("hidden"))
+		{
+			return null;
 		}
 
 		item.add(label);
