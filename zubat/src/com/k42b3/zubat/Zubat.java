@@ -26,8 +26,6 @@ package com.k42b3.zubat;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.BufferedReader;
@@ -36,25 +34,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JToolBar;
-import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
 
 import org.apache.http.HttpEntity;
 import org.w3c.dom.Element;
@@ -79,17 +66,15 @@ public class Zubat extends JFrame
 	private Logger logger;
 
 	private Services availableServices;
-	private ServiceItem selectedService;
-
-	private JTabbedPane tabPane;
 	
-	private ViewTablelModel tm;
-	private JTable table;
+	private ServiceItem selectedService;
+	private ArrayList<String> selectedFields;
+
+	private MenuPanel menuPanel;
+	private BodyPanel bodyPanel;
+	private TrafficPanel trafficPanel;
 
 	private TrafficTableModel trafficTm;
-	private JTable trafficTable;
-
-	private TrafficDetail trafficDetailFrame;
 	
 	public Zubat()
 	{
@@ -119,11 +104,16 @@ public class Zubat extends JFrame
 
 			this.doAuthentication();
 
-			this.add(this.buildMenu(), BorderLayout.NORTH);
+			menuPanel = new MenuPanel(this);
+			bodyPanel = new BodyPanel(this);
+			trafficPanel = new TrafficPanel(trafficTm);
+			
+			
+			this.add(menuPanel, BorderLayout.NORTH);
 
-			this.add(this.buildBodyPanel(), BorderLayout.CENTER);
+			this.add(bodyPanel, BorderLayout.CENTER);
 
-			this.add(this.buildTrafficPanel(), BorderLayout.SOUTH);
+			this.add(trafficPanel, BorderLayout.SOUTH);
 
 
 			if(oauth.isAuthed())
@@ -135,6 +125,21 @@ public class Zubat extends JFrame
 		{
 			Zubat.handleException(e);
 		}
+	}
+
+	public Services getAvailableServices()
+	{
+		return availableServices;
+	}
+
+	public ServiceItem getSelectedService()
+	{
+		return selectedService;
+	}
+
+	public ArrayList<String> getSelectedFields()
+	{
+		return selectedFields;
 	}
 
 	private void doAuthentication() throws Exception
@@ -177,372 +182,6 @@ public class Zubat extends JFrame
 		availableServices.loadData();
 	}
 
-	private Component buildMenu()
-	{
-		JMenuBar menuBar = new JMenuBar();
-
-
-		// content
-		JMenu contentMenu = new JMenu("Content");
-
-		JMenuItem contentGadgetItem = new JMenuItem("Gadget");
-		contentGadgetItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("title");
-				fields.add("path");
-				fields.add("cache");
-				fields.add("expire");
-				fields.add("date");
-				fields.add("authorName");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/gadget"), fields);
-			}
-
-		});
-
-		JMenuItem contentMediaItem = new JMenuItem("Media");
-		contentMediaItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e)
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("title");
-				fields.add("path");
-				fields.add("type");
-				fields.add("size");
-				fields.add("mimeType");
-				fields.add("url");
-				fields.add("date");
-				fields.add("authorName");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/media"), fields);
-			}
-
-		});
-
-		JMenuItem contentPageItem = new JMenuItem("Page");
-		contentPageItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("parentId");
-				fields.add("status");
-				fields.add("load");
-				fields.add("application");
-				fields.add("title");
-				fields.add("template");
-				fields.add("cache");
-				fields.add("expire");
-				fields.add("date");
-				fields.add("url");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
-			}
-
-		});
-
-		JMenuItem contentServiceItem = new JMenuItem("Service");
-		contentServiceItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/service"), null);
-			}
-
-		});
-
-		contentMenu.add(contentGadgetItem);
-		contentMenu.add(contentMediaItem);
-		contentMenu.add(contentPageItem);
-		contentMenu.add(contentServiceItem);
-
-		menuBar.add(contentMenu);
-
-
-		// system
-		JMenu systemMenu = new JMenu("System");
-
-		JMenuItem systemApiItem = new JMenuItem("API");
-		systemApiItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/api"), null);
-			}
-
-		});
-
-		JMenuItem systemApprovalItem = new JMenuItem("Approval");
-		systemApprovalItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/approval"), null);
-			}
-
-		});
-
-		JMenuItem systemCountryItem = new JMenuItem("Country");
-		systemCountryItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/country"), null);
-			}
-
-		});
-
-		JMenuItem systemEventItem = new JMenuItem("Event");
-		systemEventItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("priority");
-				fields.add("type");
-				fields.add("table");
-				fields.add("actionName");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/event"), fields);
-			}
-
-		});
-
-		JMenuItem systemVarsItem = new JMenuItem("Vars");
-		systemVarsItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/vars"), null);
-			}
-
-		});
-
-		systemMenu.add(systemApiItem);
-		systemMenu.add(systemApprovalItem);
-		systemMenu.add(systemCountryItem);
-		systemMenu.add(systemEventItem);
-		systemMenu.add(systemVarsItem);
-
-		menuBar.add(systemMenu);
-
-
-		// user
-		JMenu userMenu = new JMenu("User");
-
-		JMenuItem userAccountItem = new JMenuItem("Account");
-		userAccountItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("status");
-				fields.add("name");
-				fields.add("email");
-				fields.add("gender");
-				fields.add("timezone");
-				fields.add("lastSeen");
-				fields.add("updated");
-				fields.add("date");
-				fields.add("profileUrl");
-				fields.add("thumbnailUrl");
-				fields.add("groupTitle");
-				fields.add("countryTitle");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/account"), fields);
-			}
-
-		});
-
-		JMenuItem userActivityItem = new JMenuItem("Activity");
-		userActivityItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("title");
-				fields.add("url");
-				fields.add("body");
-				fields.add("date");
-				fields.add("authorName");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/activity"), fields);
-			}
-
-		});
-
-		JMenuItem userFriendItem = new JMenuItem("Friend");
-		userFriendItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				ArrayList<String> fields = new ArrayList<String>();
-
-				fields.add("id");
-				fields.add("status");
-				fields.add("date");
-				fields.add("authorName");
-				fields.add("friendName");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/friend"), fields);
-			}
-
-		});
-
-		JMenuItem userGroupItem = new JMenuItem("Group");
-		userGroupItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/group"), null);
-			}
-
-		});
-
-		JMenuItem userRightItem = new JMenuItem("Right");
-		userRightItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) 
-			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/right"), null);
-			}
-
-		});
-
-		userMenu.add(userAccountItem);
-		userMenu.add(userActivityItem);
-		userMenu.add(userFriendItem);
-		userMenu.add(userGroupItem);
-		userMenu.add(userRightItem);
-
-		menuBar.add(userMenu);
-
-
-		return menuBar;
-	}
-
-	private Component buildBodyPanel()
-	{
-		tabPane = new JTabbedPane();
-
-		tabPane.addTab("View", null);
-		tabPane.addTab("Create", null);
-		tabPane.addTab("Update", null);
-		tabPane.addTab("Delete", null);
-
-		tabPane.setEnabledAt(2, false);
-		tabPane.setEnabledAt(3, false);
-
-
-		tabPane.addChangeListener(new ChangeListener() {
-
-			public void stateChanged(ChangeEvent e)
-			{
-				switch(tabPane.getSelectedIndex())
-				{
-					case 3:
-
-						loadForm(selectedService.getUri() + "/form?method=delete");
-
-						break;
-
-					case 2:
-
-						loadForm(selectedService.getUri() + "/form?method=update");
-
-						break;
-
-					case 1:
-
-						loadForm(selectedService.getUri() + "/form?method=create");
-
-						break;
-
-					default:
-					case 0:
-
-						loadService(selectedService, null);
-
-						break;
-				}
-			}
-
-		});
-
-		return tabPane;
-	}
-
-	private Component buildTrafficPanel()
-	{
-		trafficTable = new JTable(trafficTm);
-
-		trafficTable.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-
-		trafficTable.getColumnModel().getColumn(0).setMaxWidth(100); 
-		trafficTable.getColumnModel().getColumn(1).setMaxWidth(100); 
-		trafficTable.getColumnModel().getColumn(2).setMinWidth(600); 
-
-		trafficTable.addMouseListener(new MouseListener() {
-
-			public void mouseReleased(MouseEvent e) 
-			{
-				TrafficItem item = trafficTm.getRow(trafficTable.getSelectedRow());
-
-				if(item != null)
-				{
-					if(trafficDetailFrame == null)
-					{
-						trafficDetailFrame = new TrafficDetail();
-					}
-
-					trafficDetailFrame.setItem(item);
-
-					trafficDetailFrame.setVisible(true);
-
-					trafficDetailFrame.toFront();
-				}
-			}
-
-			public void mousePressed(MouseEvent e) 
-			{
-			}
-
-			public void mouseExited(MouseEvent e) 
-			{
-			}
-
-			public void mouseEntered(MouseEvent e) 
-			{
-			}
-
-			public void mouseClicked(MouseEvent e) 
-			{
-			}
-
-		});
-		
-		JScrollPane trafficPane = new JScrollPane(trafficTable);
-		trafficPane.setPreferredSize(new Dimension(600, 200));
-		
-		return trafficPane;
-	}
-
 	public void onReady()
 	{
 		SwingUtilities.invokeLater(new Runnable() {
@@ -576,8 +215,10 @@ public class Zubat extends JFrame
 		try
 		{
 			selectedService = service;
+			selectedFields = fields;
 
-			tm = new ViewTablelModel(oauth, service.getUri(), new TrafficListenerInterface() {
+
+			ViewTablelModel tm = new ViewTablelModel(oauth, service.getUri(), new TrafficListenerInterface() {
 
 				public void handleRequest(TrafficItem item) 
 				{
@@ -595,14 +236,14 @@ public class Zubat extends JFrame
 				tm.loadData(fields);
 			}
 
-			table = new JTable(tm);
+			JTable table = new JTable(tm);
 
 
-			tabPane.setComponentAt(0, new JScrollPane(table));
+			bodyPanel.setComponentAt(0, new JScrollPane(table));
 
-			tabPane.setSelectedIndex(0);
+			bodyPanel.setSelectedIndex(0);
 
-			tabPane.validate();
+			bodyPanel.validate();
 		}
 		catch(Exception e)
 		{
@@ -610,7 +251,7 @@ public class Zubat extends JFrame
 		}
 	}
 
-	private void loadForm(String url)
+	public void loadForm(String url)
 	{
 		try
 		{
@@ -625,9 +266,10 @@ public class Zubat extends JFrame
 
 			form.loadData();
 
-			tabPane.setComponentAt(1, new JScrollPane(form));
 
-			tabPane.validate();
+			bodyPanel.setComponentAt(1, new JScrollPane(form));
+
+			bodyPanel.validate();
 		}
 		catch(Exception e)
 		{

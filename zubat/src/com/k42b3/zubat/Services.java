@@ -27,7 +27,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractListModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
