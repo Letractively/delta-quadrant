@@ -23,6 +23,7 @@
 
 package com.k42b3.zubat;
 
+import java.awt.Component;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.awt.event.MouseEvent;
@@ -101,47 +102,61 @@ public class BodyPanel extends JTabbedPane
 
 			public void componentRemoved(ContainerEvent e) 
 			{
+				setEnabledAt(2, false);
+				setEnabledAt(3, false);
+
 				selectedId = 0;
 			}
 
 			public void componentAdded(ContainerEvent e) 
 			{
-				if(e.getComponent() instanceof ViewPanel)
+				if(e.getComponent() instanceof BodyPanel)
 				{
-					ViewPanel panel = (ViewPanel) e.getComponent();
+					BodyPanel panel = (BodyPanel) e.getComponent();
+					Component viewComponent = panel.getComponentAt(0);
 
-					table = panel.getTable();
-					tm = (ViewTableModel) table.getModel();
+					if(viewComponent instanceof ViewPanel)
+					{
+						ViewPanel viewPanel = (ViewPanel) viewComponent;
 
-					table.addMouseListener(new MouseListener() {
+						table = viewPanel.getTable();
+						tm = (ViewTableModel) table.getModel();
 
-						public void mouseReleased(MouseEvent e)
-						{
-							Object rawId = tm.getValueAt(table.getSelectedRow(), 0);
+						table.addMouseListener(new MouseListener() {
 
-							selectedId = Integer.parseInt(rawId.toString());
+							public void mouseReleased(MouseEvent e)
+							{
+								Object rawId = tm.getValueAt(table.getSelectedRow(), 0);
 
-							setEnabledAt(2, true);
-							setEnabledAt(3, true);
-						}
+								int id = Integer.parseInt(rawId.toString());
 
-						public void mousePressed(MouseEvent e) 
-						{
-						}
+								if(id > 0)
+								{
+									selectedId = id;
 
-						public void mouseExited(MouseEvent e) 
-						{
-						}
+									setEnabledAt(2, true);
+									setEnabledAt(3, true);
+								}
+							}
 
-						public void mouseEntered(MouseEvent e) 
-						{
-						}
+							public void mousePressed(MouseEvent e) 
+							{
+							}
 
-						public void mouseClicked(MouseEvent e) 
-						{
-						}
+							public void mouseExited(MouseEvent e) 
+							{
+							}
 
-					});
+							public void mouseEntered(MouseEvent e) 
+							{
+							}
+
+							public void mouseClicked(MouseEvent e) 
+							{
+							}
+
+						});
+					}
 				}
 			}
 

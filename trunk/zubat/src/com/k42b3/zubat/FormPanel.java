@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -32,7 +33,10 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -170,47 +174,100 @@ public class FormPanel extends JPanel
 
 		if(Zubat.hasError(rootElement))
 		{
-			throw new Exception("API error occured");
+			body.removeAll();
 		}
-
-
-		this.parseForm(body, this.getChildNodes(rootElement, "items"));
+		else
+		{
+			this.parseForm(body, this.getChildNodes(rootElement, "items"));
+		}
 	}
 
 	private void parseForm(Container container, ArrayList<Node> items)
 	{
 		for(int i = 0; i < items.size(); i++)
 		{
-			Node childNode = items.get(i);
+			Node node = items.get(i);
 
-			if(childNode.getNodeType() != Node.ELEMENT_NODE)
+			if(node.getNodeType() != Node.ELEMENT_NODE)
 			{
 				continue;
 			}
 
-			Node nodeClass = this.getChildNode(childNode, "class");
-			Node nodeRef = this.getChildNode(childNode, "ref");
-			Node nodeLabel = this.getChildNode(childNode, "label");
-			Node nodeValue = this.getChildNode(childNode, "value");
+			Node nodeClass = this.getChildNode(node, "class");
 
 			if(nodeClass.getTextContent().equals("input"))
 			{
-				JPanel item = new JPanel();
-				item.setLayout(new FlowLayout());
+				container.add(parseInput(node));
+			}
 
-				JLabel label = new JLabel(nodeLabel.getTextContent());
-				label.setPreferredSize(new Dimension(100, 22));
-				JTextField input = new JTextField();
-				input.setPreferredSize(new Dimension(300, 22));
-
-				item.add(label);
-				item.add(input);
-
-				container.add(item);
+			if(nodeClass.getTextContent().equals("select"))
+			{
+				container.add(parseSelect(node));
 			}
 		}
 	}
-	
+
+	private Component parseInput(Node node)
+	{
+		Node nodeRef = this.getChildNode(node, "ref");
+		Node nodeLabel = this.getChildNode(node, "label");
+		Node nodeValue = this.getChildNode(node, "value");
+
+		JPanel item = new JPanel();
+		item.setLayout(new FlowLayout());
+
+		JLabel label = new JLabel(nodeLabel.getTextContent());
+		label.setPreferredSize(new Dimension(100, 22));
+		JTextField input = new JTextField();
+		input.setPreferredSize(new Dimension(300, 22));
+
+		item.add(label);
+		item.add(input);
+
+		return item;
+	}
+
+	private Component parseSelect(Node node)
+	{
+		Node nodeRef = this.getChildNode(node, "ref");
+		Node nodeLabel = this.getChildNode(node, "label");
+		Node nodeValue = this.getChildNode(node, "value");
+
+		JPanel item = new JPanel();
+		item.setLayout(new FlowLayout());
+
+		JLabel label = new JLabel(nodeLabel.getTextContent());
+		label.setPreferredSize(new Dimension(100, 22));
+
+
+		JComboBox input = new JComboBox(new DefaultComboBoxModel(this.getSelectOptions(node)));
+		input.setPreferredSize(new Dimension(300, 22));
+
+		item.add(label);
+		item.add(input);
+
+		return item;
+	}
+
+	private ComboBoxItem[] getSelectOptions(Node node)
+	{
+		ArrayList<Node> options = this.getChildNodes(node, "items");
+		ComboBoxItem[] items = new ComboBoxItem[options.size()];
+
+		for(int i = 0; i < options.size(); i++)
+		{
+			Node nodeLabel = this.getChildNode(options.get(i), "label");
+			Node nodeValue = this.getChildNode(options.get(i), "value");
+
+			if(nodeLabel != null && nodeValue != null)
+			{
+				items[i] = new ComboBoxItem(nodeLabel.getTextContent(), nodeValue.getTextContent());
+			}
+		}
+
+		return items;
+	}
+
 	private ArrayList<Node> getChildNodes(Node node, String nodeName)
 	{
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -255,5 +312,42 @@ public class FormPanel extends JPanel
 		}
 
 		return null;
+	}
+
+	class ComboBoxItem
+	{
+		private String key;
+		private String value;
+
+		public ComboBoxItem(String key, String value)
+		{
+			this.setKey(key);
+			this.setValue(value);
+		}
+
+		public String getKey() 
+		{
+			return key;
+		}
+
+		public void setKey(String key) 
+		{
+			this.key = key;
+		}
+
+		public String getValue() 
+		{
+			return value;
+		}
+
+		public void setValue(String value) 
+		{
+			this.value = value;
+		}
+		
+		public String toString()
+		{
+			return this.value;
+		}
 	}
 }
