@@ -137,14 +137,17 @@ public class BodyPanel extends JTabbedPane
 							{
 								Object rawId = tm.getValueAt(table.getSelectedRow(), 0);
 
-								int id = Integer.parseInt(rawId.toString());
-
-								if(id > 0)
+								if(rawId != null)
 								{
-									selectedId = id;
+									int id = Integer.parseInt(rawId.toString());
 
-									setEnabledAt(2, true);
-									setEnabledAt(3, true);
+									if(id > 0)
+									{
+										selectedId = id;
+
+										setEnabledAt(2, true);
+										setEnabledAt(3, true);
+									}
 								}
 							}
 

@@ -191,7 +191,11 @@ public class Services
 
 		rootElement.normalize();
 
-		if(Zubat.hasError(rootElement))
+		
+		// get message
+		Message msg = Zubat.parseResponse(rootElement);
+
+		if(!msg.hasSuccess())
 		{
 			throw new Exception("API error occured");
 		}

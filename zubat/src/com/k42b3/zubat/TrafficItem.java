@@ -37,6 +37,8 @@ import org.apache.http.client.methods.HttpRequestBase;
 public class TrafficItem 
 {
 	private HttpRequestBase request;
+	private String requestContent;
+
 	private HttpResponse response;
 	private String responseContent;
 
@@ -48,6 +50,16 @@ public class TrafficItem
 	public void setRequest(HttpRequestBase request)
 	{
 		this.request = request;
+	}
+
+	public String getRequestContent()
+	{
+		return requestContent;
+	}
+
+	public void setRequestContent(String requestContent)
+	{
+		this.requestContent = requestContent;
 	}
 
 	public HttpResponse getResponse() 
