@@ -35,11 +35,11 @@ import java.io.File;
  */
 public class Configuration 
 {
-	private String baseUrl = "http://127.0.0.1/projects/amun/public/";
-	private String consumerKey = "b8858501073e5fb54e75b973ed044ec19f21a60d";
-	private String consumerSecret = "07d8b5173afba2575e57ca5966624a39419b5b70";
-	private String token = "cec314dc235df67c67b5c6b389b12102817135b2";
-	private String tokenSecret = "5f9b76722e47b03bee7a91afb4946320b3ed4a28";
+	private String baseUrl;
+	private String consumerKey;
+	private String consumerSecret;
+	private String token;
+	private String tokenSecret;
 
 	public String getBaseUrl() 
 	{

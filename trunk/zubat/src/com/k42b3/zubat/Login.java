@@ -117,10 +117,10 @@ public class Login extends JFrame
 			config = Configuration.parseFile(new File("config.xml"));
 
 			availableServices = new Services(config.getBaseUrl());
-			
-			String requestUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/request");
-			String authorizationUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/authorize");
-			String accessUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/access");
+
+			String requestUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request").getUri();
+			String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();
+			String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
 
 			OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
 			oauth = new Oauth(provider);

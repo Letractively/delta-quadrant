@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -39,10 +40,9 @@ public class TrafficTableModel extends AbstractTableModel
 {
 	private ArrayList<String> fields = new ArrayList<String>();
 	private ArrayList<TrafficItem> rows = new ArrayList<TrafficItem>();
-	
+
 	public TrafficTableModel()
 	{
-		// header fields
 		fields.add("Method");
 		fields.add("Response");
 		fields.add("Url");
@@ -51,7 +51,7 @@ public class TrafficTableModel extends AbstractTableModel
 	public void addTraffic(TrafficItem item)
 	{
 		rows.add(item);
-		
+
 		this.fireTableDataChanged();
 	}
 
@@ -70,7 +70,7 @@ public class TrafficTableModel extends AbstractTableModel
 		return rows.size();
 	}
 
-	public Object getValueAt(int rowIndex, int columnIndex) 
+	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		if(rowIndex >= 0 && rowIndex < rows.size())
 		{
