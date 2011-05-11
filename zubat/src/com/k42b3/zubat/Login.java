@@ -114,7 +114,7 @@ public class Login extends JFrame
 		// oauth config
 		try
 		{
-			config = Configuration.parseFile(new File("config.xml"));
+			config = Configuration.parseFile(new File("zubat.conf.xml"));
 
 			availableServices = new Services(config.getBaseUrl());
 

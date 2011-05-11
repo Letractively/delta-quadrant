@@ -111,7 +111,7 @@ public class Zubat extends JFrame
 			// model
 			trafficTm = new TrafficTableModel();
 
-			config = Configuration.parseFile(new File("config.xml"));
+			config = Configuration.parseFile(new File("zubat.conf.xml"));
 
 			this.fetchServices();
 
@@ -172,7 +172,7 @@ public class Zubat extends JFrame
 
 		});
 	}
-	
+
 	private Component buildMenu()
 	{
 		JMenuBar menuBar = new JMenuBar();
@@ -186,7 +186,17 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/gadget"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("title");
+				fields.add("path");
+				fields.add("cache");
+				fields.add("expire");
+				fields.add("date");
+				fields.add("authorName");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/gadget"), fields);
 			}
 
 		});
@@ -194,9 +204,21 @@ public class Zubat extends JFrame
 		JMenuItem contentMediaItem = new JMenuItem("Media");
 		contentMediaItem.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/media"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("title");
+				fields.add("path");
+				fields.add("type");
+				fields.add("size");
+				fields.add("mimeType");
+				fields.add("url");
+				fields.add("date");
+				fields.add("authorName");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/media"), fields);
 			}
 
 		});
@@ -206,7 +228,21 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("parentId");
+				fields.add("status");
+				fields.add("load");
+				fields.add("application");
+				fields.add("title");
+				fields.add("template");
+				fields.add("cache");
+				fields.add("expire");
+				fields.add("date");
+				fields.add("url");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
 			}
 
 		});
@@ -267,7 +303,15 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/event"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("priority");
+				fields.add("type");
+				fields.add("table");
+				fields.add("actionName");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/system/event"), fields);
 			}
 
 		});
@@ -299,7 +343,23 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/account"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("status");
+				fields.add("name");
+				fields.add("email");
+				fields.add("gender");
+				fields.add("timezone");
+				fields.add("lastSeen");
+				fields.add("updated");
+				fields.add("date");
+				fields.add("profileUrl");
+				fields.add("thumbnailUrl");
+				fields.add("groupTitle");
+				fields.add("countryTitle");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/account"), fields);
 			}
 
 		});
@@ -309,7 +369,16 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/activity"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("title");
+				fields.add("url");
+				fields.add("body");
+				fields.add("date");
+				fields.add("authorName");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/activity"), fields);
 			}
 
 		});
@@ -319,12 +388,20 @@ public class Zubat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/friend"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("status");
+				fields.add("date");
+				fields.add("authorName");
+				fields.add("friendName");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/user/friend"), fields);
 			}
 
 		});
 
-		JMenuItem userGroupItem = new JMenuItem("Friend");
+		JMenuItem userGroupItem = new JMenuItem("Group");
 		userGroupItem.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
@@ -456,7 +533,21 @@ public class Zubat extends JFrame
 
 			public void run()
 			{
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("parentId");
+				fields.add("status");
+				fields.add("load");
+				fields.add("application");
+				fields.add("title");
+				fields.add("template");
+				fields.add("cache");
+				fields.add("expire");
+				fields.add("date");
+				fields.add("url");
+
+				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
 
 				setVisible(true);
 			}

@@ -24,6 +24,15 @@
 package com.k42b3.zubat;
 
 import java.io.File;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * Configuration
@@ -91,15 +100,68 @@ public class Configuration
 		this.tokenSecret = tokenSecret;
 	}
 
-	public static Configuration parseFile(File configFile)
+	public static Configuration parseFile(File configFile) throws Exception
 	{
 		Configuration config = new Configuration();
 
-		String baseUrl = "http://127.0.0.1/projects/amun/public/";
-		String consumerKey = "b8858501073e5fb54e75b973ed044ec19f21a60d";
-		String consumerSecret = "07d8b5173afba2575e57ca5966624a39419b5b70";
-		String token = "9782b074c5263a6de880310685558d8c8d00cc1e";
-		String tokenSecret = "aea82b8e11530bc0dbdec718c4df935547efb2a5";
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(configFile);
+
+		Element rootElement = (Element) doc.getDocumentElement();
+
+		rootElement.normalize();
+
+
+		// parse config elements
+		String baseUrl = "";
+		String consumerKey = "";
+		String consumerSecret = "";
+		String token = "";
+		String tokenSecret = "";
+
+		Element baseUrlElement = (Element) doc.getElementsByTagName("baseUrl").item(0);
+		Element consumerKeyElement = (Element) doc.getElementsByTagName("consumerKey").item(0);
+		Element consumerSecretElement = (Element) doc.getElementsByTagName("consumerSecret").item(0);
+		Element tokenElement = (Element) doc.getElementsByTagName("token").item(0);
+		Element tokenSecretElement = (Element) doc.getElementsByTagName("tokenSecret").item(0);
+		
+		if(baseUrlElement != null)
+		{
+			baseUrl = baseUrlElement.getTextContent();
+		}
+		else
+		{
+			throw new Exception("baseUrl in config not set");
+		}
+		
+		if(consumerKeyElement != null)
+		{
+			consumerKey = consumerKeyElement.getTextContent();
+		}
+		else
+		{
+			throw new Exception("consumerKey in config not set");
+		}
+		
+		if(consumerSecretElement != null)
+		{
+			consumerSecret = consumerSecretElement.getTextContent();
+		}
+		else
+		{
+			throw new Exception("consumerSecret in config not set");
+		}
+
+		if(tokenElement != null)
+		{
+			token = tokenElement.getTextContent();
+		}
+
+		if(tokenSecretElement != null)
+		{
+			tokenSecret = tokenSecretElement.getTextContent();
+		}
 
 		config.setBaseUrl(baseUrl);
 		config.setConsumerKey(consumerKey);
