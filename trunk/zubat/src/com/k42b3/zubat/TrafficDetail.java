@@ -23,59 +23,39 @@
 
 package com.k42b3.zubat;
 
+import java.awt.BorderLayout;
+import java.util.logging.Logger;
+
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 /**
- * TrafficItem
+ * TrafficDetail
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 86 $
  */
-public class TrafficItem 
+public class TrafficDetail extends JFrame
 {
-	private String method;
-	private int responseCode;
-	private String url;
-
-	private String response;
-
-	public String getMethod() 
+	public TrafficDetail(TrafficItem item)
 	{
-		return method;
-	}
+		this.setTitle("zubat (version: " + Zubat.version + ")");
 
-	public void setMethod(String method) 
-	{
-		this.method = method;
-	}
+		this.setLocation(100, 100);
 
-	public int getResponseCode() 
-	{
-		return responseCode;
-	}
+		this.setSize(300, 400);
 
-	public void setResponseCode(int responseCode) 
-	{
-		this.responseCode = responseCode;
-	}
+		this.setMinimumSize(this.getSize());
 
-	public String getUrl() 
-	{
-		return url;
-	}
+		this.setLayout(new BorderLayout());
+		
+		JTextArea response = new JTextArea(item.getResponse());
 
-	public void setUrl(String url) 
-	{
-		this.url = url;
-	}
+		this.add(new JScrollPane(response), BorderLayout.CENTER);
 
-	public String getResponse() 
-	{
-		return response;
-	}
-
-	public void setResponse(String response) 
-	{
-		this.response = response;
+		this.setVisible(true);
 	}
 }

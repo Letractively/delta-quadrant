@@ -600,8 +600,6 @@ public class Oauth
 			{
 				logger.info("Received: " + httpResponse.getStatusLine());
 				
-				logger.info(getEntityContent(entity));
-				
 				throw new Exception("Invalid response code");
 			}
 
@@ -704,20 +702,5 @@ public class Oauth
 		}
 
 		return map;
-	}
-
-	public static String getEntityContent(HttpEntity entity) throws Exception
-	{
-		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
-		String line = br.readLine();
-		StringBuilder content = new StringBuilder();
-
-		while(line != null)
-		{
-			content.append(line + "\n");
-			line = br.readLine();
-		}
-
-		return content.toString();
 	}
 }

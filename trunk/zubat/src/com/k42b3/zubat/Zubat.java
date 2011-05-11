@@ -28,7 +28,11 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -52,6 +56,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
+import org.apache.http.HttpEntity;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -412,6 +417,33 @@ public class Zubat extends JFrame
 		trafficTable.getColumnModel().getColumn(1).setMaxWidth(100); 
 		trafficTable.getColumnModel().getColumn(2).setMinWidth(600); 
 
+		trafficTable.addMouseListener(new MouseListener() {
+
+			public void mouseReleased(MouseEvent e) 
+			{
+				TrafficItem item = trafficTm.getRow(trafficTable.getSelectedRow());
+
+				new TrafficDetail(item);
+			}
+
+			public void mousePressed(MouseEvent e) 
+			{
+			}
+
+			public void mouseExited(MouseEvent e) 
+			{
+			}
+
+			public void mouseEntered(MouseEvent e) 
+			{
+			}
+
+			public void mouseClicked(MouseEvent e) 
+			{
+			}
+
+		});
+		
 		JScrollPane trafficPane = new JScrollPane(trafficTable);
 		trafficPane.setPreferredSize(new Dimension(600, 200));
 		
@@ -533,5 +565,22 @@ public class Zubat extends JFrame
 		{
 			return false;
 		}
+	}
+
+	public static String getEntityContent(HttpEntity entity) throws Exception
+	{
+		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
+		StringBuilder content = new StringBuilder();
+
+		char[] buf = new char[1024];
+
+		while(br.ready())
+		{
+			int read = br.read(buf);
+
+			content.append(buf, 0, read);
+		}
+
+		return content.toString();
 	}
 }
