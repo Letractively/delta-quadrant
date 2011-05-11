@@ -604,14 +604,18 @@ public class Oauth
 			}
 
 
+			// get response content
+			String responseContent = Zubat.getEntityContent(entity);
+
+
 			// log traffic
 			if(trafficListener != null)
 			{
 				TrafficItem trafficItem = new TrafficItem();
 
-				trafficItem.setMethod(request.getRequestLine().getMethod());
-				trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
-				trafficItem.setUrl(request.getURI().toString());
+				trafficItem.setRequest(request);
+				trafficItem.setResponse(httpResponse);
+				trafficItem.setResponseContent(responseContent);
 
 				trafficListener.handleRequest(trafficItem);
 			}

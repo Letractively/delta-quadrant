@@ -173,6 +173,8 @@ public class Zubat extends JFrame
 			}
 
 		});
+		
+		availableServices.loadData();
 	}
 
 	private Component buildMenu()
@@ -506,18 +508,14 @@ public class Zubat extends JFrame
 				{
 					if(trafficDetailFrame == null)
 					{
-						trafficDetailFrame = new TrafficDetail(item);
-
-						trafficDetailFrame.setVisible(true);
+						trafficDetailFrame = new TrafficDetail();
 					}
-					else
-					{
-						trafficDetailFrame.setItem(item);
 
-						trafficDetailFrame.setVisible(true);
+					trafficDetailFrame.setItem(item);
 
-						trafficDetailFrame.toFront();
-					}
+					trafficDetailFrame.setVisible(true);
+
+					trafficDetailFrame.toFront();
 				}
 			}
 
@@ -601,6 +599,8 @@ public class Zubat extends JFrame
 
 
 			tabPane.setComponentAt(0, new JScrollPane(table));
+
+			tabPane.setSelectedIndex(0);
 
 			tabPane.validate();
 		}
