@@ -43,14 +43,14 @@ import com.k42b3.zubat.oauth.OauthProvider;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Login extends JFrame
+public class Auth extends JFrame
 {
 	private Configuration config;
 	private Services availableServices;
 	private Oauth oauth;
 	private Logger logger;
 
-	public Login()
+	public Auth()
 	{
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
