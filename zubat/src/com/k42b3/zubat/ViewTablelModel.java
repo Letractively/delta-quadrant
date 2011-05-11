@@ -23,6 +23,7 @@
 
 package com.k42b3.zubat;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -41,6 +42,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -178,14 +180,20 @@ public class ViewTablelModel extends AbstractTableModel
 		logger.info("Request: " + getRequest.getRequestLine());
 
 		HttpResponse httpResponse = httpClient.execute(getRequest);
-		
+
 		HttpEntity entity = httpResponse.getEntity();
 
 
 		// parse response
+		String responseContent = Zubat.getEntityContent(entity);
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(entity.getContent());
+
+		InputSource is = new InputSource();
+		is.setCharacterStream(new StringReader(responseContent));
+
+		Document doc = db.parse(is);
 
 		Element rootElement = (Element) doc.getDocumentElement();
 
@@ -256,6 +264,7 @@ public class ViewTablelModel extends AbstractTableModel
 			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
 			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
 			trafficItem.setUrl(getRequest.getURI().toString());
+			trafficItem.setResponse(responseContent);
 
 			trafficListener.handleRequest(trafficItem);
 		}

@@ -48,6 +48,16 @@ public class TrafficTableModel extends AbstractTableModel
 		fields.add("Url");
 	}
 
+	public TrafficItem getRow(int rowIndex)
+	{
+		if(rowIndex >= 0 && rowIndex < rows.size())
+		{
+			return rows.get(rowIndex);
+		}
+
+		return null;
+	}
+
 	public void addTraffic(TrafficItem item)
 	{
 		rows.add(item);
