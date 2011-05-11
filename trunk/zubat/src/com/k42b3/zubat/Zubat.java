@@ -24,14 +24,23 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.io.File;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -56,20 +65,20 @@ public class Zubat extends JFrame
 {
 	public static String version = "0.0.1 beta";
 
-	private static Oauth oauth;
-
-	private String baseUrl;
+	private Configuration config;
+	private Oauth oauth;
 	private Logger logger;
 
-	private ZubatListModel lm;
-	private JList list;
-	
-	private ZubatTablelModel tm;
-	private JTable table;
+	private Services availableServices;
+	private ServiceItem selectedService;
 
 	private JTabbedPane tabPane;
+	
+	private ViewTablelModel tm;
+	private JTable table;
 
-	private ServiceItem selectedService;
+	private TrafficTableModel trafficTm;
+	private JTable trafficTable;
 
 	public Zubat()
 	{
@@ -79,7 +88,7 @@ public class Zubat extends JFrame
 
 		this.setLocation(100, 100);
 
-		this.setSize(600, 400);
+		this.setSize(800, 600);
 
 		this.setMinimumSize(this.getSize());
 
@@ -88,7 +97,129 @@ public class Zubat extends JFrame
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 
-		// create tab
+		try
+		{
+			// model
+			trafficTm = new TrafficTableModel();
+
+			config = Configuration.parseFile(new File("config.xml"));
+
+			this.fetchServices();
+
+			this.doAuthentication();
+
+			this.add(this.buildToolbar(), BorderLayout.NORTH);
+
+			this.add(this.buildBodyPanel(), BorderLayout.CENTER);
+
+			this.add(this.buildTrafficPanel(), BorderLayout.SOUTH);
+
+
+			if(oauth.isAuthed())
+			{
+				onReady();
+			}
+		}
+		catch(Exception e)
+		{
+			Zubat.handleException(e);
+		}
+	}
+
+	private void doAuthentication() throws Exception
+	{
+		String requestUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/request");
+		String authorizationUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/authorize");
+		String accessUrl = availableServices.getUri("http://oauth.net/core/1.0/endpoint/access");
+
+		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
+		oauth = new Oauth(provider, new TrafficListenerInterface() {
+
+			public void handleRequest(TrafficItem item) 
+			{
+				trafficTm.addTraffic(item);
+			}
+
+		});
+
+		if(!config.getToken().isEmpty() && !config.getTokenSecret().isEmpty())
+		{
+			oauth.auth(config.getToken(), config.getTokenSecret());
+		}
+		else
+		{
+			throw new Exception("No token set use --auth to obtain a token and token secret");
+		}
+	}
+
+	private void fetchServices() throws Exception
+	{
+		availableServices = new Services(config.getBaseUrl(), new TrafficListenerInterface() {
+
+			public void handleRequest(TrafficItem item) 
+			{
+				trafficTm.addTraffic(item);
+			}
+
+		});
+	}
+	
+	private Component buildToolbar()
+	{
+		JMenuBar menuBar = new JMenuBar();
+
+
+		// content
+		JMenu contentMenu = new JMenu("Content");
+
+		contentMenu.add(new JMenuItem("Gadget"));
+		contentMenu.add(new JMenuItem("Media"));
+		contentMenu.add(new JMenuItem("Page"));
+		contentMenu.add(new JMenuItem("Service"));
+
+		menuBar.add(contentMenu);
+
+
+		// system
+		JMenu systemMenu = new JMenu("System");
+
+		systemMenu.add(new JMenuItem("API"));
+		systemMenu.add(new JMenuItem("Approval"));
+		systemMenu.add(new JMenuItem("Country"));
+		systemMenu.add(new JMenuItem("Event"));
+		systemMenu.add(new JMenuItem("Vars"));
+
+		menuBar.add(systemMenu);
+
+
+		// user
+		JMenu userMenu = new JMenu("User");
+
+		userMenu.add(new JMenuItem("Account"));
+		userMenu.add(new JMenuItem("Activity"));
+		userMenu.add(new JMenuItem("Friend"));
+		userMenu.add(new JMenuItem("Group"));
+		userMenu.add(new JMenuItem("Right"));
+
+		menuBar.add(userMenu);
+		
+		/*
+				ServiceItem item = (ServiceItem) list.getSelectedValue();
+
+				if(item != null && !e.getValueIsAdjusting())
+				{
+					selectedService = item;
+
+					tabPane.setSelectedIndex(0);
+
+					loadTable(item.getUri());
+				}
+		 */
+		return menuBar;
+	}
+
+	private Component buildBodyPanel()
+	{
 		tabPane = new JTabbedPane();
 
 		tabPane.addTab("View", null);
@@ -135,48 +266,17 @@ public class Zubat extends JFrame
 
 		});
 
-		this.add(tabPane, BorderLayout.CENTER);
+		return tabPane;
+	}
 
+	private Component buildTrafficPanel()
+	{
+		trafficTable = new JTable(trafficTm);
 
-		// @todo this should com frome an config file
-		baseUrl = "http://127.0.0.1/projects/amun/public/index.php/";
-
-		String consumerKey = "b8858501073e5fb54e75b973ed044ec19f21a60d";
-		String consumerSecret = "07d8b5173afba2575e57ca5966624a39419b5b70";
-		String token = "cec314dc235df67c67b5c6b389b12102817135b2";
-		String tokenSecret = "5f9b76722e47b03bee7a91afb4946320b3ed4a28";
-
-		String request = "http://127.0.0.1/projects/amun/public/index.php/api/auth/request";
-		String authorization = "http://127.0.0.1/projects/amun/public/index.php/api/auth/authorization";
-		String access = "http://127.0.0.1/projects/amun/public/index.php/api/auth/access";
-
-
-		// create provider
-		OauthProvider provider = new OauthProvider(request, authorization, access, consumerKey, consumerSecret);
-		oauth = new Oauth(provider);
-
-		if(!token.isEmpty() && !tokenSecret.isEmpty())
-		{
-			oauth.setToken(token);
-			oauth.setTokenSecret(tokenSecret);
-
-			loadServices();
-			
-			onReady();
-		}
-		else
-		{
-			new Login().setCallback(new CallbackInterface() {
-
-				public void call()
-				{
-					loadServices();
-					
-					onReady();
-				}
-
-			});
-		}
+		JScrollPane trafficPane = new JScrollPane(trafficTable);
+		trafficPane.setPreferredSize(new Dimension(600, 200));
+		
+		return trafficPane;
 	}
 
 	public void onReady()
@@ -185,6 +285,13 @@ public class Zubat extends JFrame
 
 			public void run()
 			{
+				String url = availableServices.getUri("http://ns.amun-project.org/2011/amun/content/page");
+
+				if(url != null)
+				{
+					loadTable(url);
+				}
+
 				setVisible(true);
 			}
 
@@ -195,8 +302,17 @@ public class Zubat extends JFrame
 	{
 		try
 		{
-			tm = new ZubatTablelModel(uri);
+			tm = new ViewTablelModel(oauth, uri, new TrafficListenerInterface() {
+
+				public void handleRequest(TrafficItem item) 
+				{
+					trafficTm.addTraffic(item);
+				}
+
+			});
+
 			tm.loadData(tm.getSupportedFields());
+
 
 			table = new JTable(tm);
 
@@ -215,8 +331,16 @@ public class Zubat extends JFrame
 	{
 		try
 		{
-			ZubatForm form = new ZubatForm(url);
+			FormPanel form = new FormPanel(oauth, url, new TrafficListenerInterface() {
 
+				public void handleRequest(TrafficItem item) 
+				{
+					trafficTm.addTraffic(item);
+				}
+
+			});
+
+			form.loadData();
 
 			tabPane.setComponentAt(1, new JScrollPane(form));
 
@@ -226,48 +350,6 @@ public class Zubat extends JFrame
 		{
 			Zubat.handleException(e);
 		}
-	}
-
-	public void loadServices()
-	{
-		try
-		{
-			lm = new ZubatListModel(baseUrl);
-			list = new JList(lm);
-
-			list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-			list.addListSelectionListener(new ListSelectionListener() {
-
-				public void valueChanged(ListSelectionEvent e) 
-				{
-					ServiceItem item = (ServiceItem) list.getSelectedValue();
-
-					if(item != null && !e.getValueIsAdjusting())
-					{
-						selectedService = item;
-
-						tabPane.setSelectedIndex(0);
-
-						loadTable(item.getUri());
-					}
-				}
-
-			});
-
-			list.setSelectedIndex(0);
-
-			this.add(new JScrollPane(list), BorderLayout.WEST);
-		}
-		catch(Exception e)
-		{
-			Zubat.handleException(e);
-		}
-	}
-
-	public static Oauth getOauth()
-	{
-		return oauth;
 	}
 	
 	public static void handleException(Exception e)

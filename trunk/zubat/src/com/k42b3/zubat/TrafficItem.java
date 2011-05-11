@@ -23,39 +23,58 @@
 
 package com.k42b3.zubat;
 
-import javax.swing.UIManager;
-
 /**
- * Entry
+ * TrafficItem
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Entry 
+public class TrafficItem 
 {
-	public static void main(String[] args)
+	private String method;
+	private int responseCode;
+	private String url;
+	private String request;
+
+	public String getMethod() 
 	{
-		try
-		{
-			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+		return method;
+	}
 
-			UIManager.setLookAndFeel(lookAndFeel);
+	public void setMethod(String method) 
+	{
+		this.method = method;
+	}
 
+	public int getResponseCode() 
+	{
+		return responseCode;
+	}
 
-			if(args.length > 0 && args[0].equals("--auth"))
-			{
-				new Login();
-			}
-			else
-			{
-				new Zubat();
-			}
-		}
-		catch(Exception e)
-		{
-			Zubat.handleException(e);
-		}
+	public void setResponseCode(int responseCode) 
+	{
+		this.responseCode = responseCode;
+	}
+
+	public String getUrl() 
+	{
+		return url;
+	}
+
+	public void setUrl(String url) 
+	{
+		this.url = url;
+	}
+
+	public String getRequest() 
+	{
+		return request;
+	}
+
+	public void setRequest(String request) 
+	{
+		this.request = request;
 	}
 }

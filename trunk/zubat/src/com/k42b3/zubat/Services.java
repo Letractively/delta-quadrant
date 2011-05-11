@@ -30,6 +30,7 @@ import javax.swing.AbstractListModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -43,24 +44,40 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * ZubatListModel
+ * Services
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class ZubatListModel extends AbstractListModel
+public class Services
 {
 	private Logger logger;
-
+	private TrafficListenerInterface trafficListener;
 	private ArrayList<ServiceItem> services = new ArrayList<ServiceItem>();
 
-	public ZubatListModel(String baseUrl) throws Exception
+	public Services(String baseUrl) throws Exception
 	{
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
-		this.request(baseUrl + "api/meta/xrds");
+		String url = this.getXrdsUrl(baseUrl);
+
+		if(url != null)
+		{
+			this.request(url);
+		}
+		else
+		{
+			throw new Exception("Could not find xrds location");
+		}
+	}
+
+	public Services(String baseUrl, TrafficListenerInterface trafficListener) throws Exception
+	{
+		this(baseUrl);
+
+		this.trafficListener = trafficListener;
 	}
 
 	public Object getElementAt(int index) 
@@ -86,7 +103,7 @@ public class ZubatListModel extends AbstractListModel
 		return null;
 	}
 
-	private void request(String url) throws Exception
+	private String getXrdsUrl(String url) throws Exception
 	{
 		// build request
 		HttpParams httpParams = new BasicHttpParams();
@@ -95,7 +112,49 @@ public class ZubatListModel extends AbstractListModel
 
 		HttpGet getRequest = new HttpGet(url);
 
-		Zubat.getOauth().signRequest(getRequest);
+		logger.info("Request: " + getRequest.getRequestLine());
+
+		HttpResponse httpResponse = httpClient.execute(getRequest);
+
+		HttpEntity entity = httpResponse.getEntity();
+
+
+		// find x-xrds-location header
+		Header[] headers = httpResponse.getAllHeaders();
+		
+		for(int i = 0; i < headers.length; i++)
+		{
+			if(headers[i].getName().toLowerCase().equals("x-xrds-location"))
+			{
+				return headers[i].getValue();
+			}
+		}
+
+
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
+			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+			trafficItem.setUrl(getRequest.getURI().toString());
+
+			trafficListener.handleRequest(trafficItem);
+		}
+
+
+		return null;
+	}
+
+	private void request(String url) throws Exception
+	{
+		// build request
+		HttpParams httpParams = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
+		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+
+		HttpGet getRequest = new HttpGet(url);
 
 		logger.info("Request: " + getRequest.getRequestLine());
 
@@ -134,13 +193,23 @@ public class ZubatListModel extends AbstractListModel
 				String type = typeElement.getTextContent();
 				String uri = uriElement.getTextContent();
 
-				if(type.startsWith("http://ns.amun-project.org"))
-				{
-					services.add(new ServiceItem(type, uri));
-				}
+				services.add(new ServiceItem(type, uri));
 			}
 		}
 
 		logger.info("Found " + services.size() + " services");
+		
+		
+		// log traffic
+		if(trafficListener != null)
+		{
+			TrafficItem trafficItem = new TrafficItem();
+
+			trafficItem.setMethod(getRequest.getRequestLine().getMethod());
+			trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+			trafficItem.setUrl(getRequest.getURI().toString());
+
+			trafficListener.handleRequest(trafficItem);
+		}
 	}
 }

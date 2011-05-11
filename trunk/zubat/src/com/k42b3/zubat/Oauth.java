@@ -80,12 +80,27 @@ public class Oauth
 	private String verificationCode;
 
 	private Logger logger;
+	private boolean authed = false;
+	private TrafficListenerInterface trafficListener;
 
 	public Oauth(OauthProvider provider)
 	{
 		this.provider = provider;
-
 		this.logger = Logger.getLogger("com.k42b3.zubat");
+	}
+
+	public Oauth(OauthProvider provider, TrafficListenerInterface trafficListener)
+	{
+		this(provider);
+
+		this.trafficListener = trafficListener;
+	}
+
+	public void auth(String token, String tokenSecret)
+	{
+		this.setToken(token);
+		this.setTokenSecret(tokenSecret);
+		this.authed = true;
 	}
 
 	public void setToken(String token)
@@ -96,6 +111,21 @@ public class Oauth
 	public void setTokenSecret(String tokenSecret)
 	{
 		this.tokenSecret = tokenSecret;
+	}
+
+	public String getToken()
+	{
+		return token;
+	}
+
+	public String getTokenSecret()
+	{
+		return tokenSecret;
+	}
+
+	public boolean isAuthed()
+	{
+		return authed;
 	}
 
 	public boolean requestToken()
@@ -573,6 +603,19 @@ public class Oauth
 				logger.info(getEntityContent(entity));
 				
 				throw new Exception("Invalid response code");
+			}
+
+
+			// log traffic
+			if(trafficListener != null)
+			{
+				TrafficItem trafficItem = new TrafficItem();
+
+				trafficItem.setMethod(request.getRequestLine().getMethod());
+				trafficItem.setResponseCode(httpResponse.getStatusLine().getStatusCode());
+				trafficItem.setUrl(request.getURI().toString());
+
+				trafficListener.handleRequest(trafficItem);
 			}
 
 
