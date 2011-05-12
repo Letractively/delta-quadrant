@@ -38,6 +38,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -187,7 +188,7 @@ public class ViewTableModel extends AbstractTableModel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-		String responseContent = Zubat.getEntityContent(entity);
+		String responseContent = EntityUtils.toString(entity);
 
 
 		// log traffic
@@ -302,7 +303,7 @@ public class ViewTableModel extends AbstractTableModel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-		String responseContent = Zubat.getEntityContent(entity);
+		String responseContent = EntityUtils.toString(entity);
 
 
 		// log traffic

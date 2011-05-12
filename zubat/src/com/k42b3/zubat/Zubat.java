@@ -26,6 +26,7 @@ package com.k42b3.zubat;
 import java.awt.BorderLayout;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -35,6 +36,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -299,23 +301,6 @@ public class Zubat extends JFrame
 		return msg;
 	}
 
-	public static String getEntityContent(HttpEntity entity) throws Exception
-	{
-		BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
-		StringBuilder content = new StringBuilder();
-
-		char[] buf = new char[1024];
-
-		while(br.ready())
-		{
-			int read = br.read(buf);
-
-			content.append(buf, 0, read);
-		}
-
-		return content.toString();
-	}
-	
 	public static String appendQuery(String url, String query)
 	{
 		if(url.indexOf('?') == -1)

@@ -74,11 +74,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import com.k42b3.zubat.form.FormElementInterface;
 import com.k42b3.zubat.form.Input;
@@ -185,7 +188,7 @@ public class FormPanel extends JPanel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-		String responseContent = Zubat.getEntityContent(entity);
+		String responseContent = EntityUtils.toString(entity);
 
 		
 		// log traffic
@@ -202,35 +205,46 @@ public class FormPanel extends JPanel
 
 
 		// parse response
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
-
-		Document doc = db.parse(is);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
-
-
-		// get message
-		Message msg = Zubat.parseResponse(rootElement);
-
-		if(!msg.hasSuccess())
+		try
 		{
-			body.removeAll();
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			InputSource is = new InputSource();
+			is.setCharacterStream(new StringReader(responseContent));
+
+			Document doc = db.parse(is);
+
+			Element rootElement = (Element) doc.getDocumentElement();
+
+			rootElement.normalize();
+
+
+			// get message
+			Message msg = Zubat.parseResponse(rootElement);
+
+			if(!msg.hasSuccess())
+			{
+				JLabel error = new JLabel(msg.getText());
+
+				body.add(error);
+			}
+			else
+			{
+				Node nodeMethod = this.getChildNode(rootElement, "method");
+				Node nodeValue = this.getChildNode(rootElement, "value");
+
+				requestMethod = nodeMethod.getTextContent();
+				requestUrl = nodeValue.getTextContent();
+
+				this.parseForm(body, this.getChildNodes(rootElement, "items"));
+			}
 		}
-		else
+		catch(SAXException e)
 		{
-			Node nodeMethod = this.getChildNode(rootElement, "method");
-			Node nodeValue = this.getChildNode(rootElement, "value");
+			JLabel error = new JLabel(e.getMessage());
 
-			requestMethod = nodeMethod.getTextContent();
-			requestUrl = nodeValue.getTextContent();
-
-			this.parseForm(body, this.getChildNodes(rootElement, "items"));
+			body.add(error);
 		}
 	}
 
@@ -239,6 +253,7 @@ public class FormPanel extends JPanel
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
+		doc.setXmlStandalone(true);
 
 		Set<String> keys = requestFields.keySet();
 
@@ -271,41 +286,13 @@ public class FormPanel extends JPanel
 		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
 		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
 
-		HttpRequestBase request;
+		HttpPost request = new HttpPost(requestUrl);
 
-		if(requestMethod.equals("GET"))
-		{
-			request = new HttpGet(requestUrl);
-		}
-		else if(requestMethod.equals("POST"))
-		{
-			StringEntity entity = new StringEntity(requestContent);
+		request.setEntity(new StringEntity(requestContent));
 
-			request = new HttpPost(requestUrl);
-
-			((HttpPost) request).setEntity(entity);
-		}
-		else if(requestMethod.equals("PUT"))
-		{
-			StringEntity entity = new StringEntity(requestContent);
-
-			request = new HttpPut(requestUrl);
-
-			((HttpPut) request).setEntity(entity);
-		}
-		else if(requestMethod.equals("DELETE"))
-		{
-			request = new HttpDelete(requestUrl);
-		}
-		else
-		{
-			throw new Exception("Invalid request method");
-		}
-
-		
-		
 		request.addHeader("Accept", "application/xml");
 		request.addHeader("Content-type", "application/xml");
+		request.addHeader("X-HTTP-Method-Override", requestMethod);
 
 		oauth.signRequest(request);
 
@@ -315,7 +302,7 @@ public class FormPanel extends JPanel
 
 		HttpEntity entity = httpResponse.getEntity();
 
-		String responseContent = Zubat.getEntityContent(entity);
+		String responseContent = EntityUtils.toString(entity);
 
 		
 		// log traffic
@@ -333,21 +320,28 @@ public class FormPanel extends JPanel
 
 
 		// parse response
-		dbf = DocumentBuilderFactory.newInstance();
-		db = dbf.newDocumentBuilder();
+		try
+		{
+			dbf = DocumentBuilderFactory.newInstance();
+			db = dbf.newDocumentBuilder();
 
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
+			InputSource is = new InputSource();
+			is.setCharacterStream(new StringReader(responseContent));
 
-		doc = db.parse(is);
+			doc = db.parse(is);
 
-		Element rootElement = (Element) doc.getDocumentElement();
+			Element rootElement = (Element) doc.getDocumentElement();
 
-		rootElement.normalize();
+			rootElement.normalize();
 
 
-		// get message
-		Zubat.parseResponse(rootElement);
+			// get message
+			Zubat.parseResponse(rootElement);
+		}
+		catch(SAXException e)
+		{
+			JOptionPane.showMessageDialog(null, e.getMessage());
+		}
 	}
 
 	private void parseForm(Container container, ArrayList<Node> items)
@@ -415,13 +409,11 @@ public class FormPanel extends JPanel
 			input.setEnabled(false);
 		}
 
-
 		item.add(label);
 		item.add(input);
 
 
 		requestFields.put(nodeRef.getTextContent(), input);
-
 
 		if(nodeType != null && nodeType.getTextContent().equals("hidden"))
 		{
@@ -473,7 +465,6 @@ public class FormPanel extends JPanel
 
 
 		requestFields.put(nodeRef.getTextContent(), input);
-
 
 		return item;
 	}

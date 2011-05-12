@@ -37,10 +37,10 @@ import org.apache.http.client.methods.HttpRequestBase;
 public class TrafficItem 
 {
 	private HttpRequestBase request;
-	private String requestContent;
+	private String requestContent = "";
 
 	private HttpResponse response;
-	private String responseContent;
+	private String responseContent = "";
 
 	public HttpRequestBase getRequest()
 	{
