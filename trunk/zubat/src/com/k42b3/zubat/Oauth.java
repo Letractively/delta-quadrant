@@ -56,6 +56,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 
 import com.k42b3.zubat.oauth.OauthProvider;
 import com.k42b3.zubat.oauth.SignatureInterface;
@@ -368,12 +369,16 @@ public class Oauth
 		{
 			// add values
 			HashMap<String, String> values = new HashMap<String, String>();
+			HashMap<String, String> auth;
 
 			values.put("oauth_consumer_key", this.provider.getConsumerKey());
 			values.put("oauth_token", this.token);
 			values.put("oauth_signature_method", provider.getMethod());
 			values.put("oauth_timestamp", this.getTimestamp());
 			values.put("oauth_nonce", this.getNonce());
+
+
+			auth = (HashMap<String, String>) values.clone();
 
 
 			// add get vars to values
@@ -394,11 +399,11 @@ public class Oauth
 
 
 			// build signature
-			values.put("oauth_signature", signature.build(baseString, provider.getConsumerSecret(), this.tokenSecret));
+			auth.put("oauth_signature", signature.build(baseString, provider.getConsumerSecret(), this.tokenSecret));
 
 
 			// add header to request
-			request.addHeader("Authorization", "OAuth realm=\"zubat\", " + this.buildAuthString(values));
+			request.addHeader("Authorization", "OAuth realm=\"zubat\", " + this.buildAuthString(auth));
 		}
 		catch(Exception e)
 		{
@@ -603,7 +608,7 @@ public class Oauth
 
 
 			// get response content
-			String responseContent = Zubat.getEntityContent(entity);
+			String responseContent = EntityUtils.toString(entity);
 
 
 			// log traffic
