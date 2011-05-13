@@ -35,9 +35,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.BoxLayout;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -47,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -106,7 +109,7 @@ public class FormPanel extends JPanel
 
 	private String requestMethod;
 	private String requestUrl;
-	private HashMap<String, FormElementInterface> requestFields = new HashMap<String, FormElementInterface>();
+	private LinkedHashMap<String, FormElementInterface> requestFields = new LinkedHashMap<String, FormElementInterface>();
 
 	private Container body;
 	private JButton btnSend;
@@ -123,18 +126,18 @@ public class FormPanel extends JPanel
 
 
 		// form panel
-		JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
+		//JPanel panel = new JPanel();
+		//panel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		body = new JPanel();
 		body.setLayout(new GridLayout(0, 1));
 
-		panel.add(body);
+		//panel.add(body);
 
 		// load data
 		this.request(url);
 
-		this.add(new JScrollPane(panel), BorderLayout.CENTER);
+		this.add(new JScrollPane(body), BorderLayout.CENTER);
 
 
 		// buttons
@@ -231,13 +234,7 @@ public class FormPanel extends JPanel
 			}
 			else
 			{
-				Node nodeMethod = this.getChildNode(rootElement, "method");
-				Node nodeValue = this.getChildNode(rootElement, "value");
-
-				requestMethod = nodeMethod.getTextContent();
-				requestUrl = nodeValue.getTextContent();
-
-				this.parseForm(body, this.getChildNodes(rootElement, "items"));
+				body.add(this.parse(rootElement));
 			}
 		}
 		catch(SAXException e)
@@ -344,45 +341,86 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	private void parseForm(Container container, ArrayList<Node> items)
+	private Container parse(Node node) throws Exception
 	{
-		for(int i = 0; i < items.size(); i++)
+		if(node.getNodeType() == Node.ELEMENT_NODE)
 		{
-			Node node = items.get(i);
-
-			if(node.getNodeType() != Node.ELEMENT_NODE)
-			{
-				continue;
-			}
-
 			Node nodeClass = this.getChildNode(node, "class");
-			Component comp = null;
+			String nodeName = nodeClass.getTextContent().toLowerCase();
 
-			if(nodeClass.getTextContent().toLowerCase().equals("input"))
+			if(nodeName.equals("form"))
 			{
-				comp = parseInput(node);
+				return parseForm(node);
 			}
-
-			if(nodeClass.getTextContent().toLowerCase().equals("select"))
+			else if(nodeName.equals("input"))
 			{
-				comp = parseSelect(node);
+				return parseInput(node);
 			}
-
-			if(comp != null)
+			else if(nodeName.equals("textarea"))
 			{
-				container.add(comp);
+				return parseInput(node);
 			}
-
-			/*
-			if(nodeClass.getTextContent().toLowerCase().equals("textarea"))
+			else if(nodeName.equals("select"))
 			{
-				container.add(parseTextarea(node));
+				return parseSelect(node);
 			}
-			*/
+			else if(nodeName.equals("tabbedpane"))
+			{
+				return parseTabbedPane(node);
+			}
+			else if(nodeName.equals("panel"))
+			{
+				return parsePanel(node);
+			}
+			else
+			{
+				return null;
+			}
+		}
+		else
+		{
+			return null;
 		}
 	}
 
-	private Component parseInput(Node node)
+	private Container parseForm(Node node) throws Exception
+	{
+		Node nodeMethod = this.getChildNode(node, "method");
+		Node nodeAction = this.getChildNode(node, "action");
+		Node nodeItem = this.getChildNode(node, "item");
+
+		if(nodeMethod != null)
+		{
+			requestMethod = nodeMethod.getTextContent();
+		}
+		else
+		{
+			throw new Exception("Request method is missing");
+		}
+		
+		if(nodeAction != null)
+		{
+			requestUrl = nodeAction.getTextContent();
+		}
+		else
+		{
+			throw new Exception("Request value is missing");
+		}
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+
+		Container con = this.parse(nodeItem); 
+
+		if(con != null)
+		{
+			panel.add(con, BorderLayout.CENTER);
+		}
+
+		return panel;
+	}
+
+	private Container parseInput(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -425,51 +463,84 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	private Component parseSelect(Node node)
+	private Container parseSelect(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
 		Node nodeValue = this.getChildNode(node, "value");
 		Node nodeDisabled = this.getChildNode(node, "disabled");
-
+		Node nodeChildren = this.getChildNode(node, "children");
+		
 		JPanel item = new JPanel();
 		item.setLayout(new FlowLayout());
 
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
 
-		DefaultComboBoxModel model = new DefaultComboBoxModel(this.getSelectOptions(node));
-		Select input = new Select(model);
-		input.setPreferredSize(new Dimension(300, 22));
-
-		if(nodeValue != null)
+		if(nodeChildren != null)
 		{
-			for(int i = 0; i < model.getSize(); i++)
+			SelectItem[] items = this.getSelectOptions(nodeChildren);
+			
+			if(items != null)
 			{
-				SelectItem boxItem = (SelectItem) model.getElementAt(i);
+				DefaultComboBoxModel model = new DefaultComboBoxModel(items);
 
-				if(boxItem.getKey().equals(nodeValue.getTextContent()))
+				Select input = new Select(model);
+				input.setPreferredSize(new Dimension(300, 22));
+
+				// set select if value available
+				if(nodeValue != null)
 				{
-					input.setSelectedIndex(i);
+					for(int i = 0; i < model.getSize(); i++)
+					{
+						SelectItem boxItem = (SelectItem) model.getElementAt(i);
+
+						if(boxItem.getKey().equals(nodeValue.getTextContent()))
+						{
+							input.setSelectedIndex(i);
+						}
+					}
 				}
+
+
+				if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
+				{
+					input.setEnabled(false);
+				}
+
+				item.add(label);
+				item.add(input);
+
+
+				requestFields.put(nodeRef.getTextContent(), input);
+
+				return item;
 			}
 		}
 
-		if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
-		{
-			input.setEnabled(false);
-		}
-
-		item.add(label);
-		item.add(input);
-
-
-		requestFields.put(nodeRef.getTextContent(), input);
-
-		return item;
+		return null;
 	}
 
-	private Component parseTextarea(Node node)
+	private SelectItem[] getSelectOptions(Node node)
+	{
+		ArrayList<Node> options = this.getChildNodes(node, "item");
+		SelectItem[] items = new SelectItem[options.size()];
+
+		for(int i = 0; i < options.size(); i++)
+		{
+			Node nodeLabel = this.getChildNode(options.get(i), "label");
+			Node nodeValue = this.getChildNode(options.get(i), "value");
+
+			if(nodeLabel != null && nodeValue != null)
+			{
+				items[i] = new SelectItem(nodeValue.getTextContent(), nodeLabel.getTextContent());
+			}
+		}
+
+		return items;
+	}
+
+	private Container parseTextarea(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -491,27 +562,65 @@ public class FormPanel extends JPanel
 
 		requestFields.put(nodeRef.getTextContent(), input);
 
+		return item;
+	}
+
+	private Container parseTabbedPane(Node node) throws Exception
+	{
+		JTabbedPane item = new JTabbedPane();
+		Node nodeChildren = this.getChildNode(node, "children");
+
+		if(nodeChildren != null)
+		{
+			ArrayList<Node> items = this.getChildNodes(nodeChildren, "item");
+
+			for(int i = 0; i < items.size(); i++)
+			{
+				Node nodeLabel = this.getChildNode(items.get(i), "label");
+
+				if(nodeLabel != null)
+				{
+					Container con = this.parse(items.get(i)); 
+
+					if(con != null)
+					{
+						item.addTab(nodeLabel.getTextContent(), con);
+					}
+				}
+			}
+		}
 
 		return item;
 	}
 
-	private SelectItem[] getSelectOptions(Node node)
+	private Container parsePanel(Node node) throws Exception
 	{
-		ArrayList<Node> options = this.getChildNodes(node, "items");
-		SelectItem[] items = new SelectItem[options.size()];
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
-		for(int i = 0; i < options.size(); i++)
+		JPanel item = new JPanel();
+		item.setLayout(new GridLayout(0, 1));
+
+		Node nodeChildren = this.getChildNode(node, "children");
+
+		if(nodeChildren != null)
 		{
-			Node nodeLabel = this.getChildNode(options.get(i), "label");
-			Node nodeValue = this.getChildNode(options.get(i), "value");
+			ArrayList<Node> items = this.getChildNodes(nodeChildren, "item");
 
-			if(nodeLabel != null && nodeValue != null)
+			for(int i = 0; i < items.size(); i++)
 			{
-				items[i] = new SelectItem(nodeValue.getTextContent(), nodeLabel.getTextContent());
+				Container con = this.parse(items.get(i)); 
+
+				if(con != null)
+				{
+					item.add(con);
+				}
 			}
 		}
 
-		return items;
+		panel.add(item);
+
+		return panel;
 	}
 
 	private ArrayList<Node> getChildNodes(Node node, String nodeName)
