@@ -1,7 +1,7 @@
 /**
  * Kadabra
  * 
- * Kadabra is an application to mirror a local folder to an FTP server.
+ * Kadabra is an application to mirror a left folder to a right folder.
  * You can create multiple projects wich are stored in an SQLite database.
  * With the option --status [id] you can see wich changes are made and
  * with --release [id] you can upload the changes to the FTP server.
@@ -24,35 +24,28 @@
 
 package com.k42b3.kadabra;
 
-import java.util.logging.Logger;
-
-import org.apache.commons.net.ProtocolCommandEvent;
-import org.apache.commons.net.ProtocolCommandListener;
-
 /**
- * CommandLogger
+ * HandlerAbstract
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 67 $
  */
-public class CommandLogger implements ProtocolCommandListener
+public abstract class HandlerAbstract
 {
-	private Logger logger;
+	protected Resource resource;
+	protected String basePath;
 
-	public CommandLogger()
+	public HandlerAbstract(Resource resource, String basePath)
 	{
-		this.logger = Logger.getLogger("com.k42b3.kadabra");
+		this.resource = resource;
+		this.basePath = basePath;
 	}
 
-	public void protocolCommandSent(ProtocolCommandEvent e) 
-	{
-		logger.fine(e.getMessage());
-	}
-
-	public void protocolReplyReceived(ProtocolCommandEvent e) 
-	{
-		logger.fine(e.getMessage());
-	}
+	abstract public Item[] getFiles(String path) throws Exception;
+	abstract public void makeDirecoty(String path) throws Exception;
+	abstract public byte[] getContent(String path) throws Exception;
+	abstract public void uploadFile(String path, byte[] content) throws Exception;
+	abstract public void close() throws Exception;
 }

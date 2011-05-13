@@ -24,10 +24,12 @@
 
 package com.k42b3.kadabra;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
+import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteStatement;
 
 /**
  * Project
@@ -39,25 +41,44 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 public class Project 
 {
+	private SQLiteConnection db;
 	private int id;
-	private String host;
-	private int port;
-	private String user;
-	private String pw;
-	private String localPath;
-	private String remotePath;
+	private String leftPath;
+	private int leftResourceId;
+	private String rightPath;
+	private int rightResourceId;
 
-	private FTPClient client;
-
-	public Project(int id, String host, int port, String user, String pw, String localPath, String remotePath) throws Exception
+	public Project(SQLiteConnection db, int id) throws Exception
 	{
-		this.setId(id);
-		this.setHost(host);
-		this.setPort(port);
-		this.setUser(user);
-		this.setPw(pw);
-		this.setLocalPath(localPath);
-		this.setRemotePath(remotePath);
+		this.db = db;
+
+		String sql = "SELECT " +
+			"id, " +
+			"leftPath, " +
+			"leftResourceId, " +
+			"rightPath, " +
+			"rightResourceId " +
+		"FROM " +
+			"projects " +
+		"WHERE " +
+			"id = " + id;
+
+		SQLiteStatement st = db.prepare(sql);
+
+		st.step();
+
+		if(st.hasRow())
+		{
+			this.id = st.columnInt(0);
+			this.leftPath = st.columnString(1);
+			this.leftResourceId = st.columnInt(2);
+			this.rightPath = st.columnString(3);
+			this.rightResourceId = st.columnInt(4);
+		}
+		else
+		{
+			throw new Exception("Invalid project id");
+		}
 	}
 
 	public int getId()
@@ -65,150 +86,135 @@ public class Project
 		return id;
 	}
 
-	public void setId(int id)
+	public String getLeftPath() 
 	{
-		this.id = id;
+		return leftPath;
 	}
 
-	public String getHost() 
+	public String getRightPath() 
 	{
-		return host;
+		return rightPath;
 	}
 
-	public void setHost(String host) throws Exception
+	public int getLeftResourceId()
 	{
-		if(host.length() >= 3)
-		{
-			this.host = host;
-		}
-		else
-		{
-			throw new Exception("Host must have at least 3 signs");
-		}
+		return leftResourceId;
 	}
 
-	public int getPort() 
+	public int getRightResourceId()
 	{
-		return port;
+		return rightResourceId;
 	}
 
-	public void setPort(int port) throws Exception
+	public HandlerAbstract getLeftHandler() throws Exception
 	{
-		if(port > 0 && port <= 65535)
-		{
-			this.port = port;
-		}
-		else
-		{
-			throw new Exception("Port must be greater then 0 and lower or equal to 65535");
-		}
+		String sql = "SELECT " +
+			"type, " +
+			"config " +
+		"FROM " +
+			"resources " +
+		"WHERE " +
+			"id = " + this.getLeftResourceId();
+
+		SQLiteStatement st = db.prepare(sql);
+
+		st.step();
+
+		String type = st.columnString(0);
+		ByteArrayInputStream bais = new ByteArrayInputStream(st.columnString(1).getBytes());
+
+		ObjectInputStream ois = new ObjectInputStream(bais);
+
+		Resource resource = (Resource) ois.readObject();
+
+		return this.getHandler(resource, type);
 	}
 
-	public String getUser() 
+	public HandlerAbstract getRightHandler() throws Exception
 	{
-		return user;
+		String sql = "SELECT " +
+			"type, " +
+			"config " +
+		"FROM " +
+			"resources " +
+		"WHERE " +
+			"id = " + this.getRightResourceId();
+
+		SQLiteStatement st = db.prepare(sql);
+
+		st.step();
+
+		String type = st.columnString(0);
+		ByteArrayInputStream bais = new ByteArrayInputStream(st.columnString(1).getBytes());
+
+		ObjectInputStream ois = new ObjectInputStream(bais);
+
+		Resource resource = (Resource) ois.readObject();
+
+		return this.getHandler(resource, type);
 	}
 
-	public void setUser(String user) throws Exception
+	public ArrayList<String> getExclude() throws Exception
 	{
-		if(user.length() >= 3)
+		ArrayList<String> exclude = new ArrayList<String>();
+
+		String sql = "SELECT " +
+			"pattern " +
+		"FROM " +
+			"exclude " +
+		"WHERE " +
+			"projectId = " + this.getId();
+
+		SQLiteStatement st = db.prepare(sql);
+
+		while(st.step())
 		{
-			this.user = user;
+			exclude.add(st.columnString(0));
 		}
-		else
-		{
-			throw new Exception("User must have at least 3 signs");
-		}
+
+		return exclude;
 	}
 
-	public String getPw() 
-	{
-		return pw;
-	}
-
-	public void setPw(String pw) throws Exception
-	{
-		if(pw.length() >= 3)
-		{
-			this.pw = pw;
-		}
-		else
-		{
-			throw new Exception("Pw must have at least 3 signs");
-		}
-	}
-
-	public String getLocalPath() 
-	{
-		return localPath;
-	}
-
-	public void setLocalPath(String localPath) throws Exception
-	{
-		localPath = localPath.trim();
-
-		File file = new File(localPath);
-
-		if(file.isDirectory())
-		{
-			this.localPath = file.getAbsolutePath();
-		}
-		else
-		{
-			throw new Exception("localPath is not a folder");
-		}
-	}
-
-	public String getRemotePath() 
-	{
-		return remotePath;
-	}
-
-	public void setRemotePath(String remotePath) throws Exception
-	{
-		remotePath = remotePath.trim();
-
-		if(remotePath.endsWith("/"))
-		{
-			remotePath = remotePath.substring(0, remotePath.length() - 1);
-		}
-
-		FTPClient client = this.getClient();
-
-		client.listFiles(remotePath);
-		
-		if(client.getReplyCode() == FTPReply.CODE_226)
-		{
-			this.remotePath = remotePath;
-		}
-		else
-		{
-			throw new Exception("remotePath ist not valid");
-		}
-	}
-
-	public FTPClient getClient() throws Exception
-	{
-		if(client == null)
-		{
-			client = new FTPClient();
-
-			client.addProtocolCommandListener(new CommandLogger());
-
-			client.connect(this.getHost(), this.getPort());
-
-			client.login(this.getUser(), this.getPw());
-
-			client.enterLocalPassiveMode();
-
-			client.setFileType(FTPClient.BINARY_FILE_TYPE);
-		}
-
-		return client;
-	}
-	
 	public void close() throws Exception
 	{
-		client.disconnect();
+		this.getLeftHandler().close();
+		this.getRightHandler().close();
+	}
+
+	public void addRelease() throws Exception
+	{
+		String sql = "INSERT INTO releases (" +
+			"projectId, " +
+			"date" +
+		") VALUES (" +
+			"?, " +
+			"datetime()" +
+		")";
+
+		SQLiteStatement st = db.prepare(sql);
+
+		st.bind(1, this.getId());
+
+		st.step();
+	}
+
+	private HandlerAbstract getHandler(Resource resource, String type) throws Exception
+	{
+		if(type.equals("SYSTEM"))
+		{
+			return new com.k42b3.kadabra.handler.System(resource, this.getLeftPath());
+		}
+		else if(type.equals("FTP"))
+		{
+			return new com.k42b3.kadabra.handler.Ftp(resource, this.getLeftPath());
+		}
+		else if(type.equals("SSH"))
+		{
+			return new com.k42b3.kadabra.handler.Ssh(resource, this.getLeftPath());
+		}
+		else
+		{
+			throw new Exception("Invalid resource type");
+		}
 	}
 }
