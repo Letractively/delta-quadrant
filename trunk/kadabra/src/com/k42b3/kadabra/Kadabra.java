@@ -24,17 +24,12 @@
 
 package com.k42b3.kadabra;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.logging.Logger;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteStatement;
@@ -49,7 +44,7 @@ import com.almworks.sqlite4java.SQLiteStatement;
  */
 public class Kadabra
 {
-	public static String version = "0.0.1 beta";
+	public static String version = "0.0.2 beta";
 
 	private Console console;
 	private Logger logger;
@@ -75,10 +70,10 @@ public class Kadabra
 	{
 		try
 		{
-			Project project = this.getProject(projectId);
+			Project project = new Project(db, projectId);
 
 			this.mirrorFolder(project, true, "");
-			
+
 			project.close();
 		}
 		catch(Exception e)
@@ -91,27 +86,15 @@ public class Kadabra
 	{
 		try
 		{
-			Project project = this.getProject(projectId);
+			Project project = new Project(db, projectId);
 
 			this.mirrorFolder(project, false, "");
 
-			
-			// add release
-			String sql = "INSERT INTO releases (" +
-							"projectId, " +
-							"date" +
-						") VALUES (?, datetime())";
-
-			SQLiteStatement st = db.prepare(sql);
-
-			st.bind(1, project.getId());
-
-			st.step();
-
-			console.printf("Project release successful%n");
-
+			project.addRelease();
 
 			project.close();
+
+			console.printf("Project release successful%n");
 		}
 		catch(Exception e)
 		{
@@ -124,26 +107,38 @@ public class Kadabra
 		try
 		{
 			String sql = "SELECT " +
-							"id, " +
-							"host, " +
-							"port, " +
-							"user, " +
-							"pw, " +
-							"localPath, " +
-							"remotePath, " +
-							"date, " +
-							"(SELECT COUNT(id) FROM releases WHERE releases.projectId = projects.id) AS count " +
-						"FROM projects";
+				"id, " +
+				"name, " +
+				"leftPath, " +
+				"leftResourceId, " +
+				"resourcesLeft.type " +
+				"rightPath, " +
+				"rightResourceId, " +
+				"resourcesRight.type, " +
+				"date, " +
+				"(SELECT COUNT(id) FROM releases WHERE releases.projectId = projects.id) AS count " +
+			"FROM " +
+				"projects " +
+			"INNER JOIN " +
+				"resources `resourcesLeft` " +
+			"ON " +
+				"projects.leftResourceId = resources.id " +
+			"INNER JOIN " +
+				"resources `resourcesRight`" +
+			"ON " +
+				"projects.rightResourceId = resources.id " +
+			"ORDER BY " +
+				"name ASC";
 
 			SQLiteStatement st = db.prepare(sql);
 
-			String formatString = "%1$-4s %2$-16s %3$-32s %4$-32s %5$-6s%n";
+			String formatString = "%1$-4s %2$-16s %3$-32s (%3$-8s) %4$-32s (%3$-8s) %5$-6s%n";
 
-			console.printf(formatString, "Id", "Host", "LocalPath", "RemotePath", "Releases");
+			console.printf(formatString, "Id", "Name", "leftPath", "leftType", "rightPath", "rightType", "Releases");
 
 			while(st.step())
 			{
-				console.printf(formatString, st.columnString(0), st.columnString(1), st.columnString(5), st.columnString(6), st.columnString(8));
+				console.printf(formatString, st.columnString(0), st.columnString(1), st.columnString(3), st.columnString(5), st.columnString(6), st.columnString(8), st.columnString(10));
 			}
 		}
 		catch(Exception e)
@@ -152,28 +147,80 @@ public class Kadabra
 		}
 	}
 
-	public void addProject(Project project)
+	public void infoProject(int projectId)
 	{
 		try
 		{
-			String sql = "INSERT INTO projects (" +
-							"host, " +
-							"port, " +
-							"user, " +
-							"pw, " +
-							"localPath, " +
-							"remotePath, " +
-							"date" +
-						") VALUES (?, ?, ?, ?, ?, ?, datetime())";
+			Project project = new Project(db, projectId);
+
+			String sql = "SELECT " +
+				"id, " +
+				"pattern " +
+			"FROM " +
+				"exclude" +
+			"WHERE " +
+				"projectId = " + project.getId();
 
 			SQLiteStatement st = db.prepare(sql);
 
-			st.bind(1, project.getHost());
-			st.bind(2, project.getPort());
-			st.bind(3, project.getUser());
-			st.bind(4, project.getPw());
-			st.bind(5, project.getLocalPath());
-			st.bind(6, project.getRemotePath());
+			console.printf("Left path: " + project.getLeftPath() + "%n");
+			console.printf("Right path: " + project.getRightPath() + "%n");
+
+			String formatString = "%1$-4s %2$-16s%n";
+
+			console.printf(formatString, "Id", "Pattern");
+
+			while(st.step())
+			{
+				console.printf(formatString, st.columnString(0), st.columnString(1));
+			}
+		}
+		catch(Exception e)
+		{
+			logger.warning(e.getMessage());
+		}
+	}
+
+	public void addProject(String name, String leftPath, int leftResourceId, String rightPath, int rightResourceId)
+	{
+		try
+		{
+			Resource leftResource = this.getResource(leftResourceId);
+			Resource rightResource = this.getResource(rightResourceId);
+
+			if(leftResource == null)
+			{
+				throw new Exception("Invalid left resource id");
+			}
+
+			if(rightResource == null)
+			{
+				throw new Exception("Invalid right resource id");
+			}
+
+			String sql = "INSERT INTO projects (" +
+				"name, " +
+				"leftPath, " +
+				"leftResourceId, " +
+				"rightPath, " +
+				"rightResourceId, " +
+				"date" +
+			") VALUES (" +
+				"?, " +
+				"?, " +
+				"?, " +
+				"?, " +
+				"?, " +
+				"datetime()" +
+			")";
+
+			SQLiteStatement st = db.prepare(sql);
+
+			st.bind(1, name);
+			st.bind(2, leftPath);
+			st.bind(3, leftResourceId);
+			st.bind(4, rightPath);
+			st.bind(5, rightResourceId);
 
 			st.step();
 
@@ -187,15 +234,147 @@ public class Kadabra
 		}
 	}
 
+	public void addResource(String type, HashMap<String, String> config)
+	{
+		try
+		{
+			// insert record
+			String sql = "INSERT INTO resources (" +
+				"type, " +
+				"config " +
+			") VALUES (" +
+				"?, " +
+				"?" +
+			")";
+
+			SQLiteStatement st = db.prepare(sql);
+
+			st.bind(1, type);
+			st.bind(2, config.toString());
+
+			st.step();
+
+			console.printf("Add exclude successful%n");
+		}
+		catch(Exception e)
+		{
+			logger.warning(e.getMessage());
+		}
+	}
+
+	public void addExclude(int projectId, String pattern)
+	{
+		try
+		{
+			Project project = new Project(db, projectId);
+
+
+			// check pattern
+			"foobar".matches(pattern);
+
+
+			// insert record
+			String sql = "INSERT INTO exclude (" +
+				"projectId, " +
+				"pattern " +
+			") VALUES (" +
+				"?, " +
+				"?" +
+			")";
+
+			SQLiteStatement st = db.prepare(sql);
+
+			st.bind(1, project.getId());
+			st.bind(2, pattern);
+
+			st.step();
+
+			console.printf("Add exclude successful%n");
+		}
+		catch(Exception e)
+		{
+			logger.warning(e.getMessage());
+		}
+	}
+
 	public void deleteProject(int projectId)
 	{
 		try
 		{
-			String sql = "DELETE FROM projects WHERE id = " + projectId;
+			Project project = new Project(db, projectId);
+			String sql;
+
+
+			// delete project
+			sql = "DELETE FROM " +
+				"projects " +
+			"WHERE " +
+				"id = " + project.getId();
 
 			db.exec(sql); 
 
+
+			// delete releases
+			sql = "DELETE FROM " +
+				"releases " +
+			"WHERE " +
+				"projectId = " + project.getId();
+
+			db.exec(sql); 
+
+
+			// delete exclude
+			sql = "DELETE FROM " +
+				"exclude " +
+			"WHERE " +
+				"projectId = " + project.getId();
+
+			db.exec(sql); 
+
+
 			console.printf("Delete project " + projectId + " successful%n");
+		}
+		catch(Exception e)
+		{
+			logger.warning(e.getMessage());
+		}
+	}
+
+	public void deleteResource(int resourceId)
+	{
+		try
+		{
+			// delete exclude
+			String sql = "DELETE FROM " +
+				"resources " +
+			"WHERE " +
+				"id = " + resourceId;
+
+			db.exec(sql); 
+
+
+			console.printf("Delete resource " + resourceId + " successful%n");
+		}
+		catch(Exception e)
+		{
+			logger.warning(e.getMessage());
+		}
+	}
+
+	public void deleteExclude(int excludeId)
+	{
+		try
+		{
+			// delete exclude
+			String sql = "DELETE FROM " +
+				"exclude " +
+			"WHERE " +
+				"projectId = " + excludeId;
+
+			db.exec(sql); 
+
+
+			console.printf("Delete exclude " + excludeId + " successful%n");
 		}
 		catch(Exception e)
 		{
@@ -209,24 +388,42 @@ public class Kadabra
 		{
 			// projects
 			String sql = "CREATE TABLE IF NOT EXISTS projects (" +
-							"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-							"host VARCHAR(128)," +
-							"port INTEGER," +
-							"user VARCHAR(128)," +
-							"pw VARCHAR(128)," +
-							"localPath VARCHAR(256)," +
-							"remotePath VARCHAR(256)," +
-							"date DATETIME" +
-						")";
+				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+				"name VARCHAR(128), " +
+				"leftPath VARCHAR(512)," +
+				"leftResourceId INTEGER," +
+				"rightPath VARCHAR(512)," +
+				"rightResourceId INTEGER," +
+				"date DATETIME" +
+			")";
+
+			db.exec(sql);
+
+			// resources
+			sql = "CREATE TABLE IF NOT EXISTS resources (" +
+				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+				"type ENUM('SYSTEM','FTP','SSH')," +
+				"config TEXT" +
+			")";
 
 			db.exec(sql);
 
 			// releases
 			sql = "CREATE TABLE IF NOT EXISTS releases (" +
-					"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-					"projectId INTEGER," +
-					"date DATETIME" +
-				")";
+				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+				"projectId INTEGER," +
+				"date DATETIME" +
+			")";
+
+			db.exec(sql);
+
+			// exclude
+			sql = "CREATE TABLE IF NOT EXISTS exclude (" +
+				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
+				"projectId INTEGER," +
+				"pattern VARCHAR," +
+				"date DATETIME" +
+			")";
 
 			db.exec(sql);
 
@@ -260,163 +457,95 @@ public class Kadabra
 		console.printf(formatString, "Argument", "Description");
 		console.printf(formatString, "--status [projectId]", "Shows wich files will be updated but without making any actions");
 		console.printf(formatString, "--release [projectId]", "Mirros the local folder to the remote folder");
-		console.printf(formatString, "--list", "List all available projects with theri project id");
+		console.printf(formatString, "--list", "List all available projects with their project id");
+		console.printf(formatString, "--info [projectId]", "Get informations about a project");
 		console.printf(formatString, "--add", "Add a new project to the database");
+		console.printf(formatString, "--addExclude", "Add a new exclude regexp to an project");
 		console.printf(formatString, "--del [projectId]", "Delete a project");
 		console.printf(formatString, "--build", "Build the tables in the database if it not exists");
 		console.printf(formatString, "--about", "Shows informations about the application");
-	}
-
-	private Project getProject(int projectId) throws Exception
-	{
-		SQLiteStatement st = db.prepare("SELECT id, host, port, user, pw, localPath, remotePath FROM projects WHERE id = ?");
-		st.bind(1, projectId);
-
-		st.step();
-
-		if(st.hasRow())
-		{
-			int id = st.columnInt(0);
-			String host = st.columnString(1);
-			int port = st.columnInt(2);
-			String user = st.columnString(3);
-			String pw = st.columnString(4);
-			String localPath = st.columnString(5);
-			String remotePath = st.columnString(6);
-
-			Project project = new Project(id, host, port, user, pw, localPath, remotePath);
-
-			return project;
-		}
-		else
-		{
-			throw new Exception("Invalid project id");
-		}
-	}
-
-	private File[] getLocalFiles(Project project, String path) throws Exception
-	{
-		File list = new File(project.getLocalPath() + "/" + path);
-
-		if(!list.isDirectory())
-		{
-			throw new Exception(project.getLocalPath() + "/" + path + " is not a directory");
-		}
-
-		return list.listFiles();
-	}
-
-	private FTPFile[] getRemoteFiles(Project project, String path) throws Exception
-	{
-		FTPFile[] remoteFiles = project.getClient().listFiles(project.getRemotePath() + "/" + path);
-
-		if(project.getClient().getReplyCode() != FTPReply.CODE_226)
-		{
-			throw new Exception(path + " ist not a directory");
-		}
-		
-		return remoteFiles;
 	}
 
 	private void mirrorFolder(Project project, boolean testRun, String path)
 	{
 		try
 		{
-			// get local files
-			File[] localFiles = this.getLocalFiles(project, path);
-
-			// get remote files
-			FTPFile[] remoteFiles = this.getRemoteFiles(project, path);
+			// get files
+			Item[] leftFiles = project.getLeftHandler().getFiles(path);
+			Item[] rightFiles = project.getRightHandler().getFiles(path);
 
 			// compare
-			for(int i = 0; i < localFiles.length; i++)
+			for(int i = 0; i < leftFiles.length; i++)
 			{
-				File localItem = localFiles[i];
-				String localPath;
+				Item leftItem = leftFiles[i];
 
-				if(path.isEmpty())
-				{
-					localPath = localItem.getName();
-				}
-				else
-				{
-					localPath = path + "/" + localItem.getName();
-				}
-
-				if(localItem.getName().charAt(0) == '.')
+				// check whether not current or up dir
+				if(leftItem.getName().equals(".") || leftItem.getName().equals(".."))
 				{
 					continue;
 				}
 
-				if(localItem.isDirectory())
+				// check exclude
+				ArrayList<String> exclude = project.getExclude();
+
+				for(int j = 0; j < exclude.size(); j++)
 				{
-					if(this.hasFolder(localItem, remoteFiles))
+					if(leftItem.getName().matches(exclude.get(i)))
 					{
-						this.mirrorFolder(project, testRun, localPath);
-					}
-					else
-					{
-						console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
-
-						if(!testRun)
-						{
-							project.getClient().makeDirectory(project.getRemotePath() + "/" + localPath);
-						}
-
-						this.uploadDir(project, testRun, localPath);
+						continue;
 					}
 				}
 
-				if(localItem.isFile())
+				// is directory
+				if(leftItem.isDirectory())
 				{
-					if(this.hasFile(localItem, remoteFiles))
+					if(this.hasFolder(leftItem, rightFiles))
 					{
-						// get local content
-						ByteArrayOutputStream baosLocal = new ByteArrayOutputStream();
-						FileInputStream is = new FileInputStream(localItem);
+						this.mirrorFolder(project, testRun, path + "/" + leftItem.getName());
+					}
+					else
+					{
+						console.printf("A " + path + "/" + leftItem.getName() + "%n");
 
-						int len;
-						byte[] tmp = new byte[1024];
-
-						while((len = is.read(tmp)) != -1)
+						if(!testRun)
 						{
-							baosLocal.write(tmp, 0, len);
+							project.getRightHandler().makeDirecoty(path + "/" + leftItem.getName());
 						}
 
-						baosLocal.flush();
-						baosLocal.close();
+						this.uploadDir(project, testRun, path + "/" + leftItem.getName());
+					}
+				}
 
-
-						// get remote content
-						ByteArrayOutputStream baosRemote = new ByteArrayOutputStream();
-
-						project.getClient().retrieveFile(project.getRemotePath() + "/" + localPath, baosRemote);
-
-						baosRemote.flush();
-						baosRemote.close();
-
-
+				if(leftItem.isFile())
+				{
+					if(this.hasFile(leftItem, rightFiles))
+					{
 						// compare content
-						if(!Arrays.equals(baosLocal.toByteArray(), baosRemote.toByteArray()))
-						{
-							int localLen = baosLocal.toByteArray().length;
-							int remoteLen = baosRemote.toByteArray().length;
+						byte[] leftContent = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
+						byte[] rightContent = project.getRightHandler().getContent(path + "/" + leftItem.getName());
 
-							console.printf("U " + project.getRemotePath() + "/" + localPath + " (" + localLen + "/" + remoteLen + ")%n");
+						if(!Arrays.equals(leftContent, rightContent))
+						{
+							int leftLen = leftContent.length;
+							int rightLen = rightContent.length;
+
+							console.printf("U " + path + "/" + leftItem.getName() + " (" + leftLen + "/" + rightLen + ")%n");
 
 							if(!testRun)
 							{
-								this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
+								project.getRightHandler().uploadFile(path + "/" + leftItem.getName(), leftContent);
 							}
 						}
 					}
 					else
 					{
-						console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
+						console.printf("A " + path + "/" + leftItem.getName() + "%n");
 
 						if(!testRun)
 						{
-							this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
+							byte[] leftContent = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
+
+							project.getRightHandler().uploadFile(path + "/" + leftItem.getName(), leftContent);
 						}
 					}
 				}
@@ -428,21 +557,11 @@ public class Kadabra
 		}
 	}
 
-	private void uploadFile(FTPClient client, File localItem, String dest) throws Exception
+	private boolean hasFolder(Item file, Item[] files)
 	{
-		InputStream fis = new FileInputStream(localItem);
-
-		if(!client.storeFile(dest, fis))
+		for(int i = 0; i < files.length; i++)
 		{
-			throw new Exception("Could not upload file");
-		}
-	}
-
-	private boolean hasFolder(File localItem, FTPFile[] remoteFiles)
-	{
-		for(int i = 0; i < remoteFiles.length; i++)
-		{
-			if(remoteFiles[i].isDirectory() && remoteFiles[i].getName().equals(localItem.getName()))
+			if(files[i].isDirectory() && files[i].getName().equals(file.getName()))
 			{
 				return true;
 			}
@@ -451,11 +570,11 @@ public class Kadabra
 		return false;
 	}
 
-	private boolean hasFile(File localItem, FTPFile[] remoteFiles)
+	private boolean hasFile(Item file, Item[] files)
 	{
-		for(int i = 0; i < remoteFiles.length; i++)
+		for(int i = 0; i < files.length; i++)
 		{
-			if(remoteFiles[i].isFile() && remoteFiles[i].getName().equals(localItem.getName()))
+			if(files[i].isFile() && files[i].getName().equals(file.getName()))
 			{
 				return true;
 			}
@@ -466,50 +585,67 @@ public class Kadabra
 
 	private void uploadDir(Project project, boolean testRun, String path) throws Exception
 	{
-		// get local files
-		File[] localFiles = this.getLocalFiles(project, path);
+		// get left files
+		Item[] leftFiles = project.getLeftHandler().getFiles(path);
+
 
 		// upload
-		for(int i = 0; i < localFiles.length; i++)
+		for(int i = 0; i < leftFiles.length; i++)
 		{
-			File localItem = localFiles[i];
-			String localPath;
+			Item leftItem = leftFiles[i];
 
-			if(path.isEmpty())
-			{
-				localPath = localItem.getName();
-			}
-			else
-			{
-				localPath = path + "/" + localItem.getName();
-			}
-			
-			if(localItem.getName().charAt(0) == '.')
+			// check whether not current or up dir
+			if(leftItem.getName().equals(".") || leftItem.getName().equals(".."))
 			{
 				continue;
 			}
 
-			if(localItem.isDirectory())
+			// check exclude
+			ArrayList<String> exclude = project.getExclude();
+
+			for(int j = 0; j < exclude.size(); j++)
 			{
-				console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
-
-				if(!testRun)
+				if(leftItem.getName().matches(exclude.get(i)))
 				{
-					project.getClient().makeDirectory(project.getRemotePath() + "/" + localPath);
+					continue;
 				}
-
-				this.uploadDir(project, testRun, localPath);
 			}
 
-			if(localItem.isFile())
+			if(leftItem.isDirectory())
 			{
-				console.printf("A " + project.getRemotePath() + "/" + localPath + "%n");
+				console.printf("A " + path + "/" + leftItem.getName() + "%n");
 
 				if(!testRun)
 				{
-					this.uploadFile(project.getClient(), localItem, project.getRemotePath() + "/" + localPath);
+					project.getRightHandler().makeDirecoty(path + "/" + leftItem.getName());
+				}
+
+				this.uploadDir(project, testRun, path + "/" + leftItem.getName());
+			}
+
+			if(leftItem.isFile())
+			{
+				console.printf("A " + path + "/" + leftItem.getName() + "%n");
+
+				if(!testRun)
+				{
+					byte[] content = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
+					
+					project.getRightHandler().uploadFile(path + "/" + leftItem.getName(), content);
 				}
 			}
 		}
+	}
+
+	private Resource getResource(int resourceId)
+	{
+		String sql = "SELECT" +
+			"id " +
+		"FROM " +
+			"resources " +
+		"WHERE " +
+			"id = " + resourceId;
+		
+		return null;
 	}
 }

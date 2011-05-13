@@ -1,7 +1,7 @@
 /**
  * Kadabra
  * 
- * Kadabra is an application to mirror a local folder to an FTP server.
+ * Kadabra is an application to mirror a left folder to a right folder.
  * You can create multiple projects wich are stored in an SQLite database.
  * With the option --status [id] you can see wich changes are made and
  * with --release [id] you can upload the changes to the FTP server.
@@ -25,6 +25,8 @@
 package com.k42b3.kadabra;
 
 import java.io.Console;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,24 +69,75 @@ public class Entry
 			{
 				instance.listProject();
 			}
+			else if(args.length == 2 && args[0].equals("--info"))
+			{
+				int id = Integer.parseInt(args[1]);
+
+				instance.infoProject(id);
+			}
 			else if(args.length == 1 && args[0].equals("--add"))
 			{
-				String host = console.readLine("Host: ");
-				int port = Integer.parseInt(console.readLine("Port: "));
-				String user = console.readLine("User: ");
-				String pw = new String(console.readPassword("Password: "));
-				String localPath = console.readLine("Local path: ");
-				String remotePath = console.readLine("Remote path: ");
+				String name = console.readLine("Name: ");
 
-				Project project = new Project(0, host, port, user, pw, localPath, remotePath);
+				String leftPath = console.readLine("Left path: ");
+				int legtResourceId = Integer.parseInt(console.readLine("Left resource id: "));
 
-				instance.addProject(project);
+				String rightPath = console.readLine("Right path: ");
+				int rightResourceId = Integer.parseInt(console.readLine("Right resource id: "));
+
+				instance.addProject(name, leftPath, legtResourceId, rightPath, rightResourceId);
+			}
+			else if(args.length == 1 && args[0].equals("--addResource"))
+			{
+				String type = console.readLine("Type [System|Ftp|Ssh]: ").toUpperCase();
+				HashMap<String, String> config = new HashMap<String, String>();
+				ArrayList<String> configFields;
+
+				if(type.equals("SYSTEM"))
+				{
+					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
+				}
+				else if(type.equals("FTP"))
+				{
+					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
+				}
+				else if(type.equals("SSH"))
+				{
+					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
+				}
+				else
+				{
+					throw new Exception("Invalid type");
+				}
+
+				for(int i = 0; i < configFields.size(); i++)
+				{
+					String key = config.get(i);
+					String value = console.readLine(key + ": ");
+
+					config.put(key, value);
+				}
+
+				instance.addResource(type, config);
+			}
+			else if(args.length == 1 && args[0].equals("--addExclude"))
+			{
+				int projectId = Integer.parseInt(console.readLine("Project ID: "));
+				String pattern = console.readLine("Pattern: ");
+
+				instance.addExclude(projectId, pattern);
 			}
 			else if(args.length == 2 && args[0].equals("--del"))
 			{
 				int id = Integer.parseInt(args[1]);
 
 				instance.deleteProject(id);
+			}
+			else if(args.length == 2 && args[0].equals("--delExclude"))
+			{
+				int id = Integer.parseInt(args[1]);
+
+				instance.deleteExclude(id);
 			}
 			else if(args.length == 1 && args[0].equals("--build"))
 			{
