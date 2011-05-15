@@ -34,7 +34,7 @@ import com.almworks.sqlite4java.SQLiteConnection;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 67 $
+ * @version    $Revision$
  */
 public class Resource extends HashMap
 {
