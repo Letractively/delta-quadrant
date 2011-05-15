@@ -25,8 +25,10 @@ package com.k42b3.zubat;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -55,9 +57,8 @@ import org.xml.sax.InputSource;
  */
 public class ViewTableModel extends AbstractTableModel
 {
-	private Oauth oauth;
 	private String url;
-	private TrafficListenerInterface trafficListener;
+	private Http http;
 	private Logger logger;
 
 	private ArrayList<String> supportedFields = new ArrayList<String>();
@@ -68,19 +69,13 @@ public class ViewTableModel extends AbstractTableModel
 	private int startIndex;
 	private int itemsPerPage;
 
-	public ViewTableModel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
+	public ViewTableModel(String url, Http http) throws Exception
 	{
-		this.oauth = oauth;
 		this.url = url;
-		this.trafficListener = trafficListener;
+		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.requestSupportedFields(url);
-	}
-
-	public ViewTableModel(Oauth oauth, String url) throws Exception
-	{
-		this(oauth, url, null);
 	}
 
 	public void loadData(ArrayList<String> fields) throws Exception
@@ -94,7 +89,7 @@ public class ViewTableModel extends AbstractTableModel
 	{
 		int index = startIndex + itemsPerPage;
 
-		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+		String url = Http.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
 
 		this.request(url);
 	}
@@ -104,7 +99,7 @@ public class ViewTableModel extends AbstractTableModel
 		int index = startIndex - itemsPerPage;
 		index = index < 0 ? 0 : index;
 
-		String url = Zubat.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+		String url = Http.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
 
 		this.request(url);
 	}
@@ -159,11 +154,6 @@ public class ViewTableModel extends AbstractTableModel
 	
 	private void request(String url) throws Exception
 	{
-		// build request
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
-
 		StringBuilder queryFields = new StringBuilder();
 
 		for(int i = 0; i < fields.size(); i++)
@@ -173,58 +163,16 @@ public class ViewTableModel extends AbstractTableModel
 				queryFields.append(fields.get(i) + ",");
 			}
 		}
-		
-		url = Zubat.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 
-		HttpGet getRequest = new HttpGet(url);
+		url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 
-		getRequest.addHeader("Accept", "application/xml");
+		HashMap<String, String> header = new HashMap<String, String>();
 
-		oauth.signRequest(getRequest);
-
-		logger.info("Request: " + getRequest.getRequestLine());
-
-		HttpResponse httpResponse = httpClient.execute(getRequest);
-
-		HttpEntity entity = httpResponse.getEntity();
-
-		String responseContent = EntityUtils.toString(entity);
+		header.put("Accept", "application/xml");
 
 
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
-
-
-		// parse response
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
-
-		Document doc = db.parse(is);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
-
-		
-		// get message
-		Message msg = Zubat.parseResponse(rootElement);
-
-		if(!msg.hasSuccess())
-		{
-			throw new Exception("API error occured");
-		}
+		// request
+		Document doc = http.requestXml(Http.GET, url, header);
 
 
 		// get meta
@@ -286,60 +234,13 @@ public class ViewTableModel extends AbstractTableModel
 
 	private void requestSupportedFields(String url) throws Exception
 	{
-		// build request
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+		HashMap<String, String> header = new HashMap<String, String>();
 
-		HttpGet getRequest = new HttpGet(url + "/@supportedFields");
-
-		getRequest.addHeader("Accept", "application/xml");
-
-		oauth.signRequest(getRequest);
-
-		logger.info("Request: " + getRequest.getRequestLine().toString());
-
-		HttpResponse httpResponse = httpClient.execute(getRequest);
-
-		HttpEntity entity = httpResponse.getEntity();
-
-		String responseContent = EntityUtils.toString(entity);
+		header.put("Accept", "application/xml");
 
 
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
-
-
-		// parse response
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
-
-		Document doc = db.parse(is);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
-
-
-		// get message
-		Message msg = Zubat.parseResponse(rootElement);
-
-		if(!msg.hasSuccess())
-		{
-			throw new Exception("API error occured");
-		}
+		// request
+		Document doc = http.requestXml(Http.GET, url + "/@supportedFields", header);
 
 
 		NodeList itemList = doc.getElementsByTagName("item");

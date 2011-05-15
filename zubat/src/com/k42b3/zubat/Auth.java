@@ -48,6 +48,7 @@ public class Auth extends JFrame
 	private Configuration config;
 	private Services availableServices;
 	private Oauth oauth;
+	private Http http;
 	private Logger logger;
 
 	public Auth()
@@ -65,6 +66,9 @@ public class Auth extends JFrame
 		this.setResizable(false);
 
 		this.setLayout(new BorderLayout());
+
+
+		http = new Http();
 
 
 		// login button
@@ -116,7 +120,7 @@ public class Auth extends JFrame
 		{
 			config = Configuration.parseFile(new File("zubat.conf.xml"));
 
-			availableServices = new Services(config.getBaseUrl());
+			availableServices = new Services(config.getBaseUrl(), http);
 
 			String requestUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request").getUri();
 			String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();

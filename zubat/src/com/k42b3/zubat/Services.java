@@ -27,6 +27,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -56,21 +57,16 @@ import org.xml.sax.InputSource;
 public class Services
 {
 	private String baseUrl;
+	private Http http;
 	private Logger logger;
-	private TrafficListenerInterface trafficListener;
+
 	private ArrayList<ServiceItem> services = new ArrayList<ServiceItem>();
 
-	public Services(String baseUrl)
+	public Services(String baseUrl, Http http)
 	{
 		this.baseUrl = baseUrl;
+		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
-	}
-
-	public Services(String baseUrl, TrafficListenerInterface trafficListener)
-	{
-		this(baseUrl);
-
-		this.trafficListener = trafficListener;
 	}
 
 	public void loadData() throws Exception
@@ -112,22 +108,11 @@ public class Services
 
 	private String getXrdsUrl(String url) throws Exception
 	{
-		// build request
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+		http.request(Http.GET, url, null, null, false);
 
-		HttpGet getRequest = new HttpGet(url);
 
-		logger.info("Request: " + getRequest.getRequestLine());
-
-		HttpResponse httpResponse = httpClient.execute(getRequest);
-
-		HttpEntity entity = httpResponse.getEntity();
-
-		
 		// find x-xrds-location header
-		Header[] headers = httpResponse.getAllHeaders();
+		Header[] headers = http.getLastResponse().getAllHeaders();
 		String xrdsLocation = null;
 
 		for(int i = 0; i < headers.length; i++)
@@ -141,67 +126,16 @@ public class Services
 		}
 
 
-		// get response content
-		String responseContent = EntityUtils.toString(entity);
-
-
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
-
-
 		return xrdsLocation;
 	}
 
 	private void request(String url) throws Exception
 	{
-		// build request
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
-
-		HttpGet getRequest = new HttpGet(url);
-
-		logger.info("Request: " + getRequest.getRequestLine());
-
-		HttpResponse httpResponse = httpClient.execute(getRequest);
-
-		HttpEntity entity = httpResponse.getEntity();
+		// request
+		Document doc = http.requestXml(Http.GET, url);
 
 
-		// parse xml
-		String responseContent = EntityUtils.toString(entity);
-
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
-
-		Document doc = db.parse(is);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
-
-		
-		// get message
-		Message msg = Zubat.parseResponse(rootElement);
-
-		if(!msg.hasSuccess())
-		{
-			throw new Exception("API error occured");
-		}
-
-
+		// parse services
 		NodeList serviceList = doc.getElementsByTagName("Service");
 
 		for(int i = 0; i < serviceList.getLength(); i++) 
@@ -222,18 +156,5 @@ public class Services
 		}
 
 		logger.info("Found " + services.size() + " services");
-		
-		
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
 	}
 }
