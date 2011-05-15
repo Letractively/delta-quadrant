@@ -52,11 +52,11 @@ import com.k42b3.zubat.oauth.OauthProvider;
  */
 public class Zubat extends JFrame
 {
-	public static String version = "0.0.1 beta";
-	public static String lastMessage;
+	public static String version = "0.0.2 beta";
 
 	private Configuration config;
 	private Oauth oauth;
+	private Http http;
 	private Logger logger;
 
 	private Services availableServices;
@@ -92,20 +92,33 @@ public class Zubat extends JFrame
 			// model
 			trafficTm = new TrafficTableModel();
 
+			http = new Http(new TrafficListenerInterface(){
+
+				public void handleRequest(TrafficItem item)
+				{
+					trafficTm.addTraffic(item);
+				}
+
+			});
+
 			config = Configuration.parseFile(new File("zubat.conf.xml"));
 
 			this.fetchServices();
 
 			this.doAuthentication();
 
+
 			menuPanel = new MenuPanel(this);
-			bodyPanel = new BodyPanel(this);
-			trafficPanel = new TrafficPanel(trafficTm);
-			
-			
+
 			this.add(menuPanel, BorderLayout.NORTH);
 
+
+			bodyPanel = new BodyPanel(this);
+
 			this.add(bodyPanel, BorderLayout.CENTER);
+
+
+			trafficPanel = new TrafficPanel(trafficTm);
 
 			this.add(trafficPanel, BorderLayout.SOUTH);
 
@@ -160,18 +173,13 @@ public class Zubat extends JFrame
 		{
 			throw new Exception("No token set use --auth to obtain a token and token secret");
 		}
+
+		http.setOauth(oauth);
 	}
 
 	private void fetchServices() throws Exception
 	{
-		availableServices = new Services(config.getBaseUrl(), new TrafficListenerInterface() {
-
-			public void handleRequest(TrafficItem item) 
-			{
-				trafficTm.addTraffic(item);
-			}
-
-		});
+		availableServices = new Services(config.getBaseUrl(), http);
 		
 		availableServices.loadData();
 	}
@@ -212,14 +220,7 @@ public class Zubat extends JFrame
 			selectedFields = fields;
 
 
-			ViewPanel view = new ViewPanel(oauth, service, fields, new TrafficListenerInterface() {
-
-				public void handleRequest(TrafficItem item)
-				{
-					trafficTm.addTraffic(item);
-				}
-
-			});
+			ViewPanel view = new ViewPanel(http, service, fields);
 
 
 			bodyPanel.setComponentAt(0, view);
@@ -238,14 +239,7 @@ public class Zubat extends JFrame
 	{
 		try
 		{
-			FormPanel form = new FormPanel(oauth, url, new TrafficListenerInterface() {
-
-				public void handleRequest(TrafficItem item) 
-				{
-					trafficTm.addTraffic(item);
-				}
-
-			});
+			FormPanel form = new FormPanel(url, http);
 
 
 			bodyPanel.setComponentAt(tabIndex, form);
@@ -265,51 +259,5 @@ public class Zubat extends JFrame
 		Logger.getLogger("com.k42b3.zubat").warning(e.getMessage());
 	}
 
-	public static Message parseResponse(Element element)
-	{
-		NodeList childs = element.getChildNodes();
-		Message msg = new Message();
 
-		for(int i = 0; i < childs.getLength(); i++)
-		{
-			if(childs.item(i).getNodeName().equals("text"))
-			{
-				msg.setText(childs.item(i).getTextContent());
-			}
-
-			if(childs.item(i).getNodeName().equals("success"))
-			{
-				msg.setSuccess(!childs.item(i).getTextContent().equals("false"));
-			}
-		}
-
-
-		lastMessage = msg.getText();
-
-		if(!lastMessage.isEmpty())
-		{
-			SwingUtilities.invokeLater(new Runnable() {
-
-				public void run() 
-				{
-					JOptionPane.showMessageDialog(null, lastMessage);
-				}
-
-			});
-		}
-
-		return msg;
-	}
-
-	public static String appendQuery(String url, String query)
-	{
-		if(url.indexOf('?') == -1)
-		{
-			return url + '?' + query;
-		}
-		else
-		{
-			return url + '&' + query;
-		}
-	}
 }

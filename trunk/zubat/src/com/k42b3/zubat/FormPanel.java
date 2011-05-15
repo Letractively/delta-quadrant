@@ -102,10 +102,9 @@ import com.k42b3.zubat.form.Textarea;
  */
 public class FormPanel extends JPanel
 {
-	private Oauth oauth;
 	private String url;
+	private Http http;
 	private Logger logger;
-	private TrafficListenerInterface trafficListener;
 
 	private String requestMethod;
 	private String requestUrl;
@@ -114,11 +113,10 @@ public class FormPanel extends JPanel
 	private Container body;
 	private JButton btnSend;
 
-	public FormPanel(Oauth oauth, String url, TrafficListenerInterface trafficListener) throws Exception
+	public FormPanel(String url, Http http) throws Exception
 	{
-		this.oauth = oauth;
 		this.url = url;
-		this.trafficListener = trafficListener;
+		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 
@@ -168,69 +166,37 @@ public class FormPanel extends JPanel
 		this.add(buttons, BorderLayout.SOUTH);
 	}
 
-	public FormPanel(Oauth oauth, String url) throws Exception
-	{
-		this(oauth, url, null);
-	}
-
 	private void request(String url) throws Exception
 	{
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+		HashMap<String, String> header = new HashMap<String, String>();
 
-		HttpGet getRequest = new HttpGet(url);
+		header.put("Accept", "application/xml");
 
-		getRequest.addHeader("Accept", "application/xml");
 
-		oauth.signRequest(getRequest);
-
-		logger.info("Request: " + getRequest.getRequestLine());
-
-		HttpResponse httpResponse = httpClient.execute(getRequest);
-
-		HttpEntity entity = httpResponse.getEntity();
-
-		String responseContent = EntityUtils.toString(entity);
-
-		
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(getRequest);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
+		// request
+		Document doc = http.requestXml(Http.GET, url, header);
 
 
 		// parse response
 		try
 		{
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-
-			InputSource is = new InputSource();
-			is.setCharacterStream(new StringReader(responseContent));
-
-			Document doc = db.parse(is);
-
 			Element rootElement = (Element) doc.getDocumentElement();
 
 			rootElement.normalize();
 
 
 			// get message
-			Message msg = Zubat.parseResponse(rootElement);
+			Message msg = Http.parseResponse(rootElement);
 
 			if(!msg.hasSuccess())
 			{
-				JLabel error = new JLabel(msg.getText());
+				JPanel errorPanel = new JPanel();
 
-				body.add(error);
+				errorPanel.setLayout(new FlowLayout());
+
+				errorPanel.add(new JLabel(msg.getText()));
+
+				body.add(errorPanel);
 			}
 			else
 			{
@@ -279,66 +245,14 @@ public class FormPanel extends JPanel
 
 
 		// send request
-		HttpParams httpParams = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
-		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
+		HashMap<String, String> header = new HashMap<String, String>();
 
-		HttpPost request = new HttpPost(requestUrl);
-
-		request.setEntity(new StringEntity(requestContent));
-
-		request.addHeader("Accept", "application/xml");
-		request.addHeader("Content-type", "application/xml");
-		request.addHeader("X-HTTP-Method-Override", requestMethod);
-
-		oauth.signRequest(request);
-
-		logger.info("Request: " + request.getRequestLine());
-
-		HttpResponse httpResponse = httpClient.execute(request);
-
-		HttpEntity entity = httpResponse.getEntity();
-
-		String responseContent = EntityUtils.toString(entity);
-
-		
-		// log traffic
-		if(trafficListener != null)
-		{
-			TrafficItem trafficItem = new TrafficItem();
-
-			trafficItem.setRequest(request);
-			trafficItem.setRequestContent(requestContent);
-			trafficItem.setResponse(httpResponse);
-			trafficItem.setResponseContent(responseContent);
-
-			trafficListener.handleRequest(trafficItem);
-		}
+		header.put("Accept", "application/xml");
+		header.put("Content-type", "application/xml");
+		header.put("X-HTTP-Method-Override", requestMethod);
 
 
-		// parse response
-		try
-		{
-			dbf = DocumentBuilderFactory.newInstance();
-			db = dbf.newDocumentBuilder();
-
-			InputSource is = new InputSource();
-			is.setCharacterStream(new StringReader(responseContent));
-
-			doc = db.parse(is);
-
-			Element rootElement = (Element) doc.getDocumentElement();
-
-			rootElement.normalize();
-
-
-			// get message
-			Zubat.parseResponse(rootElement);
-		}
-		catch(SAXException e)
-		{
-			JOptionPane.showMessageDialog(null, e.getMessage());
-		}
+		http.requestXml(Http.POST, requestUrl, header, requestContent);
 	}
 
 	private Container parse(Node node) throws Exception

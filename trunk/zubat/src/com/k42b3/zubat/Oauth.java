@@ -597,19 +597,8 @@ public class Oauth
 
 			HttpEntity entity = httpResponse.getEntity();
 
-
-			// status code != 200
-			if(httpResponse.getStatusLine().getStatusCode() != 200)
-			{
-				logger.info("Received: " + httpResponse.getStatusLine());
-				
-				throw new Exception("Invalid response code");
-			}
-
-
-			// get response content
 			String responseContent = EntityUtils.toString(entity);
-
+			
 
 			// log traffic
 			if(trafficListener != null)
@@ -621,6 +610,17 @@ public class Oauth
 				trafficItem.setResponseContent(responseContent);
 
 				trafficListener.handleRequest(trafficItem);
+			}
+
+
+			// check status code
+			int statusCode = httpResponse.getStatusLine().getStatusCode();
+
+			if(!(statusCode >= 200 && statusCode < 300))
+			{
+				JOptionPane.showMessageDialog(null, responseContent);
+
+				throw new Exception("No successful status code");
 			}
 
 

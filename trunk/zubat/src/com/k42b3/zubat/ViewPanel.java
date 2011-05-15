@@ -47,10 +47,9 @@ import javax.swing.event.TableModelListener;
  */
 public class ViewPanel extends JPanel
 {
-	private Oauth oauth;
+	private Http http;
 	private ServiceItem service;
 	private ArrayList<String> fields;
-	private TrafficListenerInterface trafficListener;
 
 	private ViewTableModel tm;
 	private JTable table;
@@ -58,18 +57,17 @@ public class ViewPanel extends JPanel
 	private JPanel buttons;
 	private JLabel lblPagination;
 
-	public ViewPanel(Oauth oauth, ServiceItem service, ArrayList<String> fields, TrafficListenerInterface trafficListener) throws Exception
+	public ViewPanel(Http http, ServiceItem service, ArrayList<String> fields) throws Exception
 	{
-		this.oauth = oauth;
+		this.http = http;
 		this.service = service;
 		this.fields = fields;
-		this.trafficListener = trafficListener;
 
 
 		this.setLayout(new BorderLayout());
 
 
-		tm = new ViewTableModel(oauth, service.getUri(), trafficListener);
+		tm = new ViewTableModel(service.getUri(), http);
 
 		if(fields == null)
 		{
@@ -144,21 +142,6 @@ public class ViewPanel extends JPanel
 		this.add(buttons, BorderLayout.SOUTH);
 	}
 
-	public ViewPanel(Oauth oauth, ServiceItem service) throws Exception
-	{
-		this(oauth, service, null, null);
-	}
-
-	public ViewPanel(Oauth oauth, ServiceItem service, TrafficListenerInterface trafficListener) throws Exception
-	{
-		this(oauth, service, null, trafficListener);
-	}
-
-	public ViewPanel(Oauth oauth, ServiceItem service, ArrayList<String> fields) throws Exception
-	{
-		this(oauth, service, fields, null);
-	}
-	
 	public JTable getTable()
 	{
 		return table;
