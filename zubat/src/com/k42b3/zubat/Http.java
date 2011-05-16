@@ -158,6 +158,7 @@ public class Http
 			TrafficItem trafficItem = new TrafficItem();
 
 			trafficItem.setRequest(httpRequest);
+			trafficItem.setRequestContent(body);
 			trafficItem.setResponse(httpResponse);
 			trafficItem.setResponseContent(responseContent);
 
