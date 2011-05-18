@@ -24,14 +24,12 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,21 +37,12 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.text.JTextComponent;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -62,29 +51,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import com.k42b3.zubat.form.FormElementInterface;
 import com.k42b3.zubat.form.Input;
@@ -168,13 +139,8 @@ public class FormPanel extends JPanel
 
 	private void request(String url) throws Exception
 	{
-		HashMap<String, String> header = new HashMap<String, String>();
-
-		header.put("Accept", "application/xml");
-
-
 		// request
-		Document doc = http.requestXml(Http.GET, url, header);
+		Document doc = http.requestXml(Http.GET, url);
 
 
 		// parse response
@@ -247,7 +213,6 @@ public class FormPanel extends JPanel
 		// send request
 		HashMap<String, String> header = new HashMap<String, String>();
 
-		header.put("Accept", "application/xml");
 		header.put("Content-type", "application/xml");
 		header.put("X-HTTP-Method-Override", requestMethod);
 

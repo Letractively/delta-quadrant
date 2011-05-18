@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -215,6 +216,16 @@ public class Http
 	public Document requestXml(int method, String url, Map<String, String> header, String body, boolean signed) throws Exception
 	{
 		// request
+		if(header == null)
+		{
+			header = new HashMap<String, String>();
+		}
+
+		if(!header.containsKey("Accept"))
+		{
+			header.put("Accept", "application/xml");
+		}
+
 		String responseContent = this.request(method, url, header, body, signed);
 
 
