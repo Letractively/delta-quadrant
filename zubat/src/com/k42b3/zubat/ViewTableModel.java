@@ -23,29 +23,15 @@
 
 package com.k42b3.zubat;
 
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /**
  * ViewTablelModel
@@ -154,6 +140,7 @@ public class ViewTableModel extends AbstractTableModel
 	
 	private void request(String url) throws Exception
 	{
+		// request
 		StringBuilder queryFields = new StringBuilder();
 
 		for(int i = 0; i < fields.size(); i++)
@@ -166,13 +153,7 @@ public class ViewTableModel extends AbstractTableModel
 
 		url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 
-		HashMap<String, String> header = new HashMap<String, String>();
-
-		header.put("Accept", "application/xml");
-
-
-		// request
-		Document doc = http.requestXml(Http.GET, url, header);
+		Document doc = http.requestXml(Http.GET, url);
 
 
 		// get meta
@@ -234,13 +215,8 @@ public class ViewTableModel extends AbstractTableModel
 
 	private void requestSupportedFields(String url) throws Exception
 	{
-		HashMap<String, String> header = new HashMap<String, String>();
-
-		header.put("Accept", "application/xml");
-
-
 		// request
-		Document doc = http.requestXml(Http.GET, url + "/@supportedFields", header);
+		Document doc = http.requestXml(Http.GET, url + "/@supportedFields");
 
 
 		NodeList itemList = doc.getElementsByTagName("item");

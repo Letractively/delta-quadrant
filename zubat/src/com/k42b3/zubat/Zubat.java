@@ -24,21 +24,12 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.k42b3.zubat.oauth.OauthProvider;
 
@@ -65,6 +56,7 @@ public class Zubat extends JFrame
 	private ArrayList<String> selectedFields;
 
 	private MenuPanel menuPanel;
+	private TreePanel treePanel;
 	private BodyPanel bodyPanel;
 	private TrafficPanel trafficPanel;
 
@@ -111,6 +103,11 @@ public class Zubat extends JFrame
 			menuPanel = new MenuPanel(this);
 
 			this.add(menuPanel, BorderLayout.NORTH);
+
+
+			treePanel = new TreePanel(http, availableServices);
+
+			this.add(treePanel, BorderLayout.WEST);
 
 
 			bodyPanel = new BodyPanel(this);
