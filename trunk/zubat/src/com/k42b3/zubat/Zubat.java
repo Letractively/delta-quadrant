@@ -61,7 +61,7 @@ public class Zubat extends JFrame
 	private TrafficPanel trafficPanel;
 
 	private TrafficTableModel trafficTm;
-	
+
 	public Zubat()
 	{
 		logger = Logger.getLogger("com.k42b3.zubat");

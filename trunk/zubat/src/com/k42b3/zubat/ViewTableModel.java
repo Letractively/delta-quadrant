@@ -90,6 +90,11 @@ public class ViewTableModel extends AbstractTableModel
 		this.request(url);
 	}
 
+	public void setUrl(String url)
+	{
+		this.url = url;
+	}
+
 	public ArrayList<String> getSupportedFields()
 	{
 		return this.supportedFields;
@@ -160,7 +165,8 @@ public class ViewTableModel extends AbstractTableModel
 		Element totalResultsElement = (Element) doc.getElementsByTagName("totalResults").item(0);
 		Element startIndexElement = (Element) doc.getElementsByTagName("startIndex").item(0);
 		Element itemsPerPageElement = (Element) doc.getElementsByTagName("itemsPerPage").item(0);
-		
+		NodeList entry = doc.getElementsByTagName("entry");
+
 		if(totalResultsElement != null)
 		{
 			totalResults = Integer.parseInt(totalResultsElement.getTextContent());
@@ -178,9 +184,7 @@ public class ViewTableModel extends AbstractTableModel
 
 
 		// build row
-		int rowSize = totalResults > itemsPerPage ? itemsPerPage : totalResults;
-
-		rows = new Object[rowSize][fields.size()];
+		rows = new Object[entry.getLength()][fields.size()];
 
 
 		// parse entries
@@ -209,6 +213,8 @@ public class ViewTableModel extends AbstractTableModel
 
 		logger.info("Received: " + entryList.getLength() + " rows");
 
+
+		this.fireTableStructureChanged();
 
 		this.fireTableDataChanged();
 	}
