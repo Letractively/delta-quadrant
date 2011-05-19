@@ -84,6 +84,9 @@ public class FormPanel extends JPanel
 	private Container body;
 	private JButton btnSend;
 
+	private SearchPanel searchPanel;
+	private HashMap<String, ReferenceItem> referenceFields = new HashMap<String, ReferenceItem>();
+
 	public FormPanel(String url, Http http) throws Exception
 	{
 		this.url = url;
@@ -95,13 +98,9 @@ public class FormPanel extends JPanel
 
 
 		// form panel
-		//JPanel panel = new JPanel();
-		//panel.setLayout(new FlowLayout(FlowLayout.LEADING));
-
 		body = new JPanel();
 		body.setLayout(new GridLayout(0, 1));
 
-		//panel.add(body);
 
 		// load data
 		this.request(url);
@@ -250,6 +249,10 @@ public class FormPanel extends JPanel
 			else if(nodeName.equals("panel"))
 			{
 				return parsePanel(node);
+			}
+			else if(nodeName.equals("reference"))
+			{
+				return parseReference(node);
 			}
 			else
 			{
@@ -502,6 +505,82 @@ public class FormPanel extends JPanel
 		return panel;
 	}
 
+	private Container parseReference(Node node)
+	{
+		Node nodeRef = this.getChildNode(node, "ref");
+		Node nodeLabel = this.getChildNode(node, "label");
+		Node nodeValue = this.getChildNode(node, "value");
+		Node nodeDisabled = this.getChildNode(node, "disabled");
+		Node nodeField = this.getChildNode(node, "field");
+		Node nodeSrc = this.getChildNode(node, "src");
+
+		JPanel item = new JPanel();
+		item.setLayout(new FlowLayout());
+
+		JLabel label = new JLabel(nodeLabel.getTextContent());
+		label.setPreferredSize(new Dimension(100, 22));
+
+		Input input = new Input();
+		input.setPreferredSize(new Dimension(255, 22));
+
+		JButton button = new JButton(nodeRef.getTextContent());
+		button.setPreferredSize(new Dimension(40, 22));
+		button.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				try
+				{
+					JButton source = (JButton) e.getSource();
+					String key = source.getText();
+
+					if(referenceFields.containsKey(key))
+					{
+						ReferenceItem item = referenceFields.get(key);
+						SearchPanel panel = item.getPanel();
+
+						if(panel == null)
+						{
+							panel = new SearchPanel(http, item.getSrc(), item.getField(), item.getInput());
+
+							item.setPanel(panel);
+						}
+
+						panel.setVisible(true);
+
+						panel.toFront();
+					}
+				}
+				catch(Exception ex)
+				{
+					logger.warning(ex.getMessage());
+				}
+			}
+
+		});
+
+		if(nodeValue != null)
+		{
+			input.setText(nodeValue.getTextContent());
+		}
+
+		if(nodeDisabled != null && nodeDisabled.getTextContent().equals("true"))
+		{
+			input.setEnabled(false);
+		}
+
+		item.add(label);
+		item.add(input);
+		item.add(button);
+
+
+		referenceFields.put(nodeRef.getTextContent(), new ReferenceItem(nodeField.getTextContent(), nodeSrc.getTextContent(), input));
+
+		requestFields.put(nodeRef.getTextContent(), input);
+
+		return item;
+	}
+
 	private ArrayList<Node> getChildNodes(Node node, String nodeName)
 	{
 		ArrayList<Node> nodes = new ArrayList<Node>();
@@ -546,5 +625,60 @@ public class FormPanel extends JPanel
 		}
 
 		return null;
+	}
+
+	class ReferenceItem
+	{
+		private String field;
+		private String src;
+		private Input input;
+		private SearchPanel panel;
+
+		public ReferenceItem(String field, String src, Input input)
+		{
+			this.setField(field);
+			this.setSrc(src);
+			this.setInput(input);
+		}
+
+		public String getField() 
+		{
+			return field;
+		}
+
+		public void setField(String field) 
+		{
+			this.field = field;
+		}
+
+		public String getSrc() 
+		{
+			return src;
+		}
+
+		public void setSrc(String src) 
+		{
+			this.src = src;
+		}
+
+		public Input getInput() 
+		{
+			return input;
+		}
+
+		public void setInput(Input input) 
+		{
+			this.input = input;
+		}
+
+		public SearchPanel getPanel() 
+		{
+			return panel;
+		}
+
+		public void setPanel(SearchPanel panel) 
+		{
+			this.panel = panel;
+		}
 	}
 }
