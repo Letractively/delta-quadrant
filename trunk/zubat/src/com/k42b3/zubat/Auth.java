@@ -24,14 +24,33 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.StringReader;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.InputSource;
 
 import com.k42b3.zubat.oauth.OauthProvider;
 
@@ -51,6 +70,8 @@ public class Auth extends JFrame
 	private Http http;
 	private Logger logger;
 
+	private TrafficTableModel trafficTm;
+
 	public Auth()
 	{
 		this.logger = Logger.getLogger("com.k42b3.zubat");
@@ -59,7 +80,7 @@ public class Auth extends JFrame
 
 		this.setLocation(100, 100);
 
-		this.setSize(200, 100);
+		this.setSize(500, 200);
 
 		this.setMinimumSize(this.getSize());
 
@@ -68,12 +89,88 @@ public class Auth extends JFrame
 		this.setLayout(new BorderLayout());
 
 
-		http = new Http();
+		try
+		{
+			// status
+			Configuration config = Configuration.parseFile(Configuration.getFile());
+
+			JLabel status;
+
+			if(config.getConsumerKey().trim().isEmpty())
+			{
+				status = new JLabel("Please provide a consumer key in the configuration.");
+			}
+			else if(config.getConsumerSecret().trim().isEmpty())
+			{
+				status = new JLabel("Please provide a consumer secret in the configuration.");
+			}
+			else
+			{
+				status = new JLabel("Click on \"Login\" to start the authentication.");
+			}
+
+			status.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+
+			this.add(status, BorderLayout.NORTH);
 
 
-		// login button
-		JButton btnLogin = new JButton("Login");
+			// traffic panel
+			trafficTm = new TrafficTableModel();
+
+			http = new Http(new TrafficListenerInterface(){
+
+				public void handleRequest(TrafficItem item)
+				{
+					trafficTm.addTraffic(item);
+				}
+
+			});
+
+			TrafficPanel trafficPanel = new TrafficPanel(trafficTm);
+
+			this.add(trafficPanel, BorderLayout.CENTER);
+
+
+			// oauth config
+			availableServices = new Services(config.getBaseUrl(), http);
+			availableServices.loadData();
+
+			ServiceItem request = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request");
+			ServiceItem authorization = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize");
+			ServiceItem access = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access");
+
+			if(request == null)
+			{
+				throw new Exception("Could not find request service");
+			}
+
+			if(authorization == null)
+			{
+				throw new Exception("Could not find authorization service");
+			}
+
+			if(access == null)
+			{
+				throw new Exception("Could not find access service");
+			}
+
+			OauthProvider provider = new OauthProvider(request.getUri(), authorization.getUri(), access.getUri(), config.getConsumerKey(), config.getConsumerSecret());
+			oauth = new Oauth(http, provider);
+		}
+		catch(Exception e)
+		{
+			Zubat.handleException(e);
+		}
+
 		
+		// buttons
+		JPanel buttons = new JPanel();
+
+		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+		
+		JButton btnLogin = new JButton("Login");
+		JButton btnClose = new JButton("Close");
+
 		btnLogin.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e)
@@ -84,15 +181,9 @@ public class Auth extends JFrame
 					{
 						if(oauth.accessToken())
 						{
-							// probably save the token in the config file
-							System.out.println("Token: " + oauth.getToken());
-							System.out.println("Token secret: " + oauth.getTokenSecret());
-
 							JOptionPane.showMessageDialog(null, "You have successful authenticated");
 
-							setVisible(false);
-
-							System.exit(0);
+							saveConfig(oauth.getToken(), oauth.getTokenSecret());
 						}
 						else
 						{
@@ -112,31 +203,82 @@ public class Auth extends JFrame
 
 		});
 
-		this.add(btnLogin);
+		btnClose.addActionListener(new ActionListener() {
 
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+			}
 
-		// oauth config
-		try
-		{
-			config = Configuration.parseFile(new File("zubat.conf.xml"));
+		});
 
-			availableServices = new Services(config.getBaseUrl(), http);
+		buttons.add(btnLogin);
+		buttons.add(btnClose);
 
-			String requestUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request").getUri();
-			String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();
-			String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
-
-			OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
-			oauth = new Oauth(provider);
-		}
-		catch(Exception e)
-		{
-			Zubat.handleException(e);
-		}
+		this.add(buttons, BorderLayout.SOUTH);
 
 
 		this.setVisible(true);
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	private void saveConfig(String token, String tokenSecret)
+	{
+		try
+		{
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(Configuration.getFile());
+
+			Element rootElement = (Element) doc.getDocumentElement();
+
+			rootElement.normalize();
+
+
+			// add token / tokenSecret element
+			Element tokenElement = (Element) doc.getElementsByTagName("token").item(0);
+			Element tokenSecretElement = (Element) doc.getElementsByTagName("tokenSecret").item(0);
+
+			if(tokenElement != null)
+			{
+				tokenElement.setTextContent(token);
+			}
+			else
+			{
+				tokenElement = doc.createElement("token");
+				tokenElement.setTextContent(token);
+
+				doc.appendChild(tokenElement);
+			}
+
+			if(tokenSecretElement != null)
+			{
+				tokenSecretElement.setTextContent(tokenSecret);
+			}
+			else
+			{
+				tokenSecretElement = doc.createElement("tokenSecret");
+				tokenSecretElement.setTextContent(tokenSecret);
+
+				doc.appendChild(tokenSecretElement);
+			}
+
+
+			// save dom
+			Source source = new DOMSource(doc);
+
+			Result result = new StreamResult(Configuration.getFile());
+
+			Transformer xformer = TransformerFactory.newInstance().newTransformer();
+
+			xformer.transform(source, result);
+		}
+		catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(null, "The following error occured: " + e.getMessage() + "\nNevertheless you can use the obtained token and token secret by adding them manually to the configuration file.\n\nToken: " + token + "\nToken secret: " + tokenSecret);
+
+			Zubat.handleException(e);
+		}
 	}
 }

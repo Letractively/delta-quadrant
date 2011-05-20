@@ -26,6 +26,7 @@ package com.k42b3.zubat;
 import java.awt.Desktop;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -71,8 +72,9 @@ import com.k42b3.zubat.oauth.SignatureInterface;
  */
 public class Oauth 
 {
+	private Http http;
 	private OauthProvider provider;
-	
+
 	private String token;
 	private String tokenSecret;
 	private boolean callbackConfirmed;
@@ -82,17 +84,11 @@ public class Oauth
 	private boolean authed = false;
 	private TrafficListenerInterface trafficListener;
 
-	public Oauth(OauthProvider provider)
+	public Oauth(Http http, OauthProvider provider)
 	{
+		this.http = http;
 		this.provider = provider;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
-	}
-
-	public Oauth(OauthProvider provider, TrafficListenerInterface trafficListener)
-	{
-		this(provider);
-
-		this.trafficListener = trafficListener;
 	}
 
 	public void auth(String token, String tokenSecret)
@@ -146,7 +142,7 @@ public class Oauth
 
 			// add get vars to values
 			URL requestUrl = new URL(provider.getRequestUrl());
-			values.putAll(getQueryMap(requestUrl.getQuery()));
+			values.putAll(parseQuery(requestUrl.getQuery()));
 
 
 			// build base string
@@ -170,7 +166,7 @@ public class Oauth
 			HashMap<String, String> header = new HashMap<String, String>();
 			header.put("Authorization", "OAuth realm=\"zubat\", " + this.buildAuthString(values));
 
-			HttpEntity entity = this.httpRequest(requestMethod, provider.getRequestUrl(), header, "");
+			String responseContent = http.request(Http.GET, provider.getRequestUrl(), header);
 
 
 			// parse response
@@ -178,27 +174,30 @@ public class Oauth
 			this.tokenSecret = null;
 			this.callbackConfirmed = false;
 
-			List<NameValuePair> pairs = URLEncodedUtils.parse(entity);
+			HashMap<String, String> response = parseQuery(responseContent);
+			Set<String> keys = response.keySet();
 
-			for(int i = 0; i < pairs.size(); i++)
+			for(String key : keys)
 			{
-				if(pairs.get(i).getName().equals("oauth_token"))
+				if(key.equals("oauth_token"))
 				{
-					this.token = pairs.get(i).getValue();
+					this.token = response.get(key);
 
 					logger.info("Received token: " + this.token);
 				}
 
-				if(pairs.get(i).getName().equals("oauth_token_secret"))
+				if(key.equals("oauth_token_secret"))
 				{
-					this.tokenSecret = pairs.get(i).getValue();
+					this.tokenSecret = response.get(key);
 
 					logger.info("Received token secret: " + this.tokenSecret);
 				}
 
-				if(pairs.get(i).getName().equals("oauth_callback_confirmed"))
+				if(key.equals("oauth_callback_confirmed"))
 				{
-					this.callbackConfirmed = pairs.get(i).getValue().equals("1");
+					this.tokenSecret = response.get(key);
+
+					this.callbackConfirmed = response.get(key).equals("1");
 				}
 			}
 
@@ -293,7 +292,7 @@ public class Oauth
 
 			// add get vars to values
 			URL accessUrl = new URL(provider.getAccessUrl());
-			values.putAll(getQueryMap(accessUrl.getQuery()));
+			values.putAll(parseQuery(accessUrl.getQuery()));
 
 
 			// build base string
@@ -317,27 +316,28 @@ public class Oauth
 			HashMap<String, String> header = new HashMap<String, String>();
 			header.put("Authorization", "OAuth realm=\"zubat\", " + this.buildAuthString(values));
 
-			HttpEntity entity = this.httpRequest(requestMethod, provider.getAccessUrl(), header, "");
+			String responseContent = http.request(Http.GET, provider.getAccessUrl(), header);
 
 
 			// parse response
 			this.token = null;
 			this.tokenSecret = null;
 
-			List<NameValuePair> pairs = URLEncodedUtils.parse(entity);
+			HashMap<String, String> response = parseQuery(responseContent);
+			Set<String> keys = response.keySet();
 
-			for(int i = 0; i < pairs.size(); i++)
+			for(String key : keys)
 			{
-				if(pairs.get(i).getName().equals("oauth_token"))
+				if(key.equals("oauth_token"))
 				{
-					this.token = pairs.get(i).getValue();
+					this.token = response.get(key);
 
 					logger.info("Received token: " + this.token);
 				}
 
-				if(pairs.get(i).getName().equals("oauth_token_secret"))
+				if(key.equals("oauth_token_secret"))
 				{
-					this.tokenSecret = pairs.get(i).getValue();
+					this.tokenSecret = response.get(key);
 
 					logger.info("Received token secret: " + this.tokenSecret);
 				}
@@ -382,7 +382,7 @@ public class Oauth
 
 
 			// add get vars to values
-			values.putAll(getQueryMap(request.getURI().getQuery()));
+			values.putAll(parseQuery(request.getURI().getQuery()));
 
 
 			// build base string
@@ -686,22 +686,22 @@ public class Oauth
 		}
 	}
 
-	public static Map<String, String> getQueryMap(String query)
+	public static HashMap<String, String> parseQuery(String query) throws Exception
 	{
-		Map<String, String> map = new HashMap<String, String>();
-		
+		HashMap<String, String> map = new HashMap<String, String>();
+
 		if(query != null)
 		{
 			String[] params = query.split("&");
 
-			for(String param : params)
+			for(int i = 0; i < params.length; i++)
 			{
-				String[] pair = param.split("=");
+				String[] pair = params[i].split("=");
 
 				if(pair.length >= 1)
 				{
-					String name  = pair[0];
-					String value = pair.length == 2 ? pair[1] : "";
+					String name  = URLDecoder.decode(pair[0], "UTF-8");
+					String value = pair.length == 2 ? URLDecoder.decode(pair[1], "UTF-8") : "";
 
 					map.put(name, value);
 				}

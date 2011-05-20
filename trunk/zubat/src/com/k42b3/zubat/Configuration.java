@@ -122,7 +122,7 @@ public class Configuration
 		Element consumerSecretElement = (Element) doc.getElementsByTagName("consumerSecret").item(0);
 		Element tokenElement = (Element) doc.getElementsByTagName("token").item(0);
 		Element tokenSecretElement = (Element) doc.getElementsByTagName("tokenSecret").item(0);
-		
+
 		if(baseUrlElement != null)
 		{
 			baseUrl = baseUrlElement.getTextContent();
@@ -167,5 +167,10 @@ public class Configuration
 		config.setTokenSecret(tokenSecret);
 
 		return config;
+	}
+
+	public static File getFile()
+	{
+		return new File("zubat.conf.xml");
 	}
 }
