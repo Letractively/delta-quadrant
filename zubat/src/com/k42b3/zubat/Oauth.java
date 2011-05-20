@@ -698,10 +698,10 @@ public class Oauth
 			{
 				String[] pair = param.split("=");
 
-				if(pair.length == 2)
+				if(pair.length >= 1)
 				{
-					String name = pair[0];
-					String value = pair[1];
+					String name  = pair[0];
+					String value = pair.length == 2 ? pair[1] : "";
 
 					map.put(name, value);
 				}

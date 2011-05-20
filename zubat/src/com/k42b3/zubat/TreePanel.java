@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 105 $
+ * @version    $Revision$
  */
 public class TreePanel extends JPanel
 {
