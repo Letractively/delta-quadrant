@@ -61,7 +61,7 @@ public class TrafficPanel extends JPanel
 		trafficTable.getColumnModel().getColumn(0).setMaxWidth(60); 
 		trafficTable.getColumnModel().getColumn(1).setMinWidth(120); 
 		trafficTable.getColumnModel().getColumn(1).setMaxWidth(120); 
-		trafficTable.getColumnModel().getColumn(2).setMinWidth(600); 
+		//trafficTable.getColumnModel().getColumn(2).setMinWidth(600); 
 
 		trafficTable.addMouseListener(new MouseListener() {
 

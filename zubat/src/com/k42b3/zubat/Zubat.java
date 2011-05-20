@@ -93,7 +93,7 @@ public class Zubat extends JFrame
 
 			});
 
-			config = Configuration.parseFile(new File("zubat.conf.xml"));
+			config = Configuration.parseFile(Configuration.getFile());
 
 			this.fetchServices();
 
@@ -153,14 +153,7 @@ public class Zubat extends JFrame
 		String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
 
 		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
-		oauth = new Oauth(provider, new TrafficListenerInterface() {
-
-			public void handleRequest(TrafficItem item) 
-			{
-				trafficTm.addTraffic(item);
-			}
-
-		});
+		oauth = new Oauth(http, provider);
 
 		if(!config.getToken().isEmpty() && !config.getTokenSecret().isEmpty())
 		{
