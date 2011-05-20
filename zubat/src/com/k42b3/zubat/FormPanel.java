@@ -511,7 +511,8 @@ public class FormPanel extends JPanel
 		Node nodeLabel = this.getChildNode(node, "label");
 		Node nodeValue = this.getChildNode(node, "value");
 		Node nodeDisabled = this.getChildNode(node, "disabled");
-		Node nodeField = this.getChildNode(node, "field");
+		Node nodeValueField = this.getChildNode(node, "valueField");
+		Node nodeLabelField = this.getChildNode(node, "labelField");
 		Node nodeSrc = this.getChildNode(node, "src");
 
 		JPanel item = new JPanel();
@@ -541,7 +542,7 @@ public class FormPanel extends JPanel
 
 						if(panel == null)
 						{
-							panel = new SearchPanel(http, item.getSrc(), item.getField(), item.getInput());
+							panel = new SearchPanel(http, item);
 
 							item.setPanel(panel);
 						}
@@ -574,7 +575,7 @@ public class FormPanel extends JPanel
 		item.add(button);
 
 
-		referenceFields.put(nodeRef.getTextContent(), new ReferenceItem(nodeField.getTextContent(), nodeSrc.getTextContent(), input));
+		referenceFields.put(nodeRef.getTextContent(), new ReferenceItem(nodeValueField.getTextContent(), nodeLabelField.getTextContent(), nodeSrc.getTextContent(), input));
 
 		requestFields.put(nodeRef.getTextContent(), input);
 
@@ -625,60 +626,5 @@ public class FormPanel extends JPanel
 		}
 
 		return null;
-	}
-
-	class ReferenceItem
-	{
-		private String field;
-		private String src;
-		private Input input;
-		private SearchPanel panel;
-
-		public ReferenceItem(String field, String src, Input input)
-		{
-			this.setField(field);
-			this.setSrc(src);
-			this.setInput(input);
-		}
-
-		public String getField() 
-		{
-			return field;
-		}
-
-		public void setField(String field) 
-		{
-			this.field = field;
-		}
-
-		public String getSrc() 
-		{
-			return src;
-		}
-
-		public void setSrc(String src) 
-		{
-			this.src = src;
-		}
-
-		public Input getInput() 
-		{
-			return input;
-		}
-
-		public void setInput(Input input) 
-		{
-			this.input = input;
-		}
-
-		public SearchPanel getPanel() 
-		{
-			return panel;
-		}
-
-		public void setPanel(SearchPanel panel) 
-		{
-			this.panel = panel;
-		}
 	}
 }

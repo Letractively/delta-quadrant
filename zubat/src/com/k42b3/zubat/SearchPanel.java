@@ -26,11 +26,8 @@ import com.k42b3.zubat.form.Input;
 public class SearchPanel extends JFrame
 {
 	private Http http;
-	private String url;
-	private String requiredField;
+	private ReferenceItem item;
 	private Logger logger;
-
-	private Input input;
 
 	private JTextField txtSearch;
 	private JComboBox cboOperator;
@@ -42,12 +39,10 @@ public class SearchPanel extends JFrame
 	private JButton btnSearch;
 	private JButton btnCancel;
 
-	public SearchPanel(Http http, String url, String requiredField, Input input) throws Exception
+	public SearchPanel(Http http, ReferenceItem item) throws Exception
 	{
 		this.http = http;
-		this.url = url;
-		this.requiredField = requiredField;
-		this.input = input;
+		this.item = item;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.setTitle("zubat (version: " + Zubat.version + ")");
@@ -61,7 +56,7 @@ public class SearchPanel extends JFrame
 		this.setLayout(new BorderLayout());
 
 
-		tm = new ViewTableModel(url, http);
+		tm = new ViewTableModel(item.getSrc(), http);
 
 
 		this.add(this.buildSearch(), BorderLayout.NORTH);
@@ -96,12 +91,11 @@ public class SearchPanel extends JFrame
 	private Component buildTable() throws Exception
 	{
 		ArrayList<String> fields = new ArrayList<String>();
-		String selectedField = cboField.getSelectedItem().toString();
 
-		fields.add(requiredField);
-		fields.add(selectedField);
+		fields.add(item.getValueField());
+		fields.add(item.getLabelField());
 
-		String urlFilter = Http.appendQuery(url, "count=64");
+		String urlFilter = Http.appendQuery(item.getSrc(), "count=64");
 
 		tm.setUrl(urlFilter);
 		tm.loadData(fields);
@@ -118,7 +112,7 @@ public class SearchPanel extends JFrame
 
 					if(id != null)
 					{
-						input.setText(id.toString());
+						item.getInput().setText(id.toString());
 
 						setVisible(false);
 					}
@@ -164,10 +158,10 @@ public class SearchPanel extends JFrame
 					String selectedField = cboField.getSelectedItem().toString();
 					String value = URLEncoder.encode(txtSearch.getText(), "UTF-8");
 
-					fields.add(requiredField);
-					fields.add(selectedField);
+					fields.add(item.getValueField());
+					fields.add(item.getLabelField());
 
-					String urlFilter = Http.appendQuery(url, "filterBy=" + selectedField + "&filterOp=" + operator + "&filterValue=" + value + "&count=64");
+					String urlFilter = Http.appendQuery(item.getSrc(), "filterBy=" + selectedField + "&filterOp=" + operator + "&filterValue=" + value + "&count=64");
 
 					tm.setUrl(urlFilter);
 					tm.loadData(fields);
