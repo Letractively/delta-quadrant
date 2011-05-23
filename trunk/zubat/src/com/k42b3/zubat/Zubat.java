@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -107,6 +108,8 @@ public class Zubat extends JFrame
 
 			treePanel = new TreePanel(http, availableServices);
 
+			treePanel.setPreferredSize(new Dimension(140, 100));
+
 			this.add(treePanel, BorderLayout.WEST);
 
 
@@ -116,6 +119,8 @@ public class Zubat extends JFrame
 
 
 			trafficPanel = new TrafficPanel(trafficTm);
+
+			trafficPanel.setPreferredSize(new Dimension(600, 200));
 
 			this.add(trafficPanel, BorderLayout.SOUTH);
 

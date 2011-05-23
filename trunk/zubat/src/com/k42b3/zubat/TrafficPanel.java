@@ -103,8 +103,6 @@ public class TrafficPanel extends JPanel
 		});
 
 		JScrollPane trafficPane = new JScrollPane(trafficTable);
-		trafficPane.setPreferredSize(new Dimension(600, 200));
-
 
 		this.add(trafficPane, BorderLayout.CENTER);
 	}
