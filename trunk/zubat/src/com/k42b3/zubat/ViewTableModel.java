@@ -43,17 +43,17 @@ import org.w3c.dom.NodeList;
  */
 public class ViewTableModel extends AbstractTableModel
 {
-	private String url;
-	private Http http;
-	private Logger logger;
+	protected String url;
+	protected Http http;
+	protected Logger logger;
 
-	private ArrayList<String> supportedFields = new ArrayList<String>();
-	private ArrayList<String> fields = new ArrayList<String>();
-	private Object[][] rows;
+	protected ArrayList<String> supportedFields = new ArrayList<String>();
+	protected ArrayList<String> fields = new ArrayList<String>();
+	protected Object[][] rows;
 
-	private int totalResults;
-	private int startIndex;
-	private int itemsPerPage;
+	protected int totalResults;
+	protected int startIndex;
+	protected int itemsPerPage;
 
 	public ViewTableModel(String url, Http http) throws Exception
 	{
@@ -67,6 +67,13 @@ public class ViewTableModel extends AbstractTableModel
 	public void loadData(ArrayList<String> fields) throws Exception
 	{
 		this.fields = fields;
+
+		this.request(url);
+	}
+
+	public void loadData() throws Exception
+	{
+		this.fields = null;
 
 		this.request(url);
 	}
@@ -146,17 +153,21 @@ public class ViewTableModel extends AbstractTableModel
 	private void request(String url) throws Exception
 	{
 		// request
-		StringBuilder queryFields = new StringBuilder();
-
-		for(int i = 0; i < fields.size(); i++)
+		if(fields != null)
 		{
-			if(this.supportedFields.contains(fields.get(i)))
+			StringBuilder queryFields = new StringBuilder();
+
+			for(int i = 0; i < fields.size(); i++)
 			{
-				queryFields.append(fields.get(i) + ",");
+				if(this.supportedFields.contains(fields.get(i)))
+				{
+					queryFields.append(fields.get(i) + ",");
+				}
 			}
+
+			url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 		}
 
-		url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
 
 		Document doc = http.requestXml(Http.GET, url);
 
