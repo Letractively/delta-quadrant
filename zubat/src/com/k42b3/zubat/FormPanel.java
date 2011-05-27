@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -253,6 +254,10 @@ public class FormPanel extends JPanel
 			else if(nodeName.equals("reference"))
 			{
 				return parseReference(node);
+			}
+			else if(nodeName.equals("checkboxlist"))
+			{
+				return parseCheckboxList(node);
 			}
 			else
 			{
@@ -578,6 +583,32 @@ public class FormPanel extends JPanel
 		referenceFields.put(nodeRef.getTextContent(), new ReferenceItem(nodeValueField.getTextContent(), nodeLabelField.getTextContent(), nodeSrc.getTextContent(), input));
 
 		requestFields.put(nodeRef.getTextContent(), input);
+
+		return item;
+	}
+
+	private Container parseCheckboxList(Node node)
+	{
+		Node nodeRef = this.getChildNode(node, "ref");
+		Node nodeLabel = this.getChildNode(node, "label");
+		Node nodeValue = this.getChildNode(node, "value");
+		Node nodeDisabled = this.getChildNode(node, "disabled");
+		Node nodeSrc = this.getChildNode(node, "src");
+
+		JPanel item = new JPanel();
+		item.setLayout(new FlowLayout());
+
+		JLabel label = new JLabel(nodeLabel.getTextContent());
+		label.setPreferredSize(new Dimension(100, 22));
+
+		CheckboxList checkboxlist = new CheckboxList(nodeSrc.getTextContent(), http);
+		checkboxlist.setPreferredSize(new Dimension(255, 22));
+
+		item.add(label);
+		item.add(checkboxlist);
+
+
+		requestFields.put(nodeRef.getTextContent(), checkboxlist);
 
 		return item;
 	}
