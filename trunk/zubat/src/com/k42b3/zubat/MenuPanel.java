@@ -26,13 +26,16 @@ package com.k42b3.zubat;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.util.ArrayList;
 
+import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 /**
  * MenuPanel
@@ -49,7 +52,7 @@ public class MenuPanel extends JMenuBar
 	public MenuPanel(Zubat zubatInstance)
 	{
 		this.zubat = zubatInstance;
-		
+
 		this.buildContentMenu();
 		this.buildSystemMenu();
 		this.buildUserMenu();
@@ -102,8 +105,11 @@ public class MenuPanel extends JMenuBar
 
 		});
 
-		JMenuItem pageItem = new JMenuItem("Page");
-		pageItem.addActionListener(new ActionListener() {
+		
+		JMenu pageMenu = new JMenu("Page");
+
+		JMenuItem pagePageItem = new JMenuItem("Page");
+		pagePageItem.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -121,10 +127,68 @@ public class MenuPanel extends JMenuBar
 				fields.add("date");
 				fields.add("url");
 
+
 				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
 			}
 
 		});
+
+		JMenuItem pageGadgetItem = new JMenuItem("Gadget");
+		pageGadgetItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("sort");
+				fields.add("pageTitle");
+				fields.add("gadgetTitle");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page/gadget"), fields);
+			}
+
+		});
+
+		JMenuItem pageOptionItem = new JMenuItem("Option");
+		pageOptionItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("sort");
+				fields.add("rightName");
+				fields.add("pageSrcTitle");
+				fields.add("pageDestTitle");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page/option"), fields);
+			}
+
+		});
+
+		JMenuItem pageRightItem = new JMenuItem("Right");
+		pageRightItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("pageTitle");
+				fields.add("groupTitle");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page/right"), fields);
+			}
+
+		});
+
+		pageMenu.add(pagePageItem);
+		pageMenu.add(pageGadgetItem);
+		pageMenu.add(pageOptionItem);
+		pageMenu.add(pageRightItem);
+
 
 		JMenuItem serviceItem = new JMenuItem("Service");
 		serviceItem.addActionListener(new ActionListener() {
@@ -138,7 +202,7 @@ public class MenuPanel extends JMenuBar
 
 		menu.add(gadgetItem);
 		menu.add(mediaItem);
-		menu.add(pageItem);
+		menu.add(pageMenu);
 		menu.add(serviceItem);
 
 		this.add(menu);
@@ -148,8 +212,11 @@ public class MenuPanel extends JMenuBar
 	{
 		JMenu menu = new JMenu("System");
 
-		JMenuItem apiItem = new JMenuItem("API");
-		apiItem.addActionListener(new ActionListener() {
+
+		JMenu apiMenu = new JMenu("API");
+
+		JMenuItem apiApiItem = new JMenuItem("API");
+		apiApiItem.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -157,6 +224,49 @@ public class MenuPanel extends JMenuBar
 			}
 
 		});
+
+		JMenuItem apiRequestItem = new JMenuItem("Request");
+		apiRequestItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("apiTitle");
+				fields.add("authorName");
+				fields.add("ip");
+				fields.add("callback");
+				fields.add("expire");
+				fields.add("date");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/system/api/request"), fields);
+			}
+
+		});
+
+		JMenuItem apiAccessItem = new JMenuItem("Access");
+		apiAccessItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("apiTitle");
+				fields.add("authorName");
+				fields.add("allowed");
+				fields.add("date");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/system/api/access"), fields);
+			}
+
+		});
+
+		apiMenu.add(apiApiItem);
+		apiMenu.add(apiRequestItem);
+		apiMenu.add(apiAccessItem);
+
 
 		JMenuItem approvalItem = new JMenuItem("Approval");
 		approvalItem.addActionListener(new ActionListener() {
@@ -206,7 +316,7 @@ public class MenuPanel extends JMenuBar
 
 		});
 
-		menu.add(apiItem);
+		menu.add(apiMenu);
 		menu.add(approvalItem);
 		menu.add(countryItem);
 		menu.add(eventItem);
@@ -282,8 +392,11 @@ public class MenuPanel extends JMenuBar
 
 		});
 
-		JMenuItem groupItem = new JMenuItem("Group");
-		groupItem.addActionListener(new ActionListener() {
+		
+		JMenu groupMenu = new JMenu("Group");
+
+		JMenuItem groupGroupItem = new JMenuItem("Group");
+		groupGroupItem.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
 			{
@@ -291,6 +404,20 @@ public class MenuPanel extends JMenuBar
 			}
 
 		});
+
+		JMenuItem groupRightItem = new JMenuItem("Right");
+		groupRightItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/user/group/right"), null);
+			}
+
+		});
+
+		groupMenu.add(groupGroupItem);
+		groupMenu.add(groupRightItem);
+
 
 		JMenuItem rightItem = new JMenuItem("Right");
 		rightItem.addActionListener(new ActionListener() {
@@ -305,7 +432,7 @@ public class MenuPanel extends JMenuBar
 		menu.add(accountItem);
 		menu.add(activityItem);
 		menu.add(friendItem);
-		menu.add(groupItem);
+		menu.add(groupMenu);
 		menu.add(rightItem);
 
 		this.add(menu);

@@ -59,6 +59,20 @@ public class CheckboxListTableModel extends AbstractTableModel
 		return rows.length;
 	}
 
+	public Class getColumnClass(int columnIndex)
+	{
+		switch(columnIndex)
+		{
+			case 0:
+
+				return Boolean.class;
+
+			default:
+
+				return String.class;
+		}
+	}
+
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
 		if(rowIndex >= 0 && rowIndex < rows.length)
@@ -117,9 +131,9 @@ public class CheckboxListTableModel extends AbstractTableModel
 
 			if(idElement != null && titleElement != null && checkedElement != null)
 			{
-				rows[i][0] = Integer.parseInt(idElement.getTextContent());
+				rows[i][0] = Boolean.parseBoolean(checkedElement.getTextContent());
 				rows[i][1] = titleElement.getTextContent();
-				rows[i][2] = Boolean.parseBoolean(checkedElement.getTextContent());
+				rows[i][2] = Integer.parseInt(idElement.getTextContent());
 			}
 		}
 
@@ -130,5 +144,21 @@ public class CheckboxListTableModel extends AbstractTableModel
 		this.fireTableStructureChanged();
 
 		this.fireTableDataChanged();
+	}
+	
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+	{
+		if(rowIndex >= 0 && rowIndex < rows.length)
+		{
+			if(columnIndex >= 0 && columnIndex < rows[rowIndex].length)
+			{
+				rows[rowIndex][columnIndex] = aValue;
+			}
+		}
+	}
+
+	public boolean isCellEditable(int rowIndex, int columnIndex)
+	{
+		return columnIndex == 0;
 	}
 }

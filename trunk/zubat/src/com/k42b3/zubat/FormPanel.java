@@ -596,7 +596,7 @@ public class FormPanel extends JPanel
 		Node nodeSrc = this.getChildNode(node, "src");
 
 		JPanel item = new JPanel();
-		item.setLayout(new FlowLayout());
+		item.setLayout(new BorderLayout());
 
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
@@ -604,8 +604,7 @@ public class FormPanel extends JPanel
 		CheckboxList checkboxlist = new CheckboxList(nodeSrc.getTextContent(), http);
 		checkboxlist.setPreferredSize(new Dimension(255, 22));
 
-		item.add(label);
-		item.add(checkboxlist);
+		item.add(checkboxlist, BorderLayout.CENTER);
 
 
 		requestFields.put(nodeRef.getTextContent(), checkboxlist);

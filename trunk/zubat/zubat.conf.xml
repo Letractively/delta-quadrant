@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><zubat>
 	<baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
-	<consumerKey>de8a98e29834ba1804f4bf76b344526b020fdfa8</consumerKey>
-	<consumerSecret>49736b54f2a30065a986b264b9f5d793accc8b08</consumerSecret>
-	<token>e332694762af391cf537af090aa08af2db532de8</token>
-	<tokenSecret>28abee960aee77179b29e1e10fd53272fc106b73</tokenSecret>
+	<consumerKey>cf682d246460ebf73dd6d59d626a516dcfd8e1a2</consumerKey>
+	<consumerSecret>35375b51f33cb88d2e3d8af2545d05eceb0c6760</consumerSecret>
+	<token>55184d9440b7bfb3c3b21b0520ec0c7394c906fd</token>
+	<tokenSecret>df7e81cade517697e7049b051611855337ad643a</tokenSecret>
 </zubat>
