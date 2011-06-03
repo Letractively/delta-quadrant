@@ -192,7 +192,17 @@ public class MenuPanel extends JMenuBar
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/service"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("name");
+				fields.add("type");
+				fields.add("link");
+				fields.add("license");
+				fields.add("version");
+				fields.add("date");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/service"), fields);
 			}
 
 		});
@@ -217,7 +227,15 @@ public class MenuPanel extends JMenuBar
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/system/api"), null);
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("name");
+				fields.add("email");
+				fields.add("url");
+				fields.add("date");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/system/api"), fields);
 			}
 
 		});
