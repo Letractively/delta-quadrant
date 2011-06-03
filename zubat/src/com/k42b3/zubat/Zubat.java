@@ -25,7 +25,6 @@ package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
