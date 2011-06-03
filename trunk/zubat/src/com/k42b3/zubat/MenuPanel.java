@@ -26,16 +26,13 @@ package com.k42b3.zubat;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.net.URI;
 import java.util.ArrayList;
 
-import javax.swing.Box;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 /**
  * MenuPanel
@@ -306,6 +303,25 @@ public class MenuPanel extends JMenuBar
 
 		});
 
+		JMenuItem logsItem = new JMenuItem("Log");
+		logsItem.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				ArrayList<String> fields = new ArrayList<String>();
+
+				fields.add("id");
+				fields.add("authorName");
+				fields.add("refId");
+				fields.add("type");
+				fields.add("table");
+				fields.add("date");
+
+				zubat.loadService(zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/system/log"), fields);
+			}
+
+		});
+
 		JMenuItem varsItem = new JMenuItem("Vars");
 		varsItem.addActionListener(new ActionListener() {
 
@@ -320,6 +336,7 @@ public class MenuPanel extends JMenuBar
 		menu.add(approvalItem);
 		menu.add(countryItem);
 		menu.add(eventItem);
+		menu.add(logsItem);
 		menu.add(varsItem);
 
 		this.add(menu);

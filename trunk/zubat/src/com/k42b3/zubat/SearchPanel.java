@@ -21,8 +21,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import com.k42b3.zubat.form.Input;
-
 public class SearchPanel extends JFrame
 {
 	private Http http;
