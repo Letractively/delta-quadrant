@@ -43,6 +43,7 @@ import org.w3c.dom.NodeList;
  */
 public class ViewTableModel extends AbstractTableModel
 {
+	protected String baseUrl;
 	protected String url;
 	protected Http http;
 	protected Logger logger;
@@ -57,6 +58,7 @@ public class ViewTableModel extends AbstractTableModel
 
 	public ViewTableModel(String url, Http http) throws Exception
 	{
+		this.baseUrl = url;
 		this.url = url;
 		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
@@ -97,6 +99,16 @@ public class ViewTableModel extends AbstractTableModel
 		this.request(url);
 	}
 
+	public String getBaseUrl()
+	{
+		return baseUrl;
+	}
+
+	public String getUrl()
+	{
+		return url;
+	}
+
 	public void setUrl(String url)
 	{
 		this.url = url;
@@ -105,6 +117,11 @@ public class ViewTableModel extends AbstractTableModel
 	public ArrayList<String> getSupportedFields()
 	{
 		return this.supportedFields;
+	}
+
+	public ArrayList<String> getFields()
+	{
+		return fields;
 	}
 
 	public int getTotalResults()
