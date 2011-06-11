@@ -13,8 +13,6 @@
 	</style>
 	<script type="text/javascript" src="jquery.js"></script>
 	<script type="text/javascript">
-	System.Gadget.onSettingsClosing = settingsClosing;
-
 	$(document).ready(function(){
 
 		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
@@ -36,23 +34,48 @@
 			$('#settingsRequestSleep').val(settingsRequestSleep);
 		}
 
-	}
+	});
 
-	function settingsClosing()
+	function settingsClosing(event)
 	{
 		if(event.closeAction == event.Action.commit)
 		{
-			System.Gadget.Settings.writeString("settingsFeedUrl", $('#settingsFeedUrl').val());
-			System.Gadget.Settings.writeString("settingsMaxTitleLength", $('#settingsMaxTitleLength').val());
-			System.Gadget.Settings.writeString("settingsRequestSleep", $('#settingsRequestSleep').val());
+			var settingsFeedUrl = $('#settingsFeedUrl').val();
+			var settingsMaxTitleLength = parseInt($('#settingsMaxTitleLength').val());
+			var settingsRequestSleep = parseInt($('#settingsRequestSleep').val());
 
-			$('#gadgetContent').html('Loading ...');
+			if(settingsFeedUrl.length > 7)
+			{
+				System.Gadget.Settings.writeString('settingsFeedUrl', settingsFeedUrl);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsFeedUrl', 'http://news.google.com/news?topic=t&output=atom');
+			}
 
-			initGadget();
+			if(settingsMaxTitleLength > 0)
+			{
+				System.Gadget.Settings.writeString("settingsMaxTitleLength", settingsMaxTitleLength);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsMaxTitleLength', '54');
+			}
+
+			if(settingsRequestSleep > 0)
+			{
+				System.Gadget.Settings.writeString('settingsRequestSleep', settingsRequestSleep);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsRequestSleep', '60');
+			}
 		}
 
 		event.cancel = false;
 	}
+
+	System.Gadget.onSettingsClosing = settingsClosing;
 	</script>
 </head>
 <body>
@@ -60,15 +83,15 @@
 <div id="gadgetContent">
 <p>
 	<label for="settingsFeedUrl">Feed URL</label><br />
-	<input type="text" name="settingsFeedUrl" id="settingsFeedUrl" size="32" />
+	<input type="url" name="settingsFeedUrl" id="settingsFeedUrl" size="32" value="" />
 </p>
 <p>
 	<label for="settingsMaxTitleLength">Max title length</label><br />
-	<input type="text" name="settingsMaxTitleLength" id="settingsMaxTitleLength" size="4" />
+	<input type="text" name="settingsMaxTitleLength" id="settingsMaxTitleLength" size="4" value="" />
 </p>
 <p>
 	<label for="settingsRequestSleep">Request sleep (in seconds)</label><br />
-	<input type="text" name="settingsRequestSleep" id="settingsRequestSleep" size="4" />
+	<input type="text" name="settingsRequestSleep" id="settingsRequestSleep" size="4" value="" />
 </p>
 </div>
 
