@@ -236,7 +236,7 @@ public class FormPanel extends JPanel
 			}
 			else if(nodeName.equals("textarea"))
 			{
-				return parseInput(node);
+				return parseTextarea(node);
 			}
 			else if(nodeName.equals("select"))
 			{
@@ -439,12 +439,16 @@ public class FormPanel extends JPanel
 		label.setPreferredSize(new Dimension(100, 22));
 
 		Textarea input = new Textarea();
-		input.setPreferredSize(new Dimension(300, 120));
-		input.setText(nodeValue.getTextContent());
+		JScrollPane scpInput = new JScrollPane(input);
+		scpInput.setPreferredSize(new Dimension(300, 200));
+
+		if(nodeValue != null)
+		{
+			input.setText(nodeValue.getTextContent());
+		}
 
 		item.add(label);
-		item.add(input);
-
+		item.add(scpInput);
 
 		requestFields.put(nodeRef.getTextContent(), input);
 
@@ -485,7 +489,8 @@ public class FormPanel extends JPanel
 		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		JPanel item = new JPanel();
-		item.setLayout(new GridLayout(0, 1));
+		item.setPreferredSize(new Dimension(600, 600));
+		item.setLayout(new FlowLayout(FlowLayout.LEADING));
 
 		Node nodeChildren = this.getChildNode(node, "children");
 
