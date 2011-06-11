@@ -73,7 +73,12 @@
 
 	function getFeed()
 	{
-		$.get(feedUrl, function(response){
+		var nocache = 'nocache=' + (new Date().getTime());
+		var url = feedUrl + (feedUrl.indexOf('?') == -1 ? '?' : '&') + nocache;
+
+		$('#gadgetContent').html(url);
+
+		$.get(url, function(response){
 
 			var html    = '<ul>';
 			var entries = response.getElementsByTagName('entry');
