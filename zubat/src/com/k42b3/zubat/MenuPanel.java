@@ -53,6 +53,7 @@ public class MenuPanel extends JMenuBar
 		this.buildContentMenu();
 		this.buildSystemMenu();
 		this.buildUserMenu();
+		this.buildServiceMenu();
 		this.buildHelpMenu();
 	}
 	
@@ -472,7 +473,33 @@ public class MenuPanel extends JMenuBar
 
 		this.add(menu);
 	}
-	
+
+	private void buildServiceMenu()
+	{
+		JMenu menu = new JMenu("Service");
+
+		Services services = zubat.getAvailableServices();
+
+		for(int i = 0; i < services.getSize(); i++)
+		{
+			ServiceItem item = (ServiceItem) services.getElementAt(i);
+			String type = item.getType();
+
+			if(type.startsWith("http://ns.amun-project.org/2011/amun/service/"))
+			{
+				String title = type.substring(type.lastIndexOf("/") + 1);
+				title = (title.charAt(0) + "").toUpperCase() + title.substring(1).toLowerCase();
+
+				JMenuItem serviceItem = new JMenuItem(title);
+				serviceItem.addActionListener(new MenuItemListener(item));
+
+				menu.add(serviceItem);
+			}
+		}
+
+		this.add(menu);
+	}
+
 	private void buildHelpMenu()
 	{
 		JMenu menu = new JMenu("Help");
@@ -530,5 +557,20 @@ public class MenuPanel extends JMenuBar
 		menu.add(aboutItem);
 
 		this.add(menu);
+	}
+	
+	class MenuItemListener implements ActionListener
+	{
+		private ServiceItem item;
+
+		public MenuItemListener(ServiceItem item)
+		{
+			this.item = item;
+		}
+
+		public void actionPerformed(ActionEvent e) 
+		{
+			zubat.loadService(item, null);
+		}
 	}
 }
