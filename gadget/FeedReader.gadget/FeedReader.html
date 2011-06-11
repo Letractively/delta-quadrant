@@ -1,0 +1,166 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>FeedReader</title>
+	<style type="text/css">
+	body
+	{
+		width:460px;
+		height:340px;
+		margin:4px;
+		padding:0px;
+		border:1px solid #999;
+		background-color:#000;
+		font-family:'Courier New', monospace;
+		font-size:0.8em;
+		color:rgb(145,208,133);
+	}
+
+	ul
+	{
+		margin:0px;
+		padding:0px;
+	}
+
+	li
+	{
+		margin:0px;
+		padding:0px;
+	}
+
+	a
+	{
+		margin:2px;
+		padding:4px;
+		text-decoration:none;
+		font-family:'Courier New', monospace;
+		color:rgb(145,208,133);
+	}
+
+	a:hover
+	{
+		color:rgb(145,255,133);
+	}
+	</style>
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript">
+	// feed url
+	var feedUrl = false;
+
+	// max title length
+	var maxTitleLength = false;
+
+	// time waiting between requests in seconds
+	var requestSleep = false;
+
+
+	System.Gadget.settingsUI = "Settings.html";
+
+	jQuery.support.cors = true;
+
+	var feedTimeout = false;
+
+	$(document).ready(function(){
+
+		initGadget();
+
+	});
+
+	function initGadget()
+	{
+		loadSettings();
+
+		getFeed();
+
+		if(feedTimeout)
+		{
+			window.clearTimeout(feedTimeout);
+		}
+
+		feedTimeout = window.setTimeout('getFeed()', requestSleep * 1000);
+	}
+
+	function getFeed()
+	{
+		$.get(feedUrl, function(response){
+
+			var html    = '<ul>';
+			var entries = response.getElementsByTagName('entry');
+
+			for(var i = 0; i < entries.length; i++)
+			{
+				var childs = entries[i].childNodes;
+				var title  = false;
+				var link   = false;
+
+				for(var j = 0; j < childs.length; j++)
+				{
+					if(childs[j].nodeType == 1)
+					{
+						if(childs[j].nodeName == 'title')
+						{
+							title = childs[j].text;
+						}
+
+						if(childs[j].nodeName == 'link')
+						{
+							link = childs[j].getAttribute('href');
+						}
+					}
+
+					if(title !== false && link !== false)
+					{
+						html+= '<li><a href="' + link + '">' + (title.length <= maxTitleLength ? title : title.substring(0, maxTitleLength - 3) + '...') + '</a></li>';
+
+						break;
+					}
+				}
+			}
+
+			html+= '</ul>';
+
+			$('#gadgetContent').html(html);
+
+		});
+	}
+
+	function loadSettings()
+	{
+		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
+		var settingsMaxTitleLength = System.Gadget.Settings.readString('settingsMaxTitleLength');
+		var settingsRequestSleep = System.Gadget.Settings.readString('settingsRequestSleep');
+
+		if(settingsFeedUrl)
+		{
+			feedUrl = settingsFeedUrl;
+		}
+		else
+		{
+			feedUrl = 'http://news.google.com/news?topic=t&output=atom';
+		}
+
+		if(settingsMaxTitleLength)
+		{
+			maxTitleLength = settingsMaxTitleLength;
+		}
+		else
+		{
+			maxTitleLength = 54;
+		}
+
+		if(settingsRequestSleep)
+		{
+			requestSleep = settingsRequestSleep;
+		}
+		else
+		{
+			requestSleep = 60;
+		}
+	}
+	</script>
+</head>
+<body>
+<div id="gadgetContent">Loading ...</div>
+</body>
+</html>
+
