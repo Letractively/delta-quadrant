@@ -14,6 +14,7 @@
 		font-family:'Courier New', monospace;
 		font-size:0.8em;
 		color:rgb(145,208,133);
+		overflow:auto;
 	}
 
 	ul
@@ -54,20 +55,10 @@
 	var requestSleep = false;
 
 
-	System.Gadget.settingsUI = "Settings.html";
-
-	jQuery.support.cors = true;
-
-	var feedTimeout = false;
-
-	$(document).ready(function(){
-
-		initGadget();
-
-	});
-
 	function initGadget()
 	{
+		$('#gadgetContent').html('Loading ...');
+
 		loadSettings();
 
 		getFeed();
@@ -127,8 +118,8 @@
 	function loadSettings()
 	{
 		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
-		var settingsMaxTitleLength = System.Gadget.Settings.readString('settingsMaxTitleLength');
-		var settingsRequestSleep = System.Gadget.Settings.readString('settingsRequestSleep');
+		var settingsMaxTitleLength = parseInt(System.Gadget.Settings.readString('settingsMaxTitleLength'));
+		var settingsRequestSleep = parseInt(System.Gadget.Settings.readString('settingsRequestSleep'));
 
 		if(settingsFeedUrl)
 		{
@@ -139,7 +130,7 @@
 			feedUrl = 'http://news.google.com/news?topic=t&output=atom';
 		}
 
-		if(settingsMaxTitleLength)
+		if(settingsMaxTitleLength > 0)
 		{
 			maxTitleLength = settingsMaxTitleLength;
 		}
@@ -148,7 +139,7 @@
 			maxTitleLength = 54;
 		}
 
-		if(settingsRequestSleep)
+		if(settingsRequestSleep > 0)
 		{
 			requestSleep = settingsRequestSleep;
 		}
@@ -157,6 +148,30 @@
 			requestSleep = 60;
 		}
 	}
+
+	function settingsClosed(event)
+	{
+		if(event.closeAction == event.Action.commit)
+		{
+			initGadget();
+		}
+		else if (event.closeAction == event.Action.cancel)
+		{
+		}
+	}
+
+	jQuery.support.cors = true;
+
+	System.Gadget.settingsUI = "Settings.html";
+	System.Gadget.onSettingsClosed = settingsClosed;
+
+	var feedTimeout = false;
+
+	$(document).ready(function(){
+
+		initGadget();
+
+	});
 	</script>
 </head>
 <body>
