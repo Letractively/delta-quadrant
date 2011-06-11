@@ -63,20 +63,18 @@
 
 		getFeed();
 
-		if(feedTimeout)
+		if(feedInterval)
 		{
-			window.clearTimeout(feedTimeout);
+			clearInterval(feedInterval);
 		}
 
-		feedTimeout = window.setTimeout('getFeed()', requestSleep * 1000);
+		feedInterval = setInterval('getFeed()', requestSleep * 1000);
 	}
 
 	function getFeed()
 	{
 		var nocache = 'nocache=' + (new Date().getTime());
 		var url = feedUrl + (feedUrl.indexOf('?') == -1 ? '?' : '&') + nocache;
-
-		$('#gadgetContent').html('Loading "' + url + '" ...');
 
 		$.get(url, function(response){
 
@@ -170,7 +168,7 @@
 	System.Gadget.settingsUI = "Settings.html";
 	System.Gadget.onSettingsClosed = settingsClosed;
 
-	var feedTimeout = false;
+	var feedInterval = false;
 
 	$(document).ready(function(){
 
