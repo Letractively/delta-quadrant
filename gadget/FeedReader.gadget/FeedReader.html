@@ -76,7 +76,7 @@
 		var nocache = 'nocache=' + (new Date().getTime());
 		var url = feedUrl + (feedUrl.indexOf('?') == -1 ? '?' : '&') + nocache;
 
-		$('#gadgetContent').html(url);
+		$('#gadgetContent').html('Loading "' + url + '" ...');
 
 		$.get(url, function(response){
 
