@@ -1,0 +1,76 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>FeedReader</title>
+	<style type="text/css">
+	body
+	{
+		width:260px;
+		height:160px;
+		margin:4px;
+		padding:0px;
+	}
+	</style>
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript">
+	System.Gadget.onSettingsClosing = settingsClosing;
+
+	$(document).ready(function(){
+
+		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
+		var settingsMaxTitleLength = System.Gadget.Settings.readString('settingsMaxTitleLength');
+		var settingsRequestSleep = System.Gadget.Settings.readString('settingsRequestSleep');
+
+		if(settingsFeedUrl)
+		{
+			$('#settingsFeedUrl').val(settingsFeedUrl);
+		}
+
+		if(settingsMaxTitleLength)
+		{
+			$('#settingsMaxTitleLength').val(settingsMaxTitleLength);
+		}
+
+		if(settingsRequestSleep)
+		{
+			$('#settingsRequestSleep').val(settingsRequestSleep);
+		}
+
+	}
+
+	function settingsClosing()
+	{
+		if(event.closeAction == event.Action.commit)
+		{
+			System.Gadget.Settings.writeString("settingsFeedUrl", $('#settingsFeedUrl').val());
+			System.Gadget.Settings.writeString("settingsMaxTitleLength", $('#settingsMaxTitleLength').val());
+			System.Gadget.Settings.writeString("settingsRequestSleep", $('#settingsRequestSleep').val());
+
+			$('#gadgetContent').html('Loading ...');
+
+			initGadget();
+		}
+
+		event.cancel = false;
+	}
+	</script>
+</head>
+<body>
+
+<div id="gadgetContent">
+<p>
+	<label for="settingsFeedUrl">Feed URL</label><br />
+	<input type="text" name="settingsFeedUrl" id="settingsFeedUrl" size="32" />
+</p>
+<p>
+	<label for="settingsMaxTitleLength">Max title length</label><br />
+	<input type="text" name="settingsMaxTitleLength" id="settingsMaxTitleLength" size="4" />
+</p>
+<p>
+	<label for="settingsRequestSleep">Request sleep (in seconds)</label><br />
+	<input type="text" name="settingsRequestSleep" id="settingsRequestSleep" size="4" />
+</p>
+</div>
+
+</body>
+</html>
