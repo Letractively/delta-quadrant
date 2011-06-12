@@ -24,12 +24,15 @@
 package com.k42b3.zubat;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Configuration
@@ -46,6 +49,7 @@ public class Configuration
 	private String consumerSecret;
 	private String token;
 	private String tokenSecret;
+	private HashMap<String, ArrayList<String>> services;
 
 	public String getBaseUrl() 
 	{
@@ -95,6 +99,16 @@ public class Configuration
 	public void setTokenSecret(String tokenSecret) 
 	{
 		this.tokenSecret = tokenSecret;
+	}
+
+	public HashMap<String, ArrayList<String>> getServices() 
+	{
+		return services;
+	}
+
+	public void setServices(HashMap<String, ArrayList<String>> services) 
+	{
+		this.services = services;
 	}
 
 	public static Configuration parseFile(File configFile) throws Exception
@@ -160,11 +174,34 @@ public class Configuration
 			tokenSecret = tokenSecretElement.getTextContent();
 		}
 
+		
+		HashMap<String, ArrayList<String>> services = new HashMap<String, ArrayList<String>>();
+
+		NodeList serviceList = doc.getElementsByTagName("service");
+
+		for(int i = 0; i < serviceList.getLength(); i++)
+		{
+			Element itemElement = (Element) serviceList.item(i);
+
+			String type = itemElement.getAttribute("type");
+			ArrayList<String> items = new ArrayList<String>();
+
+			NodeList serviceItems = itemElement.getElementsByTagName("item");
+
+			for(int j = 0; j < serviceItems.getLength(); j++)
+			{
+				items.add(serviceItems.item(j).getTextContent());
+			}
+
+			services.put(type, items);
+		}
+
 		config.setBaseUrl(baseUrl);
 		config.setConsumerKey(consumerKey);
 		config.setConsumerSecret(consumerSecret);
 		config.setToken(token);
 		config.setTokenSecret(tokenSecret);
+		config.setServices(services);
 
 		return config;
 	}

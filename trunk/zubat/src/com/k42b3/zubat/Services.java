@@ -69,7 +69,7 @@ public class Services
 		}
 	}
 	
-	public Object getElementAt(int index) 
+	public ServiceItem getElementAt(int index) 
 	{
 		return services.get(index);
 	}
@@ -83,7 +83,7 @@ public class Services
 	{
 		for(int i = 0; i < services.size(); i++)
 		{
-			if(services.get(i).getType().equals(type))
+			if(services.get(i).hasType(type))
 			{
 				return services.get(i);
 			}
@@ -129,15 +129,21 @@ public class Services
 			Node serviceNode = serviceList.item(i);
 			Element serviceElement = (Element) serviceNode;
 
-			Element typeElement = (Element) serviceElement.getElementsByTagName("Type").item(0);
+			NodeList typeElementList = serviceElement.getElementsByTagName("Type");
 			Element uriElement = (Element) serviceElement.getElementsByTagName("URI").item(0);
 
-			if(typeElement != null && uriElement != null)
+			if(typeElementList.getLength() > 0 && uriElement != null)
 			{
-				String type = typeElement.getTextContent();
+				ArrayList<String> types = new ArrayList<String>();
+
+				for(int j = 0; j < typeElementList.getLength(); j++)
+				{
+					types.add(typeElementList.item(j).getTextContent());
+				}
+
 				String uri = uriElement.getTextContent();
 
-				services.add(new ServiceItem(type, uri));
+				services.add(new ServiceItem(uri, types));
 			}
 		}
 
