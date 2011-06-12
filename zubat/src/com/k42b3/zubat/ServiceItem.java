@@ -23,6 +23,8 @@
 
 package com.k42b3.zubat;
 
+import java.util.ArrayList;
+
 /**
  * ServiceItem
  *
@@ -33,23 +35,13 @@ package com.k42b3.zubat;
  */
 public class ServiceItem 
 {
-	private String type;
 	private String uri;
+	private ArrayList<String> types;
 
-	public ServiceItem(String type, String uri)
+	public ServiceItem(String uri, ArrayList<String> types)
 	{
-		this.setType(type);
 		this.setUri(uri);
-	}
-
-	public String getType() 
-	{
-		return type;
-	}
-
-	public void setType(String type) 
-	{
-		this.type = type;
+		this.setTypes(types);
 	}
 
 	public String getUri() 
@@ -62,8 +54,41 @@ public class ServiceItem
 		this.uri = uri;
 	}
 	
+	public ArrayList<String> getTypes() 
+	{
+		return types;
+	}
+
+	public void setTypes(ArrayList<String> types) 
+	{
+		this.types = types;
+	}
+
+	public String getTypeStartsWith(String prefix)
+	{
+		for(int i = 0; i < this.types.size(); i++)
+		{
+			if(this.types.get(i).startsWith(prefix))
+			{
+				return this.types.get(i);
+			}
+		}
+
+		return null;
+	}
+
+	public boolean hasType(String type)
+	{
+		return this.types.contains(type);
+	}
+
+	public boolean hasTypeStartsWith(String prefix)
+	{
+		return this.getTypeStartsWith(prefix) != null;
+	}
+
 	public String toString()
 	{
-		return type;
+		return uri;
 	}
 }

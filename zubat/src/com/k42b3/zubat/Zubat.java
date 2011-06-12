@@ -135,6 +135,11 @@ public class Zubat extends JFrame
 		}
 	}
 
+	public Configuration getConfig()
+	{
+		return config;
+	}
+
 	public Services getAvailableServices()
 	{
 		return availableServices;

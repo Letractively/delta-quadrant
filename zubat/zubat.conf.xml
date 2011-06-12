@@ -1,7 +1,149 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><zubat>
+<?xml version="1.0" encoding="UTF-8"?>
+<zubat>
 	<baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
 	<consumerKey>5794d2e686e8d838b174fd22831c763803e1bac5</consumerKey>
 	<consumerSecret>c90a5767e0bd9913faf9277027a6e53953e96c20</consumerSecret>
 	<token>82572c79a9d3f635429846305a2b39e8d63bdeae</token>
 	<tokenSecret>ffab88d126ae34c1edb2e91732f9535068f213a2</tokenSecret>
+	<services>
+		<service type="http://ns.amun-project.org/2011/amun/content/gadget">
+			<item>id</item>
+			<item>title</item>
+			<item>path</item>
+			<item>cache</item>
+			<item>expire</item>
+			<item>date</item>
+			<item>authorName</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/media">
+			<item>id</item>
+			<item>title</item>
+			<item>path</item>
+			<item>type</item>
+			<item>size</item>
+			<item>mimeType</item>
+			<item>url</item>
+			<item>date</item>
+			<item>authorName</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/page">
+			<item>id</item>
+			<item>parentId</item>
+			<item>status</item>
+			<item>load</item>
+			<item>application</item>
+			<item>title</item>
+			<item>template</item>
+			<item>cache</item>
+			<item>expire</item>
+			<item>date</item>
+			<item>url</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/page/gadget">
+			<item>id</item>
+			<item>sort</item>
+			<item>pageTitle</item>
+			<item>gadgetTitle</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/page/option">
+			<item>id</item>
+			<item>sort</item>
+			<item>rightName</item>
+			<item>pageSrcTitle</item>
+			<item>pageDestTitle</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/page/right">
+			<item>id</item>
+			<item>pageTitle</item>
+			<item>groupTitle</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/content/service">
+			<item>id</item>
+			<item>name</item>
+			<item>type</item>
+			<item>link</item>
+			<item>license</item>
+			<item>version</item>
+			<item>date</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/api">
+			<item>id</item>
+			<item>name</item>
+			<item>email</item>
+			<item>url</item>
+			<item>date</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/api/request">
+			<item>id</item>
+			<item>apiTitle</item>
+			<item>authorName</item>
+			<item>ip</item>
+			<item>callback</item>
+			<item>expire</item>
+			<item>date</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/api/access">
+			<item>id</item>
+			<item>apiTitle</item>
+			<item>authorName</item>
+			<item>allowed</item>
+			<item>date</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/approval">
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/country">
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/event">
+			<item>id</item>
+			<item>priority</item>
+			<item>type</item>
+			<item>table</item>
+			<item>actionName</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/log">
+			<item>id</item>
+			<item>authorName</item>
+			<item>refId</item>
+			<item>type</item>
+			<item>table</item>
+			<item>date</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/system/vars">
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/account">
+			<item>id</item>
+			<item>status</item>
+			<item>name</item>
+			<item>gender</item>
+			<item>timezone</item>
+			<item>lastSeen</item>
+			<item>updated</item>
+			<item>date</item>
+			<item>profileUrl</item>
+			<item>thumbnailUrl</item>
+			<item>groupTitle</item>
+			<item>countryTitle</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/activity">
+			<item>id</item>
+			<item>title</item>
+			<item>url</item>
+			<item>body</item>
+			<item>date</item>
+			<item>authorName</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/friend">
+			<item>id</item>
+			<item>status</item>
+			<item>date</item>
+			<item>authorName</item>
+			<item>friendName</item>
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/group">
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/group/right">
+		</service>
+		<service type="http://ns.amun-project.org/2011/amun/user/right">
+		</service>
+	</services>
 </zubat>
