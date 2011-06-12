@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 
 import com.k42b3.zubat.oauth.OauthProvider;
 
@@ -43,7 +44,7 @@ import com.k42b3.zubat.oauth.OauthProvider;
  */
 public class Zubat extends JFrame
 {
-	public static String version = "0.0.2 beta";
+	public static String version = "0.0.3 beta";
 
 	private Configuration config;
 	private Oauth oauth;
@@ -107,7 +108,9 @@ public class Zubat extends JFrame
 
 			treePanel = new TreePanel(http, availableServices);
 
-			treePanel.setPreferredSize(new Dimension(140, 100));
+			treePanel.setPreferredSize(new Dimension(150, 100));
+
+			treePanel.setBorder(new EmptyBorder(0, 0, 0, 6));
 
 			this.add(treePanel, BorderLayout.WEST);
 
@@ -120,6 +123,8 @@ public class Zubat extends JFrame
 			trafficPanel = new TrafficPanel(trafficTm);
 
 			trafficPanel.setPreferredSize(new Dimension(600, 200));
+
+			trafficPanel.setBorder(new EmptyBorder(6, 0, 0, 0));
 
 			this.add(trafficPanel, BorderLayout.SOUTH);
 

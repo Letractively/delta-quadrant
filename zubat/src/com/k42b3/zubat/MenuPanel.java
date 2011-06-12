@@ -95,6 +95,7 @@ public class MenuPanel extends JMenuBar
 						serviceItem.addActionListener(new MenuItemListener(item));
 
 						childMenu.insert(serviceItem, 0);
+						childMenu.insertSeparator(1);
 
 						menu.add(childMenu);
 					}
