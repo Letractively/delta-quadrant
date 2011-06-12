@@ -24,11 +24,18 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -48,6 +55,8 @@ public class TreePanel extends JPanel
 	private Services services;
 	private DefaultMutableTreeNode root;
 	private JTree tree;
+	private DefaultTreeModel model;
+	private JButton btnRefresh;
 
 	public TreePanel(Http http, Services services) throws Exception
 	{
@@ -56,9 +65,38 @@ public class TreePanel extends JPanel
 
 		this.setLayout(new BorderLayout());
 
-		tree = new JTree(this.loadTree());
+		model = new DefaultTreeModel(this.loadTree());
+		tree = new JTree(model);
 
-		this.add(new JScrollPane(tree));
+		this.add(new JScrollPane(tree), BorderLayout.CENTER);
+
+
+		// buttons
+		JPanel buttons = new JPanel();
+
+		this.btnRefresh = new JButton("Refresh");
+
+		this.btnRefresh.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e)
+			{
+				try
+				{
+					model.setRoot(loadTree());
+				}
+				catch(Exception ex)
+				{
+					Zubat.handleException(ex);
+				}
+			}
+
+		});
+
+		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+
+		buttons.add(this.btnRefresh);
+
+		this.add(buttons, BorderLayout.SOUTH);
 	}
 
 	private DefaultMutableTreeNode loadTree() throws Exception
@@ -77,7 +115,7 @@ public class TreePanel extends JPanel
 			}
 			else
 			{
-				throw new Exception("Entry not found");
+				return null;
 			}
 		}
 		else
