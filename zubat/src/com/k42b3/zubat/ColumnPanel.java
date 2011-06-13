@@ -25,52 +25,47 @@ package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
- * SearchPanel
+ * ColumnPanel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 116 $
  */
-public class SearchPanel extends JFrame
+public class ColumnPanel extends JFrame
 {
-	private Http http;
-	private ReferenceItem item;
+	private ViewTableModel viewTm;
+	private ServiceItem item;
 	private Logger logger;
 
-	private JTextField txtSearch;
-	private JComboBox cboOperator;
-	private JComboBox cboField;
-
 	private JTable table;
-	private ViewTableModel tm;
+	private ColumnTableModel tm;
 
-	private JButton btnSearch;
+	private JButton btnSave;
 	private JButton btnCancel;
 
-	public SearchPanel(Http http, ReferenceItem item) throws Exception
+	public ColumnPanel(ViewTableModel viewTm, ServiceItem item) throws Exception
 	{
-		this.http = http;
+		this.viewTm = viewTm;
 		this.item = item;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 
@@ -85,67 +80,22 @@ public class SearchPanel extends JFrame
 		this.setLayout(new BorderLayout());
 
 
-		tm = new ViewTableModel(item.getSrc(), http);
+		tm = new ColumnTableModel(viewTm);
 
-
-		this.add(this.buildSearch(), BorderLayout.NORTH);
 
 		this.add(this.buildTable(), BorderLayout.CENTER);
 
 		this.add(this.buildButtons(), BorderLayout.SOUTH);
 	}
-	
-	private Component buildSearch()
-	{
-		JPanel searchPanel = new JPanel();
-		searchPanel.setLayout(new FlowLayout());
-
-		cboField = new JComboBox(new DefaultComboBoxModel(tm.getSupportedFields().toArray()));
-		cboField.setPreferredSize(new Dimension(125, 22));
-
-		String[] operators = {"contains", "equals", "startsWith", "present"};
-		cboOperator = new JComboBox(new DefaultComboBoxModel(operators));
-		cboOperator.setPreferredSize(new Dimension(75, 22));
-
-		txtSearch = new JTextField();
-		txtSearch.setPreferredSize(new Dimension(200, 22));
-
-		searchPanel.add(cboField);
-		searchPanel.add(cboOperator);
-		searchPanel.add(txtSearch);
-
-		return searchPanel;
-	}
 
 	private Component buildTable() throws Exception
 	{
-		ArrayList<String> fields = new ArrayList<String>();
-
-		fields.add(item.getValueField());
-		fields.add(item.getLabelField());
-
-		String urlFilter = Http.appendQuery(item.getSrc(), "count=64");
-
-		tm.setUrl(urlFilter);
-		tm.loadData(fields);
-
 		table = new JTable(tm);
 
 		table.addMouseListener(new MouseListener() {
 
 			public void mouseReleased(MouseEvent e) 
 			{
-				if(e.getClickCount() == 2)
-				{
-					Object id = tm.getValueAt(table.getSelectedRow(), 0);
-
-					if(id != null)
-					{
-						item.getInput().setText(id.toString());
-
-						setVisible(false);
-					}
-				}
 			}
 
 			public void mousePressed(MouseEvent e) 
@@ -162,6 +112,14 @@ public class SearchPanel extends JFrame
 
 			public void mouseClicked(MouseEvent e) 
 			{
+				int selectedRow = table.getSelectedRow();
+
+				if(selectedRow != -1)
+				{
+					Boolean val = (Boolean) tm.getValueAt(selectedRow, 0);
+
+					tm.setValueAt(!val, selectedRow, 0);
+				}
 			}
 
 		});
@@ -173,27 +131,33 @@ public class SearchPanel extends JFrame
 	{
 		JPanel buttons = new JPanel();
 
-		this.btnSearch = new JButton("Search");
+		this.btnSave   = new JButton("Save");
 		this.btnCancel = new JButton("Cancel");
 
-		this.btnSearch.addActionListener(new ActionListener() {
+		this.btnSave.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
 			{
 				try
 				{
 					ArrayList<String> fields = new ArrayList<String>();
-					String operator = cboOperator.getSelectedItem().toString();
-					String selectedField = cboField.getSelectedItem().toString();
-					String value = URLEncoder.encode(txtSearch.getText(), "UTF-8");
 
-					fields.add(item.getValueField());
-					fields.add(item.getLabelField());
+					for(int i = 0; i < tm.getRowCount(); i++)
+					{
+						if((Boolean) tm.getValueAt(i, 0))
+						{
+							fields.add((String) tm.getValueAt(i, 1));
+						}
+					}
 
-					String urlFilter = Http.appendQuery(item.getSrc(), "filterBy=" + selectedField + "&filterOp=" + operator + "&filterValue=" + value + "&count=64");
+					if(fields.size() > 0)
+					{
+						saveConfig(fields, item);
 
-					tm.setUrl(urlFilter);
-					tm.loadData(fields);
+						viewTm.loadData(fields);
+
+						setVisible(false);
+					}
 				}
 				catch(Exception ex)
 				{
@@ -214,9 +178,71 @@ public class SearchPanel extends JFrame
 
 		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
 
-		buttons.add(this.btnSearch);
+		buttons.add(this.btnSave);
 		buttons.add(this.btnCancel);
 		
 		return buttons;
+	}
+	
+	private void saveConfig(ArrayList<String> fields, ServiceItem item)
+	{
+		try
+		{
+			// load dom
+			Document doc = Configuration.loadDocument();
+
+
+			// find service node
+			NodeList serviceList = doc.getElementsByTagName("service");
+			Element serviceElement = null;
+
+			for(int i = 0; i < serviceList.getLength(); i++)
+			{
+				serviceElement = (Element) serviceList.item(i);
+
+				if(item.hasType(serviceElement.getAttribute("type")))
+				{
+					break;
+				}
+			}
+
+
+			// append new items
+			if(serviceElement != null)
+			{
+				// remove all child items
+				NodeList itemList = serviceElement.getChildNodes();
+
+				for(int i = 0; i < itemList.getLength(); i++)
+				{
+					serviceElement.removeChild(itemList.item(i));
+				}
+			}
+			else
+			{
+				serviceElement = doc.createElement("service");
+				serviceElement.setAttribute("type", item.getTypes().get(0));
+
+				doc.appendChild(serviceElement);
+			}
+
+
+			// add new items
+			for(int i = 0; i < fields.size(); i++)
+			{
+				Element itemElement = doc.createElement("item");
+				itemElement.setTextContent(fields.get(i));
+
+				serviceElement.appendChild(itemElement);
+			}
+
+
+			// save dom
+			Configuration.saveDocument(doc);
+		}
+		catch(Exception e)
+		{
+			Zubat.handleException(e);
+		}
 	}
 }

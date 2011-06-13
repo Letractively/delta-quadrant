@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -33,6 +34,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 /**
  * Configuration
@@ -115,13 +120,8 @@ public class Configuration
 	{
 		Configuration config = new Configuration();
 
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(configFile);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
+		// load dom
+		Document doc = Configuration.loadDocument();
 
 
 		// parse config elements
@@ -209,5 +209,28 @@ public class Configuration
 	public static File getFile()
 	{
 		return new File("zubat.conf.xml");
+	}
+	
+	public static Document loadDocument() throws Exception
+	{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(Configuration.getFile());
+
+		return doc;
+	}
+
+	public static void saveDocument(Document doc) throws Exception
+	{
+		DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+		DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
+
+		LSSerializer writer = impl.createLSSerializer();
+		LSOutput output = impl.createLSOutput();
+
+		output.setByteStream(new FileOutputStream(Configuration.getFile()));
+
+		writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
+		writer.write(doc, output);
 	}
 }

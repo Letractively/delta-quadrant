@@ -24,10 +24,13 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -125,8 +128,26 @@ public class ViewPanel extends JPanel
 	
 	class SearchPanel extends JPanel
 	{
+		private ColumnPanel panel;
+
 		public SearchPanel()
 		{
+			this.setLayout(new BorderLayout());
+
+			this.add(this.buildSearch(), BorderLayout.CENTER);
+			this.add(this.buildColumn(), BorderLayout.EAST);
+		}
+
+		private Component buildSearch()
+		{
+			JPanel searchPanel = new JPanel();
+
+			FlowLayout layout = new FlowLayout();
+			layout.setAlignment(FlowLayout.LEFT);
+
+			searchPanel.setLayout(layout);
+
+
 			JLabel lblSearch = new JLabel("Search:");
 			lblSearch.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -162,15 +183,68 @@ public class ViewPanel extends JPanel
 
 			});
 
+			searchPanel.add(lblSearch);
+			searchPanel.add(cboField);
+			searchPanel.add(cboOperator);
+			searchPanel.add(txtSearch);
+
+
+			return searchPanel;
+		}
+		
+		private Component buildColumn()
+		{
+			JPanel columnPanel = new JPanel();
+
 			FlowLayout layout = new FlowLayout();
-			layout.setAlignment(FlowLayout.LEFT);
+			layout.setAlignment(FlowLayout.RIGHT);
 
-			this.setLayout(layout);
+			columnPanel.setLayout(layout);
 
-			this.add(lblSearch);
-			this.add(cboField);
-			this.add(cboOperator);
-			this.add(txtSearch);
+
+			JButton btnColumn = new JButton("Columns");
+
+			btnColumn.addMouseListener(new MouseListener() {
+
+				public void mouseReleased(MouseEvent e) 
+				{
+				}
+
+				public void mousePressed(MouseEvent e) 
+				{
+				}
+
+				public void mouseExited(MouseEvent e) 
+				{
+				}
+
+				public void mouseEntered(MouseEvent e) 
+				{
+				}
+
+				public void mouseClicked(MouseEvent e) 
+				{
+					try
+					{
+						if(panel == null)
+						{
+							panel = new ColumnPanel(tm, service);
+						}
+
+						panel.setVisible(true);
+					}
+					catch(Exception ex)
+					{
+						Zubat.handleException(ex);
+					}
+				}
+
+			});
+
+			columnPanel.add(btnColumn);
+
+
+			return columnPanel;
 		}
 	}
 

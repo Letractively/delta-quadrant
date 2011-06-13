@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.k42b3.zubat.oauth.OauthProvider;
@@ -188,32 +187,36 @@ public class Zubat extends JFrame
 		availableServices.loadData();
 	}
 
-	public void onReady()
+	public void onReady() throws Exception
 	{
-		SwingUtilities.invokeLater(new Runnable() {
+		ServiceItem item = availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page");
 
-			public void run()
+		if(item != null)
+		{
+			ArrayList<String> types = item.getTypes();
+			ArrayList<String> fields = new ArrayList<String>();
+
+			for(int i = 0; i < types.size(); i++)
 			{
-				ArrayList<String> fields = new ArrayList<String>();
+				if(getConfig().getServices().containsKey(types.get(i)))
+				{
+					ArrayList<String> selectedFields = getConfig().getServices().get(types.get(i));
 
-				fields.add("id");
-				fields.add("parentId");
-				fields.add("status");
-				fields.add("load");
-				fields.add("application");
-				fields.add("title");
-				fields.add("template");
-				fields.add("cache");
-				fields.add("expire");
-				fields.add("date");
-				fields.add("url");
-
-				loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
-
-				setVisible(true);
+					if(selectedFields.size() > 0)
+					{
+						fields = selectedFields;
+					}
+				}
 			}
 
-		});
+			loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
+
+			setVisible(true);
+		}
+		else
+		{
+			throw new Exception("Could not find page service");
+		}
 	}
 
 	public void loadService(ServiceItem service, ArrayList<String> fields)
