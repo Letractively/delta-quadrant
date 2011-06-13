@@ -135,10 +135,10 @@ public class ColumnTableModel extends AbstractTableModel
 
 		return null;
 	}
-	
+
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
 	{
-		if(rowIndex >= 0 && rowIndex < rows.length)
+		if(rowIndex > 0 && rowIndex < rows.length)
 		{
 			if(columnIndex >= 0 && columnIndex < rows[rowIndex].length)
 			{

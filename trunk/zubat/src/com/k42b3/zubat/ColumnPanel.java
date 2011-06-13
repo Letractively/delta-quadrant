@@ -92,6 +92,10 @@ public class ColumnPanel extends JFrame
 	{
 		table = new JTable(tm);
 
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		table.getColumnModel().getColumn(0).setMinWidth(60);
+		table.getColumnModel().getColumn(0).setMaxWidth(60);
+
 		table.addMouseListener(new MouseListener() {
 
 			public void mouseReleased(MouseEvent e) 
