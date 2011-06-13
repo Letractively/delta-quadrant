@@ -35,14 +35,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,7 +42,7 @@ import org.w3c.dom.Element;
 import com.k42b3.zubat.oauth.OauthProvider;
 
 /**
- * Login
+ * Auth
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -222,13 +214,8 @@ public class Auth extends JFrame
 	{
 		try
 		{
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(Configuration.getFile());
-
-			Element rootElement = (Element) doc.getDocumentElement();
-
-			rootElement.normalize();
+			// load dom
+			Document doc = Configuration.loadDocument();
 
 
 			// add token / tokenSecret element
@@ -261,13 +248,7 @@ public class Auth extends JFrame
 
 
 			// save dom
-			Source source = new DOMSource(doc);
-
-			Result result = new StreamResult(Configuration.getFile());
-
-			Transformer xformer = TransformerFactory.newInstance().newTransformer();
-
-			xformer.transform(source, result);
+			Configuration.saveDocument(doc);
 		}
 		catch(Exception e)
 		{

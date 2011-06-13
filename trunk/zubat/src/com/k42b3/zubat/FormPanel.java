@@ -64,7 +64,7 @@ import com.k42b3.zubat.form.SelectItem;
 import com.k42b3.zubat.form.Textarea;
 
 /**
- * Form
+ * FormPanel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
