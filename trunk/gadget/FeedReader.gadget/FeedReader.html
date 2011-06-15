@@ -5,7 +5,7 @@
 	<style type="text/css">
 	body
 	{
-		width:460px;
+		width:600px;
 		height:340px;
 		margin:4px;
 		padding:0px;
@@ -48,6 +48,13 @@
 	// feed url
 	var feedUrl = false;
 
+	// feed entry count
+	var count = false;
+
+	// width and height of the gadget
+	var width = false;
+	var height = false;
+
 	// max title length
 	var maxTitleLength = false;
 
@@ -60,6 +67,9 @@
 		$('#gadgetContent').html('Loading ...');
 
 		loadSettings();
+
+		$('body').css('width', width);
+		$('body').css('height', height);
 
 		getFeed();
 
@@ -78,37 +88,92 @@
 
 		$.get(url, function(response){
 
-			var html    = '<ul>';
-			var entries = response.getElementsByTagName('entry');
+			var html = '<ul>';
+			var realCount = 0;
 
-			for(var i = 0; i < entries.length; i++)
+			switch(true)
 			{
-				var childs = entries[i].childNodes;
-				var title  = false;
-				var link   = false;
+				case isAtom(response):
 
-				for(var j = 0; j < childs.length; j++)
-				{
-					if(childs[j].nodeType == 1)
+					var entries = response.getElementsByTagName('entry');
+
+					for(var i = 0; i < entries.length; i++)
 					{
-						if(childs[j].nodeName == 'title')
-						{
-							title = childs[j].text;
-						}
+						var childs = entries[i].childNodes;
+						var title  = false;
+						var link   = false;
 
-						if(childs[j].nodeName == 'link')
+						for(var j = 0; j < childs.length && realCount < count; j++)
 						{
-							link = childs[j].getAttribute('href');
+							if(childs[j].nodeType == 1)
+							{
+								if(childs[j].nodeName == 'title')
+								{
+									title = childs[j].text;
+								}
+
+								if(childs[j].nodeName == 'link')
+								{
+									link = childs[j].getAttribute('href');
+								}
+							}
+
+							if(title !== false && link !== false)
+							{
+								html+= '<li><a href="' + link + '" title="' + title + '">' + (title.length <= maxTitleLength ? title : title.substring(0, maxTitleLength - 3) + '...') + '</a></li>';
+
+								realCount++;
+
+								break;
+							}
 						}
 					}
 
-					if(title !== false && link !== false)
-					{
-						html+= '<li><a href="' + link + '">' + (title.length <= maxTitleLength ? title : title.substring(0, maxTitleLength - 3) + '...') + '</a></li>';
+					break;
 
-						break;
+				case isRss(response):
+
+					var items = response.getElementsByTagName('item');
+
+					for(var i = 0; i < items.length; i++)
+					{
+						var childs = items[i].childNodes;
+						var title  = false;
+						var link   = false;
+
+						for(var j = 0; j < childs.length && realCount < count; j++)
+						{
+							if(childs[j].nodeType == 1)
+							{
+								if(childs[j].nodeName == 'title')
+								{
+									title = childs[j].text;
+								}
+
+								if(childs[j].nodeName == 'link')
+								{
+									link = childs[j].text;
+								}
+							}
+
+							if(title !== false && link !== false)
+							{
+								html+= '<li><a href="' + link + '" title="' + title + '">' + (title.length <= maxTitleLength ? title : title.substring(0, maxTitleLength - 3) + '...') + '</a></li>';
+
+								realCount++;
+
+								break;
+							}
+						}
 					}
-				}
+
+					break;
+
+				default:
+
+					html+= '<li>Invalid Atom or RSS feed</li>';
+
+					break;
 			}
 
 			html+= '</ul>';
@@ -118,9 +183,22 @@
 		});
 	}
 
+	function isAtom(response)
+	{
+		return response.getElementsByTagName('feed').length == 1 && response.getElementsByTagName('entry').length > 0;
+	}
+
+	function isRss(response)
+	{
+		return response.getElementsByTagName('rss').length == 1 && response.getElementsByTagName('item').length > 0;
+	}
+
 	function loadSettings()
 	{
 		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
+		var settingsCount = System.Gadget.Settings.readString('settingsCount');
+		var settingsWidth = System.Gadget.Settings.readString('settingsWidth');
+		var settingsHeight = System.Gadget.Settings.readString('settingsHeight');
 		var settingsMaxTitleLength = parseInt(System.Gadget.Settings.readString('settingsMaxTitleLength'));
 		var settingsRequestSleep = parseInt(System.Gadget.Settings.readString('settingsRequestSleep'));
 
@@ -131,6 +209,33 @@
 		else
 		{
 			feedUrl = 'http://news.google.com/news?topic=t&output=atom';
+		}
+
+		if(settingsCount)
+		{
+			count = settingsCount;
+		}
+		else
+		{
+			count = 20;
+		}
+
+		if(settingsWidth)
+		{
+			width = settingsWidth;
+		}
+		else
+		{
+			width = 460;
+		}
+
+		if(settingsHeight)
+		{
+			height = settingsHeight;
+		}
+		else
+		{
+			height = 340;
 		}
 
 		if(settingsMaxTitleLength > 0)

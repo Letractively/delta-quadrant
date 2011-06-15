@@ -6,7 +6,7 @@
 	body
 	{
 		width:260px;
-		height:160px;
+		height:290px;
 		margin:4px;
 		padding:0px;
 	}
@@ -16,12 +16,30 @@
 	$(document).ready(function(){
 
 		var settingsFeedUrl = System.Gadget.Settings.readString('settingsFeedUrl');
+		var settingsCount = System.Gadget.Settings.readString('settingsCount');
+		var settingsWidth = System.Gadget.Settings.readString('settingsWidth');
+		var settingsHeight = System.Gadget.Settings.readString('settingsHeight');
 		var settingsMaxTitleLength = System.Gadget.Settings.readString('settingsMaxTitleLength');
 		var settingsRequestSleep = System.Gadget.Settings.readString('settingsRequestSleep');
 
 		if(settingsFeedUrl)
 		{
 			$('#settingsFeedUrl').val(settingsFeedUrl);
+		}
+
+		if(settingsCount)
+		{
+			$('#settingsCount').val(settingsCount);
+		}
+
+		if(settingsWidth)
+		{
+			$('#settingsWidth').val(settingsWidth);
+		}
+
+		if(settingsHeight)
+		{
+			$('#settingsHeight').val(settingsHeight);
 		}
 
 		if(settingsMaxTitleLength)
@@ -41,6 +59,9 @@
 		if(event.closeAction == event.Action.commit)
 		{
 			var settingsFeedUrl = $('#settingsFeedUrl').val();
+			var settingsCount = $('#settingsCount').val();
+			var settingsWidth = $('#settingsWidth').val();
+			var settingsHeight = $('#settingsHeight').val();
 			var settingsMaxTitleLength = parseInt($('#settingsMaxTitleLength').val());
 			var settingsRequestSleep = parseInt($('#settingsRequestSleep').val());
 
@@ -51,6 +72,33 @@
 			else
 			{
 				System.Gadget.Settings.writeString('settingsFeedUrl', 'http://news.google.com/news?topic=t&output=atom');
+			}
+
+			if(settingsCount > 0)
+			{
+				System.Gadget.Settings.writeString('settingsCount', settingsCount);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsCount', '20');
+			}
+
+			if(settingsWidth > 0)
+			{
+				System.Gadget.Settings.writeString('settingsWidth', settingsWidth);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsWidth', '460');
+			}
+
+			if(settingsHeight > 0)
+			{
+				System.Gadget.Settings.writeString('settingsHeight', settingsHeight);
+			}
+			else
+			{
+				System.Gadget.Settings.writeString('settingsHeight', '340');
 			}
 
 			if(settingsMaxTitleLength > 0)
@@ -83,7 +131,15 @@
 <div id="gadgetContent">
 <p>
 	<label for="settingsFeedUrl">Feed URL</label><br />
-	<input type="url" name="settingsFeedUrl" id="settingsFeedUrl" size="32" value="" />
+	<input type="text" name="settingsFeedUrl" id="settingsFeedUrl" size="32" value="" />
+</p>
+<p>
+	<label for="settingsCount">Count</label><br />
+	<input type="text" name="settingsCount" id="settingsCount" size="3" value="" />
+</p>
+<p>
+	<label for="settingsWidth">Width / Height</label><br />
+	<input type="text" name="settingsWidth" id="settingsWidth" size="4" value="" /> / <input type="text" name="settingsHeight" id="settingsHeight" size="4" value="" />
 </p>
 <p>
 	<label for="settingsMaxTitleLength">Max title length</label><br />
