@@ -24,9 +24,12 @@
 
 package com.k42b3.kadabra;
 
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 
 import com.almworks.sqlite4java.SQLiteConnection;
+import com.almworks.sqlite4java.SQLiteStatement;
 
 /**
  * Resource
@@ -39,11 +42,57 @@ import com.almworks.sqlite4java.SQLiteConnection;
 public class Resource extends HashMap
 {
 	private SQLiteConnection db;
-	private int id;
 
-	public Resource(SQLiteConnection db, int id)
+	private int id;
+	private String type;
+
+	public Resource(SQLiteConnection db, int id) throws Exception
 	{
 		this.db = db;
+
+		String sql = "SELECT " +
+			"id, " +
+			"type, " +
+			"config " +
+		"FROM " +
+			"resources " +
+		"WHERE " +
+			"id = " + id;
+
+		SQLiteStatement st = db.prepare(sql);
+
+		st.step();
+
+		if(st.hasRow())
+		{
+			this.id = st.columnInt(0);
+			this.type = st.columnString(1);
+
+			if(st.columnBlob(2) != null)
+			{
+				ByteArrayInputStream bais = new ByteArrayInputStream(st.columnBlob(2));
+
+				ObjectInputStream ois = new ObjectInputStream(bais);
+
+				this.putAll((HashMap<String, String>) ois.readObject());
+
+				ois.close();
+			}
+		}
+		else
+		{
+			throw new Exception("Invalid resource id");
+		}
+	}
+
+	public int getId()
+	{
+		return id;
+	}
+	
+	public String getType()
+	{
+		return type;
 	}
 
 	public String getString(Object key)

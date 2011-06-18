@@ -58,12 +58,14 @@ public class System extends HandlerAbstract
 		byte[] buf = new byte[1024];
 		int len;
 
-		do
+		len = fis.read(buf);
+
+		while(len != -1)
 		{
-			len = fis.read(buf);
 			baos.write(buf, 0, len);
+
+			len = fis.read(buf);
 		}
-		while(len != -1);
 
 		baos.flush();
 		baos.close();
