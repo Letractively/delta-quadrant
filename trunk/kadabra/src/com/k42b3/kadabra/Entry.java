@@ -69,11 +69,13 @@ public class Entry
 			{
 				instance.listProject();
 			}
-			else if(args.length == 2 && args[0].equals("--info"))
+			else if(args.length == 1 && args[0].equals("--listResource"))
 			{
-				int id = Integer.parseInt(args[1]);
-
-				instance.infoProject(id);
+				instance.listResource();
+			}
+			else if(args.length == 1 && args[0].equals("--listExclude"))
+			{
+				instance.listExclude();
 			}
 			else if(args.length == 1 && args[0].equals("--add"))
 			{
@@ -91,34 +93,19 @@ public class Entry
 			{
 				String type = console.readLine("Type [System|Ftp|Ssh]: ").toUpperCase();
 				HashMap<String, String> config = new HashMap<String, String>();
-				ArrayList<String> configFields;
+				ArrayList<String> configFields = HandlerFactory.factoryConfig(type);
 
-				if(type.equals("SYSTEM"))
-				{
-					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
-				}
-				else if(type.equals("FTP"))
-				{
-					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
-				}
-				else if(type.equals("SSH"))
-				{
-					configFields = com.k42b3.kadabra.handler.System.getConfigFields();
-				}
-				else
-				{
-					throw new Exception("Invalid type");
-				}
+				String name = console.readLine("Name: ");
 
 				for(int i = 0; i < configFields.size(); i++)
 				{
-					String key = config.get(i);
+					String key = configFields.get(i);
 					String value = console.readLine(key + ": ");
 
 					config.put(key, value);
 				}
 
-				instance.addResource(type, config);
+				instance.addResource(type, name, config);
 			}
 			else if(args.length == 1 && args[0].equals("--addExclude"))
 			{
@@ -133,6 +120,12 @@ public class Entry
 
 				instance.deleteProject(id);
 			}
+			else if(args.length == 2 && args[0].equals("--delResource"))
+			{
+				int id = Integer.parseInt(args[1]);
+
+				instance.deleteResource(id);
+			}
 			else if(args.length == 2 && args[0].equals("--delExclude"))
 			{
 				int id = Integer.parseInt(args[1]);
@@ -142,6 +135,12 @@ public class Entry
 			else if(args.length == 1 && args[0].equals("--build"))
 			{
 				instance.build();
+			}
+			else if(args.length == 2 && args[0].equals("--info"))
+			{
+				int id = Integer.parseInt(args[1]);
+
+				instance.info(id);
 			}
 			else if(args.length == 1 && args[0].equals("--about"))
 			{
@@ -154,7 +153,7 @@ public class Entry
 		}
 		catch(Exception e)
 		{
-			System.err.println(e.getMessage());
+			System.out.println(e.getMessage());
 		}
 	}
 }

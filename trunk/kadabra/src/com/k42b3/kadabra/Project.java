@@ -43,10 +43,18 @@ public class Project
 {
 	private SQLiteConnection db;
 	private int id;
+	private String name;
+	private String date;
+
 	private String leftPath;
 	private int leftResourceId;
+	private HandlerAbstract leftHandler;
+
 	private String rightPath;
 	private int rightResourceId;
+	private HandlerAbstract rightHandler;
+
+	private ArrayList<String> exclude;
 
 	public Project(SQLiteConnection db, int id) throws Exception
 	{
@@ -54,6 +62,8 @@ public class Project
 
 		String sql = "SELECT " +
 			"id, " +
+			"name, " +
+			"date, " +
 			"leftPath, " +
 			"leftResourceId, " +
 			"rightPath, " +
@@ -70,10 +80,18 @@ public class Project
 		if(st.hasRow())
 		{
 			this.id = st.columnInt(0);
-			this.leftPath = st.columnString(1);
-			this.leftResourceId = st.columnInt(2);
-			this.rightPath = st.columnString(3);
-			this.rightResourceId = st.columnInt(4);
+			this.name = st.columnString(1);
+			this.date = st.columnString(2);
+
+			this.leftPath = st.columnString(3);
+			this.leftResourceId = st.columnInt(4);
+			this.leftHandler = HandlerFactory.factory(new Resource(db, this.leftResourceId), this.leftPath);
+
+			this.rightPath = st.columnString(5);
+			this.rightResourceId = st.columnInt(6);
+			this.rightHandler = HandlerFactory.factory(new Resource(db, this.rightResourceId), this.rightPath);
+
+			this.exclude = this.buildExclude();
 		}
 		else
 		{
@@ -84,6 +102,16 @@ public class Project
 	public int getId()
 	{
 		return id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getDate()
+	{
+		return date;
 	}
 
 	public String getLeftPath() 
@@ -108,77 +136,23 @@ public class Project
 
 	public HandlerAbstract getLeftHandler() throws Exception
 	{
-		String sql = "SELECT " +
-			"type, " +
-			"config " +
-		"FROM " +
-			"resources " +
-		"WHERE " +
-			"id = " + this.getLeftResourceId();
-
-		SQLiteStatement st = db.prepare(sql);
-
-		st.step();
-
-		String type = st.columnString(0);
-		ByteArrayInputStream bais = new ByteArrayInputStream(st.columnString(1).getBytes());
-
-		ObjectInputStream ois = new ObjectInputStream(bais);
-
-		Resource resource = (Resource) ois.readObject();
-
-		return this.getHandler(resource, type);
+		return leftHandler;
 	}
 
 	public HandlerAbstract getRightHandler() throws Exception
 	{
-		String sql = "SELECT " +
-			"type, " +
-			"config " +
-		"FROM " +
-			"resources " +
-		"WHERE " +
-			"id = " + this.getRightResourceId();
-
-		SQLiteStatement st = db.prepare(sql);
-
-		st.step();
-
-		String type = st.columnString(0);
-		ByteArrayInputStream bais = new ByteArrayInputStream(st.columnString(1).getBytes());
-
-		ObjectInputStream ois = new ObjectInputStream(bais);
-
-		Resource resource = (Resource) ois.readObject();
-
-		return this.getHandler(resource, type);
+		return rightHandler;
 	}
 
 	public ArrayList<String> getExclude() throws Exception
 	{
-		ArrayList<String> exclude = new ArrayList<String>();
-
-		String sql = "SELECT " +
-			"pattern " +
-		"FROM " +
-			"exclude " +
-		"WHERE " +
-			"projectId = " + this.getId();
-
-		SQLiteStatement st = db.prepare(sql);
-
-		while(st.step())
-		{
-			exclude.add(st.columnString(0));
-		}
-
 		return exclude;
 	}
 
 	public void close() throws Exception
 	{
-		this.getLeftHandler().close();
-		this.getRightHandler().close();
+		leftHandler.close();
+		rightHandler.close();
 	}
 
 	public void addRelease() throws Exception
@@ -197,24 +171,25 @@ public class Project
 
 		st.step();
 	}
-
-	private HandlerAbstract getHandler(Resource resource, String type) throws Exception
+	
+	private ArrayList<String> buildExclude() throws Exception
 	{
-		if(type.equals("SYSTEM"))
+		ArrayList<String> exclude = new ArrayList<String>();
+
+		String sql = "SELECT " +
+			"pattern " +
+		"FROM " +
+			"exclude " +
+		"WHERE " +
+			"projectId = " + this.getId();
+
+		SQLiteStatement st = db.prepare(sql);
+
+		while(st.step())
 		{
-			return new com.k42b3.kadabra.handler.System(resource, this.getLeftPath());
+			exclude.add(st.columnString(0));
 		}
-		else if(type.equals("FTP"))
-		{
-			return new com.k42b3.kadabra.handler.Ftp(resource, this.getLeftPath());
-		}
-		else if(type.equals("SSH"))
-		{
-			return new com.k42b3.kadabra.handler.Ssh(resource, this.getLeftPath());
-		}
-		else
-		{
-			throw new Exception("Invalid resource type");
-		}
+
+		return exclude;
 	}
 }
