@@ -24,8 +24,6 @@
 
 package com.k42b3.kadabra;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
 import com.almworks.sqlite4java.SQLiteConnection;
