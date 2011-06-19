@@ -38,15 +38,11 @@ public class Item
 	public static int DIRECTORY = 0x2;
 
 	private String name;
-	private String path;
-	private String absolutePath;
 	private int type;
 
-	public Item(String name, String path, String absolutePath, int type)
+	public Item(String name, int type)
 	{
 		this.setName(name);
-		this.setPath(path);
-		this.setAbsolutePath(absolutePath);
 		this.setType(type);
 	}
 
@@ -58,26 +54,6 @@ public class Item
 	public void setName(String name) 
 	{
 		this.name = name;
-	}
-
-	public String getPath() 
-	{
-		return path;
-	}
-
-	public void setPath(String path) 
-	{
-		this.path = path;
-	}
-
-	public String getAbsolutePath() 
-	{
-		return absolutePath;
-	}
-
-	public void setAbsolutePath(String absolutePath) 
-	{
-		this.absolutePath = absolutePath;
 	}
 
 	public int getType() 

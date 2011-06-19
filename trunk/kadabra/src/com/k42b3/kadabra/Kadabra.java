@@ -234,6 +234,9 @@ public class Kadabra
 	{
 		try
 		{
+			leftPath = normalizePath(leftPath);
+			rightPath = normalizePath(rightPath);
+
 			Resource leftResource = new Resource(db, leftResourceId);
 			Resource rightResource = new Resource(db, rightResourceId);
 
@@ -788,5 +791,17 @@ public class Kadabra
 		{
 			return str;
 		}
+	}
+	
+	private String normalizePath(String path)
+	{
+		path = path.trim();
+
+		if(path.charAt(path.length() - 1) == '/')
+		{
+			path = path.substring(0, path.length() - 2);
+		}
+
+		return path;
 	}
 }

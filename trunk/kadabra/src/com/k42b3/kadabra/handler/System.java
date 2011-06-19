@@ -88,13 +88,11 @@ public class System extends HandlerAbstract
 		for(int i = 0; i < files.length; i++)
 		{
 			String itemName = files[i].getName();
-			String itemPath = files[i].getPath();
-			String itemAbsolutePath = files[i].getAbsolutePath();
 			int itemIype = files[i].isDirectory() ? Item.DIRECTORY : Item.FILE;
 
-			items[i] = new Item(itemName, itemPath, itemAbsolutePath, itemIype);
+			items[i] = new Item(itemName, itemIype);
 		}
-	
+
 		return items;
 	}
 
@@ -107,10 +105,13 @@ public class System extends HandlerAbstract
 	{
 		FileOutputStream fos = new FileOutputStream(basePath + "/" + path);
 
-		fos.write(content);
+		if(fos != null)
+		{
+			fos.write(content);
 
-		fos.flush();
-		fos.close();
+			fos.flush();
+			fos.close();
+		}
 	}
 
 	public void close() throws Exception 

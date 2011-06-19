@@ -26,9 +26,11 @@ package com.k42b3.kadabra.handler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
@@ -94,11 +96,9 @@ public class Ftp extends HandlerAbstract
 		for(int i = 0; i < files.length; i++)
 		{
 			String itemName = files[i].getName();
-			String itemPath = "";
-			String itemAbsolutePath = "";
 			int itemIype = files[i].isDirectory() ? Item.DIRECTORY : Item.FILE;
 
-			items[i] = new Item(itemName, itemPath, itemAbsolutePath, itemIype);
+			items[i] = new Item(itemName, itemIype);
 		}
 
 		return items;
@@ -113,10 +113,15 @@ public class Ftp extends HandlerAbstract
 	{
 		OutputStream os = client.storeFileStream(basePath + "/" + path);
 
-		os.write(content);
+		if(os != null)
+		{
+			os.write(content);
 
-		os.flush();
-		os.close();
+			os.flush();
+			os.close();
+
+			client.completePendingCommand();
+		}
 	}
 
 	public void close() throws Exception
@@ -135,24 +140,24 @@ public class Ftp extends HandlerAbstract
 
 		return fields;
 	}
-	
+
 	public class CommandLogger implements ProtocolCommandListener
 	{
 		private Logger logger;
 
 		public CommandLogger()
 		{
-			this.logger = Logger.getLogger("com.k42b3.kadabra");
+			logger = Logger.getLogger("com.k42b3.kadabra");
 		}
 
 		public void protocolCommandSent(ProtocolCommandEvent e) 
 		{
-			logger.fine(e.getMessage());
+			logger.info(e.getMessage());
 		}
 
 		public void protocolReplyReceived(ProtocolCommandEvent e) 
 		{
-			logger.fine(e.getMessage());
+			logger.info(e.getMessage());
 		}
 	}
 }
