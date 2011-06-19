@@ -26,11 +26,9 @@ package com.k42b3.kadabra.handler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.apache.commons.net.PrintCommandListener;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
@@ -152,12 +150,12 @@ public class Ftp extends HandlerAbstract
 
 		public void protocolCommandSent(ProtocolCommandEvent e) 
 		{
-			logger.info(e.getMessage());
+			logger.fine(e.getMessage());
 		}
 
 		public void protocolReplyReceived(ProtocolCommandEvent e) 
 		{
-			logger.info(e.getMessage());
+			logger.fine(e.getMessage());
 		}
 	}
 }
