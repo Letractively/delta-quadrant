@@ -102,8 +102,6 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
-
 			console.printf(e.getMessage() + "%n");
 
 			logger.warning(e.getMessage());
@@ -270,7 +268,6 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			console.printf(e.getMessage() + "%n");
 
 			logger.warning(e.getMessage());
@@ -552,7 +549,7 @@ public class Kadabra
 
 			SQLiteStatement st = db.prepare(sql);
 
-			String formatString = "%12$-4s %2$-32s%n";
+			String formatString = "%1$-12s %2$-32s%n";
 
 			console.printf("Id: " + project.getId() + "%n");
 			console.printf("Name: " + project.getName() + "%n");
@@ -560,7 +557,7 @@ public class Kadabra
 			console.printf("Left path: " + project.getLeftPath() + "%n");
 			console.printf("Right path: " + project.getRightPath() + "%n");
 
-			console.printf("%n%n-- Exclude rules:%n");
+			console.printf("%n-- Exclude rules:%n");
 
 			formatString = "%1$-4s %2$-16s%n";
 
@@ -573,7 +570,6 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			console.printf(e.getMessage() + "%n");
 
 			logger.warning(e.getMessage());
@@ -799,7 +795,7 @@ public class Kadabra
 
 		if(path.charAt(path.length() - 1) == '/')
 		{
-			path = path.substring(0, path.length() - 2);
+			path = path.substring(0, path.length() - 1);
 		}
 
 		return path;
