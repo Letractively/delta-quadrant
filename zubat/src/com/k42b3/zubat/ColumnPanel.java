@@ -199,13 +199,16 @@ public class ColumnPanel extends JFrame
 			// find service node
 			NodeList serviceList = doc.getElementsByTagName("service");
 			Element serviceElement = null;
+			Element tmpServiceElement = null;
 
 			for(int i = 0; i < serviceList.getLength(); i++)
 			{
-				serviceElement = (Element) serviceList.item(i);
+				tmpServiceElement = (Element) serviceList.item(i);
 
-				if(item.hasType(serviceElement.getAttribute("type")))
+				if(item.hasType(tmpServiceElement.getAttribute("type")))
 				{
+					serviceElement = tmpServiceElement;
+
 					break;
 				}
 			}
@@ -219,7 +222,10 @@ public class ColumnPanel extends JFrame
 
 				for(int i = 0; i < itemList.getLength(); i++)
 				{
-					serviceElement.removeChild(itemList.item(i));
+					if(itemList.item(i) instanceof Element)
+					{
+						serviceElement.removeChild(itemList.item(i));
+					}
 				}
 			}
 			else
@@ -227,9 +233,8 @@ public class ColumnPanel extends JFrame
 				serviceElement = doc.createElement("service");
 				serviceElement.setAttribute("type", item.getTypes().get(0));
 
-				doc.appendChild(serviceElement);
+				doc.getDocumentElement().appendChild(serviceElement);
 			}
-
 
 			// add new items
 			for(int i = 0; i < fields.size(); i++)
@@ -239,7 +244,6 @@ public class ColumnPanel extends JFrame
 
 				serviceElement.appendChild(itemElement);
 			}
-
 
 			// save dom
 			Configuration.saveDocument(doc);

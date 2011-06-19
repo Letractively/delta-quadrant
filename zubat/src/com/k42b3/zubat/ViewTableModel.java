@@ -182,7 +182,10 @@ public class ViewTableModel extends AbstractTableModel
 				}
 			}
 
-			url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
+			if(queryFields.length() > 0)
+			{
+				url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
+			}
 		}
 
 
