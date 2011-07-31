@@ -287,18 +287,15 @@ public class Sacmis extends JFrame
 		{
 			out.setText("");
 			
-			out.append("sacmis version " + ver + "\n");
-			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
-			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
-			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
+			out.append("Version: sacmis " + ver + "\n");
+			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
+			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
+			out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
 			out.append("An application wich let you write to the stdin of any executable file and" + "\n");
 			out.append("return the stdout on success or stderr on error. You have to specify the" + "\n");
 			out.append("executable file as first argument and optional as second argument the" + "\n");
 			out.append("expected exit value (default is 0)" + "\n");
-			out.append("\n");
-			out.append("best regards\n");
-			out.append("k42b3\n");
 		}
 	}
 	
