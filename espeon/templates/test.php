@@ -1,10 +1,10 @@
 <?php
 
 Table: ${table}
-First column: ${first_column}
-Last column: ${last_column}
-Primary key: ${primary_key}
-Unqiue key: <#list unqiue_key as key>${key}<#if key_has_next>, </#if></#list>
+First column: ${firstColumn}
+Last column: ${lastColumn}
+Primary key: ${primaryKey}
+Unqiue key: <#list unqiueKey as key>${key}<#if key_has_next>, </#if></#list>
 Fields: <#list fields as field>${field}<#if field_has_next>, </#if></#list>
 
 Columns:

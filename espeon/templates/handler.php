@@ -1,25 +1,21 @@
 <?php
 
-class ${namespace}_${name}_handler implements psx_data_handler
+class ${namespace}_${name}_Handler extends Amun_Data_HandlerAbstract
 {
-	private $config;
-	private $sql;
-
-	public function __construct(psx_core_config $config, psx_sql $sql)
+	public function getTable()
 	{
-		$this->config = $config;
-		$this->sql    = $sql;
+		return $this->vars['table.${table}'];
 	}
 
-	public function create(psx_data_record $record)
+	public function create(PSX_Data_RecordInterface $record)
 	{
 	}
 
-	public function update(psx_data_record $record)
+	public function update(PSX_Data_RecordInterface $record)
 	{
 	}
 
-	public function delete(psx_data_record $record)
+	public function delete(PSX_Data_RecordInterface $record)
 	{
 	}
 }
