@@ -213,7 +213,7 @@ public class OauthConfig extends ConfigFilter
 		panel_method.add(lbl_method);
 
 
-		String[] methods = {"PLAINTEXT", "HMACSHA1"};
+		String[] methods = {"PLAINTEXT", "HMAC-SHA1"};
 		
 		this.cbo_method = new JComboBox(methods);
 
