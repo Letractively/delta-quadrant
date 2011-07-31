@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zubat>
     <baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
-    <consumerKey>2266848b913631359645c1b74f09eea78309e440</consumerKey>
-    <consumerSecret>978fd7ad0b84e940fa6c003d04177ad9370c1527</consumerSecret>
-    <token>b021098b546c64a367675b0cc43f56726836369c</token>
-    <tokenSecret>b7babb673c841ba9ed1cee6528deaf3a92f318a0</tokenSecret>
+    <consumerKey>7569c0790aa182bd1b8b9eafd16d9353952836aa</consumerKey>
+    <consumerSecret>a1e32cf5c603afd8c57003dfbfc6c3c636ea1a58</consumerSecret>
+    <token>03dd9b5c015cc9147db3db76447093fd82dc63f9</token>
+    <tokenSecret>77d8c9024ee0f064ec7c20c285dd9816950c3585</tokenSecret>
     <service type="http://ns.amun-project.org/2011/amun/content/gadget">
         <item>id</item>
         <item>title</item>

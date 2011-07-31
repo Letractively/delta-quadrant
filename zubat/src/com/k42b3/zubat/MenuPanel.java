@@ -154,7 +154,18 @@ public class MenuPanel extends JMenuBar
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				JOptionPane.showMessageDialog(null, "zubat (version: " + Zubat.version + ")\nDeveloper: Christoph Kappestein <k42b3.x@gmail.com>\nLicense: http://www.gnu.org/licenses/gpl.html GPLv3");
+				StringBuilder out = new StringBuilder();
+
+				out.append("Version: zubat (version: " + Zubat.version + ")\n");
+				out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
+				out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
+				out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
+				out.append("\n");
+				out.append("An java application to access the API of Amun (amun.phpsx.org). It is" + "\n");
+				out.append("used to debug and control a website based on Amun. This is the reference" + "\n");
+				out.append("implementation howto access the API so feel free to hack and extend." + "\n");
+
+				JOptionPane.showMessageDialog(null, out, "About", JOptionPane.INFORMATION_MESSAGE);
 			}
 
 		});

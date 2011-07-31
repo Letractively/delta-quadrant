@@ -92,7 +92,7 @@ public class Espeon extends JFrame
 		
 		this.setLocation(100, 100);
 		
-		this.setSize(600, 500);
+		this.setSize(700, 500);
 		
 		this.setMinimumSize(this.getSize());
 
@@ -152,7 +152,7 @@ public class Espeon extends JFrame
 
 		scrList.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
-		scrList.setPreferredSize(new Dimension(128, 400));
+		scrList.setPreferredSize(new Dimension(180, 400));
 
 		this.add(scrList, BorderLayout.WEST);
 
@@ -391,19 +391,17 @@ public class Espeon extends JFrame
 		public void actionPerformed(ActionEvent e) 
 		{
 			StringBuilder out = new StringBuilder();
-			
-			out.append("espeon version " + ver + "\n");
-			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
-			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
-			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
+
+			out.append("Version: espeon " + ver + "\n");
+			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
+			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
+			out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
-			out.append("This application generates record classes for the psx framework (phpsx.org)" + "\n");
-			out.append("to make the development of new applications easier and with fewer errors." + "\n");
-			out.append("You can connect to a mysql database select a tabel and generate the php classes" + "\n");
-			out.append("\n");
-			out.append("best regards\n");
-			out.append("k42b3\n");
-			
+			out.append("With espeon you can generate sourcecode from database structures. It was" + "\n");
+			out.append("mainly developed to generate PHP classes for the PSX framework (phpsx.org)" + "\n");
+			out.append("but because it uses a template engine (FreeMarker) you can use it for any" + "\n");
+			out.append("purpose you like." + "\n");
+
 			JOptionPane.showMessageDialog(null, out, "About", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}

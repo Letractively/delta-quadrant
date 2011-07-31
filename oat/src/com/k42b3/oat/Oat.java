@@ -428,18 +428,15 @@ public class Oat extends JFrame
 		{
 			out.setText("");
 			
-			out.append("oat version " + ver + "\n");
-			out.append("author: Christoph \"k42b3\" Kappestein" + "\n");
-			out.append("website: http://code.google.com/p/delta-quadrant" + "\n");
-			out.append("license: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
+			out.append("Version: oat " + ver + "\n");
+			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
+			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
+			out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 			out.append("\n");
-			out.append("An application with that you can make raw http requests to any url. You can" + "\n");
+			out.append("An application with that you can make raw HTTP requests to any URL. You can" + "\n");
 			out.append("save a request for later use. You can apply on the request and the response" + "\n");
 			out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
 			out.append("to make non-blocking requests so it should work fluently." + "\n");
-			out.append("\n");
-			out.append("best regards\n");
-			out.append("k42b3\n");
 		}
 	}
 	
