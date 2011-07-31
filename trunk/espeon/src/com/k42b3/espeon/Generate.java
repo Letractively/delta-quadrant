@@ -99,8 +99,8 @@ public class Generate extends JFrame
 
 		String tableName = table.get("table").toString();
 		int pos = tableName.lastIndexOf('_');
-		String name = tableName.substring(pos + 1);
-		String ns = tableName.substring(0, pos);
+		String name = Generate.convertTableToClass(tableName.substring(pos + 1));
+		String ns = Generate.convertTableToClass(tableName.substring(0, pos));
 		String tablePrimaryKey = table.get("primaryKey") != null ? table.get("primaryKey").toString() : "";
 
 
@@ -216,6 +216,25 @@ public class Generate extends JFrame
 		
 		Generate.isActive = false;
 	}
+
+	public static String convertTableToClass(String table)
+	{
+		String[] parts = table.split("_");
+		String className = "";
+		int length = parts.length;
+
+		for(int i = 0; i < parts.length; i++)
+		{
+			className+= Character.toUpperCase(parts[i].charAt(0)) + parts[i].substring(1);
+
+			if(i < length - 1)
+			{
+				className+= "_";
+			}
+		}
+
+		return className;
+	}
 	
 	public class generateHandler implements ActionListener
 	{
@@ -241,7 +260,7 @@ public class Generate extends JFrame
 			close();
 		}
 	}
-	
+
 	public class cancelHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 

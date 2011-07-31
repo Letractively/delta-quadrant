@@ -1,20 +1,25 @@
 <?php
 
-class ${namespace}_${name} extends psx_data_record
+class ${namespace}_${name} extends Amun_Data_RecordAbstract
 {
-	public function get_name()
+	protected $fields = array(
+
+		<#list fields as field>
+		'${field}',
+		</#list>
+
+	);
+
+	public function getName()
 	{
-		return '${name}';
+		return '${name?lower_case}';
 	}
 
 	<#list fields as field>
-	public function set_${field}($${field})
+	public function set${field?cap_first}($${field})
 	{
-		$this->offsetSet('${field}', $${field});
+		$this->${field} = $${field};
 	}
 
 	</#list>
-	public static function convert(array $data)
-	{
-	}
 }

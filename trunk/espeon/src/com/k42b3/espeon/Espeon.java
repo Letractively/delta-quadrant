@@ -73,7 +73,7 @@ import freemarker.template.Template;
  */
 public class Espeon extends JFrame
 {
-	public static String ver = "0.0.2 beta";
+	public static String ver = "0.0.3 beta";
 	public static String path = "templates";
 
 	private JList list;
