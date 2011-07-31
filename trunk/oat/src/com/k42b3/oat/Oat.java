@@ -28,13 +28,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -68,8 +62,6 @@ import org.w3c.dom.NodeList;
 
 import com.k42b3.oat.http.Http;
 import com.k42b3.oat.http.Request;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 /**
  * oat

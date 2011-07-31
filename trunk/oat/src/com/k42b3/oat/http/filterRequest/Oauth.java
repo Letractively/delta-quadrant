@@ -23,8 +23,6 @@
 
 package com.k42b3.oat.http.filterRequest;
 
-import java.awt.Desktop;
-import java.net.URI;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -35,8 +33,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Map.Entry;
-
-import javax.swing.JOptionPane;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -71,14 +67,14 @@ public class Oauth implements RequestFilterInterface
 
 			// add values
 			HashMap<String, String> values = new HashMap<String, String>();
-			
+
 			values.put("oauth_consumer_key", consumer_key);
 			values.put("oauth_token", token);
 			values.put("oauth_signature_method", method);
 			values.put("oauth_timestamp", this.get_timestamp());
 			values.put("oauth_nonce", this.get_nonce());
 			values.put("oauth_version", this.get_version());
-			
+
 
 			// add get vars to values
 			values.putAll(request.get_params());
@@ -91,7 +87,7 @@ public class Oauth implements RequestFilterInterface
 			// get signature
 			SignatureInterface sig;
 
-			String cls = "com.k42b3.oat.http.filterRequest.oauthSignature." + method;
+			String cls = "com.k42b3.oat.http.filterRequest.oauthSignature." + this.resolveMethod(method);
 
 			Class c = Class.forName(cls);
 			
@@ -199,11 +195,11 @@ public class Oauth implements RequestFilterInterface
 
 			if(port == -1 || port == 80 || port == 443)
 			{
-				return url.getProtocol() + "://" + url.getHost() + "/" + url.getPath();
+				return url.getProtocol() + "://" + url.getHost() + url.getPath();
 			}
 			else
 			{
-				return url.getProtocol() + "://" + url.getHost() + ":" + port + "/" + url.getPath();
+				return url.getProtocol() + "://" + url.getHost() + ":" + port + url.getPath();
 			}
 		}
 		catch(Exception e)
@@ -248,6 +244,23 @@ public class Oauth implements RequestFilterInterface
 	private String get_version()
 	{
 		return "1.0";
+	}
+
+	private String resolveMethod(String method) throws Exception
+	{
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		map.put("PLAINTEXT", "PLAINTEXT");
+		map.put("HMAC-SHA1", "HMACSHA1");
+		
+		if(map.containsKey(method))
+		{
+			return map.get(method);
+		}
+		else
+		{
+			throw new Exception("Invalid signature method");
+		}
 	}
 
 	public void set_config(Properties config)

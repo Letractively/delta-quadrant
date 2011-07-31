@@ -24,11 +24,6 @@
 package com.k42b3.oat.http.filterRequest.oauthSignature;
 
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
-import sun.misc.BASE64Encoder;
 
 /**
  * util
