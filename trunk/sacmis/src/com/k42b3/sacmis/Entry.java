@@ -40,11 +40,12 @@ public class Entry
 	{
         try
         {
-    		String look_and_feel = UIManager.getSystemLookAndFeelClassName();
+    		String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
-        	UIManager.setLookAndFeel(look_and_feel);
-        	
-        	
+        	UIManager.setLookAndFeel(lookAndFeel);
+
+
+        	// bin path
         	String path = "";
 
         	if(args.length > 0)
@@ -58,13 +59,23 @@ public class Entry
         	}
 
 
-        	int exitCode = 0;
+        	// tmp file
+        	String file = "input.cache";
 
         	if(args.length > 1)
         	{
+        		file = args[1];
+        	}
+
+
+        	// exit code
+        	int exitCode = 0;
+
+        	if(args.length > 2)
+        	{
         		try
         		{
-        			exitCode = Integer.parseInt(args[1]);
+        			exitCode = Integer.parseInt(args[2]);
         		}
         		catch(NumberFormatException e)
         		{
@@ -72,7 +83,17 @@ public class Entry
         	}
 
 
-        	new Sacmis(path, exitCode);
+        	// write to stdin
+        	boolean writerStdIn = false;
+
+        	if(args.length > 3)
+        	{
+        		writerStdIn = Boolean.parseBoolean(args[3]);
+        	}
+
+
+        	// start sacmis
+        	new Sacmis(path, file, exitCode, writerStdIn);
         }
         catch(Exception e)
         {
