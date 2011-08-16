@@ -62,11 +62,12 @@ import org.apache.commons.exec.PumpStreamHandler;
  */
 public class Sacmis extends JFrame
 {
-	public static String ver = "0.0.5 beta";
-	public static String file = "input.cache";
+	public static String ver = "0.0.6 beta";
 
 	private String path;
+	private String file = "input.cache";
 	private int exitCode;
+	private boolean writerStdIn = false;
 	private long timeout = 4000;
 	
 	private JTextField args;
@@ -78,12 +79,14 @@ public class Sacmis extends JFrame
 	private ByteArrayOutputStream baosErr;
 	private ByteArrayInputStream bais;
 	
-	public Sacmis(String path, int exitCode) throws Exception
+	public Sacmis(String path, String file, int exitCode, boolean writerStdIn) throws Exception
 	{
 		this.path = path;
+		this.file = file;
 		this.exitCode = exitCode;
+		this.writerStdIn = writerStdIn;
 
-		
+
 		this.setTitle("sacmis (version: " + ver + ")");
 		
 		this.setLocation(100, 100);
@@ -102,6 +105,8 @@ public class Sacmis extends JFrame
 		
 		
 		this.args = new Args();
+
+		this.args.setText(file);
 
 		panelArgs.add(this.args, BorderLayout.CENTER);
 		
@@ -175,16 +180,16 @@ public class Sacmis extends JFrame
 			{
 				fileIn = new FileInputStream(file);
 
-				BufferedReader br_in = new BufferedReader(new InputStreamReader(fileIn));
+				BufferedReader brIn = new BufferedReader(new InputStreamReader(fileIn));
 
 				String line = null;
 
-				while((line = br_in.readLine()) != null)
+				while((line = brIn.readLine()) != null)
 				{
 					in.append(line + "\n");
 				}
 
-				br_in.close();
+				brIn.close();
 			}
 			catch(IOException e)
 			{
@@ -193,51 +198,53 @@ public class Sacmis extends JFrame
 		}
 	}
 
-	private void saveFile()
+	private void saveFile() throws Exception
 	{
 		FileOutputStream fileOut;
-		
-		try
-		{
-			fileOut = new FileOutputStream(file);
 
-		    new PrintStream(fileOut).print(in.getText());
+		fileOut = new FileOutputStream(file);
 
-		    fileOut.close();		
-		}
-		catch(IOException e)
-		{
-			out.setText(e.getMessage());
-		}
+	    new PrintStream(fileOut).print(in.getText());
+
+	    fileOut.close();
 	}
-	
-	private void executeCommand(byte[] data)
+
+	private void executeCommand()
 	{
 		out.setText("");
 
 		try
 		{
+			// save file
+			saveFile();
+
+
 			CommandLine commandLine = CommandLine.parse(this.path + " " + this.args.getText());
 
 
 			// set timeout
 			ExecuteWatchdog watchdog = new ExecuteWatchdog(timeout);
-			
-			
-			// streams
-			this.baos = new ByteArrayOutputStream();
 
-			this.baosErr = new ByteArrayOutputStream();
 
-			this.bais = new ByteArrayInputStream(data);
-			
-			
 			// create executor
 			DefaultExecutor executor = new DefaultExecutor();
 
 			executor.setExitValue(this.exitCode);
 
-			executor.setStreamHandler(new PumpStreamHandler(this.baos, this.baosErr, this.bais));
+			this.baos = new ByteArrayOutputStream();
+
+			this.baosErr = new ByteArrayOutputStream();
+
+			if(this.writerStdIn)
+			{
+				this.bais = new ByteArrayInputStream(in.getText().getBytes());
+
+				executor.setStreamHandler(new PumpStreamHandler(this.baos, this.baosErr, this.bais));
+			}
+			else
+			{
+				executor.setStreamHandler(new PumpStreamHandler(this.baos, this.baosErr));
+			}
 
 			executor.setWatchdog(watchdog);
 
@@ -275,12 +282,10 @@ public class Sacmis extends JFrame
 	{
 		public void actionPerformed(ActionEvent args)
 		{
-			String code = in.getText();
-
-			executeCommand(code.getBytes());
+			executeCommand();
 		}
 	}
-	
+
 	public class aboutHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent args) 
@@ -303,9 +308,16 @@ public class Sacmis extends JFrame
 	{
 		public void actionPerformed(ActionEvent args) 
 		{
-			saveFile();
-			
-			System.exit(0);
+			try
+			{
+				saveFile();
+	
+				System.exit(0);
+			}
+			catch(Exception e)
+			{
+				out.setText(e.getMessage());
+			}
 		}
 	}
 }

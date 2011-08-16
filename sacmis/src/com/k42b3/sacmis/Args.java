@@ -40,6 +40,6 @@ public class Args extends JTextField
 {
 	public Args()
 	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 14));
+		this.setFont(new Font("Courier New", Font.PLAIN, 12));
 	}
 }
