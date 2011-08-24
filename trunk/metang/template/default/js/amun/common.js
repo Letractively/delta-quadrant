@@ -21,7 +21,7 @@
  * along with amun. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.ns('amun.common');
+Ext.ns('metang.common');
 
 /**
  * amun.common
@@ -33,7 +33,20 @@ Ext.ns('amun.common');
  * @version    $Revision: 193 $
  */
 
-amun.common.form = Ext.extend(Ext.form.FormPanel, {
+metang.common.getProxyUrl = function(url, params)
+{
+	var param = '';
+
+	for(k in params)
+	{
+		param+= '&' + k + '=' + encodeURIComponent(params[k]);
+	}
+
+	return metang_url + 'proxy?url=' + encodeURIComponent(url) + param;
+}
+
+/*
+metang.common.form = Ext.extend(Ext.form.FormPanel, {
 
 	url: null,
 	request_method: null,
@@ -64,7 +77,7 @@ amun.common.form = Ext.extend(Ext.form.FormPanel, {
 				scope: this,
 				handler: function(){
 
-					this.send_data(this.url);
+					this.sendData(this.url);
 
 				}
 
@@ -92,7 +105,7 @@ amun.common.form = Ext.extend(Ext.form.FormPanel, {
 
 	},
 
-	get_fields: function(){
+	getFields: function(){
 
 		return this.getForm().getFieldValues();
 
@@ -111,7 +124,106 @@ amun.common.form = Ext.extend(Ext.form.FormPanel, {
 
 	},
 
-	load_data: function(url){
+	buildForm: function(fields, panel){
+
+		for(var i = 0; i < fields.length; i++)
+		{
+			switch(fields[i].class)
+			{
+				case 'fieldset':
+
+					var tabPanel = new Ext.TabPanel({
+
+						xtype: 'tabpanel',
+						autoWidth: true,
+						activeTab: 0,
+						border: false,
+						deferredRender: false,
+						defaults: {
+
+							layout: 'form',
+							labelWidth: 125,
+							frame: false,
+							border: false,
+							bodyStyle: 'padding:5px 5px 0',
+							autoScroll: true,
+							trackResetOnLoad: true,
+							defaultType: 'textfield',
+							hideMode: 'offsets',
+							defaults: {
+
+								width: 250
+
+							}
+
+						}
+
+					});
+
+					this.buildForm(tabPanel);
+
+					panel.add(tabPanel);
+
+					break;
+
+				case 'input':
+
+					inputPanel = {
+
+						fieldLabel: fields[i].label,
+						name: fields[i].ref,
+						allowBlank: false
+
+					};
+
+					if(typeof(fields[i].disabled) != 'undefined')
+					{
+						inputPanel['disabled'] = true;
+					}
+
+					panel.add(inputPanel);
+
+					break;
+
+				case 'select':
+
+					break;
+			}
+		}
+
+	},
+
+	loadForm: function(url){
+
+		this.mask('Load form ...');
+
+		var con = new Ext.data.Connection();
+
+		con.request({
+
+			url: url,
+			method: 'GET',
+			scope: this,
+			success: function(response){
+
+				var resp = Ext.util.JSON.decode(response.responseText);
+
+				this.unmask();
+
+			},
+			failure: function(response){
+
+				this.unmask();
+
+				this.fireEvent('failure');
+
+			}
+
+		});
+
+	},
+
+	loadData: function(url){
 
 		this.mask('Load data ...');
 
@@ -150,7 +262,7 @@ amun.common.form = Ext.extend(Ext.form.FormPanel, {
 
 	},
 
-	send_data: function(){
+	sendData: function(){
 
 		if(this.getForm().isValid())
 		{
@@ -250,7 +362,7 @@ amun.common.form = Ext.extend(Ext.form.FormPanel, {
 });
 
 
-amun.common.grid = Ext.extend(Ext.grid.GridPanel, {
+metang.common.grid = Ext.extend(Ext.grid.GridPanel, {
 
 	columns: null,
 	options: null,
@@ -397,11 +509,9 @@ amun.common.grid = Ext.extend(Ext.grid.GridPanel, {
 			scope: this,
 			handler: function(){
 
-				/*
-				var tb = this.getTopToolbar();
+				//var tb = this.getTopToolbar();
 
-				tb.get(0);
-				*/
+				//tb.get(0);
 
 				alert('Not implemented yet ...');
 
@@ -445,20 +555,17 @@ amun.common.grid = Ext.extend(Ext.grid.GridPanel, {
 	}
 
 });
-
+*/
 
  /**
   * checkcolumn grid
   * @see http://dev.sencha.com/deploy/dev/examples/grid/edit-grid.html
   */
+  /*
 Ext.ns('Ext.ux.grid');
 
 Ext.ux.grid.CheckColumn = Ext.extend(Ext.grid.Column, {
 
-    /**
-     * @private
-     * Process and refire events routed from the GridView's processEvent method.
-     */
     processEvent : function(name, e, grid, rowIndex, colIndex){
         if (name == 'mousedown') {
             var record = grid.store.getAt(rowIndex);
@@ -486,6 +593,6 @@ Ext.grid.CheckColumn = Ext.ux.grid.CheckColumn;
 
 // register Column xtype
 Ext.grid.Column.types.checkcolumn = Ext.ux.grid.CheckColumn;
-
+*/
 
 

@@ -7,6 +7,7 @@ class loader extends PSX_ModuleAbstract
 		'default' => array('common', 'main', 'content_gadget', 'content_media', 'content_page', 'content_service', 'system_api', 'system_approval', 'system_country', 'system_event', 'system_log', 'system_vars', 'user_account', 'user_activity', 'user_friend', 'user_group', 'user_right'),
 		'login'   => array('login'),
 		'service' => array(/*'service_news', 'service_page'*/),
+		'main'    => array('common', 'main'),
 
 	);
 

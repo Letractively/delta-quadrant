@@ -4,13 +4,12 @@
 	<title id="title">Amun</title>
 
 	<!-- css -->
-	<link rel="stylesheet" type="text/css" href="<?php echo $base; ?>/js/ext/resources/css/ext-all-notheme.css" />
-	<link rel="stylesheet" type="text/css" href="<?php echo $base; ?>/js/ext/resources/css/xtheme-gray.css" />
+	<link rel="stylesheet" type="text/css" href="<?php echo $base; ?>/js/ext/resources/css/ext-all.css" />
 	<link rel="stylesheet" type="text/css" href="<?php echo $base; ?>/css/common.css" />
 
 	<!-- ext -->
-	<script type="text/javascript" src="<?php echo $base; ?>/js/ext/adapter/ext/ext-base.js"></script>
-	<script type="text/javascript" src="<?php echo $base; ?>/js/ext/ext-all.js"></script>
+	<script type="text/javascript" src="<?php echo $base; ?>/js/ext/bootstrap.js"></script>
+	<script type="text/javascript" src="<?php echo $base; ?>/js/ext/compatibility/ext3-compat.js"></script>
 
 	<script type="text/javascript">
 	<!--

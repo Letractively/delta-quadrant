@@ -21,7 +21,7 @@
  * along with amun. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.ns('amun.main');
+Ext.ns('metang.main');
 
 /**
  * amun.main
@@ -33,7 +33,7 @@ Ext.ns('amun.main');
  * @version    $Revision: 207 $
  */
 
-amun.main.header = Ext.extend(Ext.Panel, {
+metang.main.header = Ext.extend(Ext.Panel, {
 
 	initComponent: function(){
 
@@ -56,7 +56,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'page',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('content_page');
+						metang.main.instance.handler_content_loader('content_page');
 
 					}
 
@@ -66,7 +66,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'gadget',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('content_gadget');
+						metang.main.instance.handler_content_loader('content_gadget');
 
 					}
 
@@ -76,7 +76,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'service',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('content_service');
+						metang.main.instance.handler_content_loader('content_service');
 
 					}
 
@@ -86,7 +86,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'media',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('content_media');
+						metang.main.instance.handler_content_loader('content_media');
 
 					}
 
@@ -102,7 +102,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'api',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_api');
+						metang.main.instance.handler_content_loader('system_api');
 
 					}
 
@@ -112,7 +112,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'approval',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_approval');
+						metang.main.instance.handler_content_loader('system_approval');
 
 					}
 
@@ -122,7 +122,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'country',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_country');
+						metang.main.instance.handler_content_loader('system_country');
 
 					}
 
@@ -132,7 +132,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'event',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_event');
+						metang.main.instance.handler_content_loader('system_event');
 
 					}
 
@@ -142,7 +142,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'log',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_log');
+						metang.main.instance.handler_content_loader('system_log');
 
 					}
 
@@ -152,7 +152,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'vars',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('system_vars');
+						metang.main.instance.handler_content_loader('system_vars');
 
 					}
 
@@ -168,7 +168,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'account',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_account');
+						metang.main.instance.handler_content_loader('user_account');
 
 					}
 
@@ -178,7 +178,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'activity',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_activity');
+						metang.main.instance.handler_content_loader('user_activity');
 
 					}
 
@@ -188,7 +188,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'friend',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_friend');
+						metang.main.instance.handler_content_loader('user_friend');
 
 					}
 
@@ -198,7 +198,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'group',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_group');
+						metang.main.instance.handler_content_loader('user_group');
 
 					}
 
@@ -208,7 +208,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'level',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_level');
+						metang.main.instance.handler_content_loader('user_level');
 
 					}
 
@@ -218,7 +218,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'right',
 					handler: function(){
 
-						amun.main.instance.handler_content_loader('user_right');
+						metang.main.instance.handler_content_loader('user_right');
 
 					}
 
@@ -289,7 +289,7 @@ amun.main.header = Ext.extend(Ext.Panel, {
 				iconCls: 'logout',
 				handler: function(){
 
-					var uri = amun.main.services.find('http://ns.amun.org/2010/amun/my');
+					var uri = metang.main.services.find('http://ns.amun.org/2010/amun/my');
 					var con = new Ext.data.Connection();
 
 					if(uri !== false)
@@ -316,14 +316,14 @@ amun.main.header = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.main.header.superclass.initComponent.apply(this, arguments);
+		metang.main.header.superclass.initComponent.apply(this, arguments);
 
 	}
 
 });
 
 
-amun.main.nav = Ext.extend(Ext.Panel, {
+metang.main.nav = Ext.extend(Ext.Panel, {
 
 	o_website: null,
 	o_service: null,
@@ -331,6 +331,7 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 	initComponent: function() {
 
 		// website tree panel
+		/*
 		this.o_website = new Ext.tree.TreePanel({
 
 			title: 'Website',
@@ -347,13 +348,14 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 		});
 
 		this.load_nav_website();
-
+		*/
 
 		// service table
+		/*
 		this.o_service = new Ext.grid.GridPanel({
 
 			title: 'Services',
-			store: amun.content.service.store,
+			store: metang.content.service.store,
 			margins: '0 0 0 0',
 			border: false,
 			trackMouseOver: false,
@@ -374,8 +376,8 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 
 		});
 
-		amun.content.service.store.load();
-
+		metang.content.service.store.load();
+		*/
 
 		var config = {
 
@@ -391,13 +393,13 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.main.nav.superclass.initComponent.apply(this, arguments);
+		metang.main.nav.superclass.initComponent.apply(this, arguments);
 
 	},
 
 	onRender: function(){
 
-		amun.main.nav.superclass.onRender.apply(this, arguments);
+		metang.main.nav.superclass.onRender.apply(this, arguments);
 
 	},
 
@@ -414,7 +416,7 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 			scope: this,
 			success: function(response){
 
-				var resp  = Ext.util.JSON.decode(response.responseText);
+				var resp  = Ext.JSON.decode(response.responseText);
 				var entry = Ext.util.Format.defaultValue(resp.entry, []);
 
 				this.parse_rec_tree(this.o_website.getRootNode(), entry, 0);
@@ -450,7 +452,7 @@ amun.main.nav = Ext.extend(Ext.Panel, {
 });
 
 
-amun.main.content = Ext.extend(Ext.Panel, {
+metang.main.content = Ext.extend(Ext.Panel, {
 
 	services: [],
 	pos: 0,
@@ -469,7 +471,7 @@ amun.main.content = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.main.content.superclass.initComponent.apply(this, arguments);
+		metang.main.content.superclass.initComponent.apply(this, arguments);
 
 	},
 
@@ -504,7 +506,7 @@ amun.main.content = Ext.extend(Ext.Panel, {
 });
 
 
-amun.main.layout = Ext.extend(Ext.Viewport, {
+metang.main.layout = Ext.extend(Ext.Viewport, {
 
 	o_header: null,
 	o_nav: null,
@@ -512,9 +514,9 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 
 	initComponent: function() {
 
-		this.o_header  = new amun.main.header();
-		this.o_nav     = new amun.main.nav();
-		this.o_content = new amun.main.content();
+		this.o_header  = new metang.main.header();
+		this.o_nav     = new metang.main.nav();
+		this.o_content = new metang.main.content();
 
 		var config = {
 
@@ -531,7 +533,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.main.layout.superclass.initComponent.apply(this, arguments);
+		metang.main.layout.superclass.initComponent.apply(this, arguments);
 
 
 		// dashboard panel
@@ -548,7 +550,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 
 	onRender: function(){
 
-		amun.main.layout.superclass.onRender.apply(this, arguments);
+		metang.main.layout.superclass.onRender.apply(this, arguments);
 
 	},
 
@@ -560,7 +562,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 			this.handler_content_loader('content_page');
 
 			// load data
-			amun.content.page.store_gadget.load({
+			metang.content.page.store_gadget.load({
 
 				params: {
 
@@ -571,7 +573,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 				}
 
 			});
-			amun.content.page.store_right.load({
+			metang.content.page.store_right.load({
 
 				params: {
 
@@ -586,7 +588,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 			// show edit page
 			var obj = this.o_content.layout.activeItem;
 
-			obj.panel_update.load_data(get_proxy_url(amun.content.page.url + '&filterBy=id&filterOp=equals&filterValue=' + n.id));
+			obj.panel_update.load_data(get_proxy_url(metang.content.page.url + '&filterBy=id&filterOp=equals&filterValue=' + n.id));
 
 			obj.panel_update.set_active_tab(0);
 
@@ -639,7 +641,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 				},
 				success: function(response){
 
-					var response = Ext.util.JSON.decode(response.responseText);
+					var response = Ext.JSON.decode(response.responseText);
 
 					if(response.success)
 					{
@@ -690,7 +692,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 			this.o_content.disable();
 
 			var c   = key.replace(/_/g, '.');
-			var cls = 'amun.' + c + '.panel';
+			var cls = 'metang.' + c + '.panel';
 
 			try
 			{
@@ -740,7 +742,7 @@ amun.main.layout = Ext.extend(Ext.Viewport, {
 });
 
 
-amun.main.services = {
+metang.main.services = {
 
 	services: [],
 
@@ -767,30 +769,102 @@ amun.main.services = {
 };
 
 
-Ext.onReady(function(){
+Ext.define('Service', {
 
-	Ext.QuickTips.init();
+	extend: 'Ext.data.Model',
+	fields: ['Type', 'URI']
 
-	Ext.form.Field.prototype.msgTarget = 'qtip';
+});
 
+
+metang.main.parseUser = function(user){
+
+	metang.main.user = user;
+
+	if(metang.main.user.loggedIn == true && metang.main.user.status == 'Administrator')
+	{
+		// get available services and load depending js
+		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/content/service');
+
+		if(uri !== false)
+		{
+			Ext.Ajax.request({
+
+				url: metang.common.getProxyUrl(uri),
+				method: 'GET',
+				scope: this,
+				disableCaching: true,
+				success: function(response){
+
+					var resp  = Ext.JSON.decode(response.responseText);
+					var entry = Ext.util.Format.defaultValue(resp.entry, []);
+
+					if(entry.length > 0)
+					{
+						var url = metang_url + 'loader?js=';
+
+						for(var i = 0; i < entry.length; i++)
+						{
+							url+= 'service_' + entry[i].name + '|';
+						}
+
+						Ext.core.DomHelper.append(Ext.core.DomQuery.selectNode('head'), {
+
+							tag: 'script',
+							src: url
+
+						});
+					}
+
+
+					// load ui
+					metang.main.instance = new metang.main.layout();
+
+					metang.main.instance.handler_content_loader('content_page');
+
+					metang.main.instance.o_header.getTopToolbar().get(5).setText('Logged in as <a href="' + metang.main.user.profileUrl + '">' + metang.main.user.name + '</a> (' + metang.main.user.group + ') ' + metang.main.user.timezone, false);
+
+				},
+				failure: function(response){
+
+					Ext.Msg.alert('Error', 'Couldnt request services.');
+
+				}
+
+			});
+		}
+		else
+		{
+			Ext.Msg.alert('Error', 'Couldnt request services.');
+		}
+	}
+	else
+	{
+		Ext.Msg.alert('Error', 'Couldnt request services.');
+	}
+
+}
+
+
+metang.main.fetchAmunServices = function(){
 
 	// get available services
-	var services = new Ext.data.Store({
+	var proxy = new Ext.data.proxy.Ajax({
 
-		url: get_proxy_url(amun_url + 'api/meta/xrds'),
-		reader: new Ext.data.XmlReader({
-
-			record: 'Service',
-			id: 'Type',
-			fields: ['Type', 'URI']
-
-		})
+		url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
+		reader: {
+			type: 'xml',
+			model: 'Service',
+			record: 'Service'
+		}
 
 	});
 
-	services.on('exception', function(){
+	var services = Ext.create('Ext.data.Store', {
 
-		window.location.href = metang_url + 'login';
+		model: 'Service',
+		proxy: proxy,
+		autoLoad: false
 
 	});
 
@@ -799,81 +873,27 @@ Ext.onReady(function(){
 		// add discovered services
 		services.each(function(rec){
 
-			amun.main.services.add(rec.get('Type'), rec.get('URI'));
+			metang.main.services.add(rec.get('Type'), rec.get('URI'));
 
 		});
 
 		// find my service
-		var uri = amun.main.services.find('http://ns.amun.org/2010/amun/my');
+		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/service/my');
 
 		if(uri !== false)
 		{
 			// check whether user is logged in
-			var con = new Ext.data.Connection();
+			Ext.Ajax.request({
 
-			con.request({
-
-				url: get_proxy_url(uri + '/verifyCredentials?format=json'),
+				url: metang.common.getProxyUrl(uri + '/verifyCredentials?format=json'),
 				method: 'GET',
 				scope: this,
+				disableCaching: true,
 				success: function(response){
 
-					// get user infos
-					amun.main.user = Ext.util.JSON.decode(response.responseText);
+					var user = Ext.JSON.decode(response.responseText);
 
-					if(amun.main.user.loggedIn == true && amun.main.user.status == 'Administrator')
-					{
-						// get available services and load depending js
-						var con = new Ext.data.Connection();
-
-						con.request({
-
-							url: get_proxy_url(amun_url + 'api/content/service?format=json&filterBy=status&filterOp=equal&filterValue=0'),
-							method: 'GET',
-							scope: this,
-							success: function(response){
-
-								var resp  = Ext.util.JSON.decode(response.responseText);
-								var entry = Ext.util.Format.defaultValue(resp.entry, []);
-
-								if(entry.length > 0)
-								{
-									var url = metang_url + 'loader?js=';
-
-									for(var i = 0; i < entry.length; i++)
-									{
-										url+= 'service_' + entry[i].name + '|';
-									}
-
-									Ext.DomHelper.append(Ext.DomQuery.selectNode('head'), {
-
-										tag: 'script',
-										src: url
-
-									});
-								}
-
-
-								// load amun ui
-								amun.main.instance = new amun.main.layout();
-
-								amun.main.instance.handler_content_loader('content_page');
-
-								amun.main.instance.o_header.getTopToolbar().get(5).setText('Logged in as <a href="' + amun.main.user.profileUrl + '">' + amun.main.user.name + '</a> (' + amun.main.user.group + ') ' + amun.main.user.timezone, false);
-
-							},
-							failure: function(response){
-
-								Ext.Msg.alert('Error', 'Couldnt request services.');
-
-							}
-
-						});
-					}
-					else
-					{
-						Ext.Msg.alert('Error', 'Couldnt request services.');
-					}
+					metang.main.parseUser(user);
 
 				},
 				failure: function(response){
@@ -892,6 +912,51 @@ Ext.onReady(function(){
 	}, this);
 
 	services.load();
+
+}
+
+metang.main.checkAuth = function(){
+
+	Ext.Ajax.request({
+
+		url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
+		method: 'GET',
+		scope: this,
+		disableCaching: true,
+		success: function(response){
+
+			var contentType = response.getResponseHeader('Content-Type')
+
+			if(contentType == 'application/xrds+xml')
+			{
+				metang.main.fetchAmunServices();
+			}
+			else
+			{
+				window.location.href = metang_url + 'login';
+			}
+
+		},
+		failure: function(response){
+
+			window.location.href = metang_url + 'login';
+
+		}
+
+	});
+
+}
+
+Ext.onReady(function(){
+
+	/*
+	Ext.QuickTips.init();
+
+	Ext.form.Field.prototype.msgTarget = 'qtip';
+	*/
+
+	//
+	metang.main.checkAuth();
 
 });
 

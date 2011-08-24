@@ -56,29 +56,29 @@ class proxy extends PSX_ModuleAbstract
 				$query = http_build_query($url->getQuery());
 				$query = !empty($query) ? '?' . $query : '';
 
+				$token       = $this->session->token;
+				$tokenSecret = $this->session->tokenSecret;
+
 				$headers = array(
 
-					$_SERVER['REQUEST_METHOD'] . ' ' . $url->getPath() . '' . $query . ' HTTP/1.1',
-					'Host: ' . $url->getHost(),
-					'Accept: */*',
-					'User-Agent: metang ' . $this->config['metang_version'],
-					'Authorization: ' . $oauth->getAuthorizationHeader($url, $this->config['metang_consumer_key'], $this->config['metang_consumer_secret'], $this->session->token, $this->session->tokenSecret, 'HMAC-SHA1', $_SERVER['REQUEST_METHOD']),
+					'User-Agent' => 'metang ' . $this->config['metang_version'],
+					'Authorization' => $oauth->getAuthorizationHeader($url, $this->config['metang_consumer_key'], $this->config['metang_consumer_secret'], $token, $tokenSecret, 'HMAC-SHA1', $_SERVER['REQUEST_METHOD']),
 
 				);
 
 				if(isset($requestHeaders['content-type']))
 				{
-					$headers[] = 'Content-type: ' . $requestHeaders['content-type'];
+					$headers['Content-type'] = $requestHeaders['content-type'];
 				}
 
 				if($body !== false)
 				{
-					$headers[] = 'Content-length: ' . strlen($body);
+					$headers['Content-Length'] = strlen($body);
 				}
 
 				if(isset($requestHeaders['x-http-method-override']))
 				{
-					$headers[] = 'X-Http-Method-Override: ' . $requestHeaders['x-http-method-override'];
+					$headers['X-Http-Method-Override'] = $requestHeaders['x-http-method-override'];
 				}
 
 
@@ -113,14 +113,13 @@ class proxy extends PSX_ModuleAbstract
 						break;
 				}
 
+
 				$response  = $http->request($request);
 				$lastError = $http->getLastError();
 
-				/*
-				$h = fopen('log.txt', 'a+');
-				fwrite($h, $http->get_request() . "\n" . $http->get_response() . "\n\n");
+				$h = fopen(PSX_PATH_CACHE . '/log.txt', 'a+');
+				fwrite($h, $http->getRequest() . "\n" . $http->getResponse() . "\n\n");
 				fclose($h);
-				*/
 
 				if(empty($lastError))
 				{

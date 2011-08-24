@@ -21,7 +21,7 @@
  * along with amun. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.ns('amun.login');
+Ext.ns('metang.login');
 
 /**
  * login
@@ -33,7 +33,7 @@ Ext.ns('amun.login');
  * @version    $Revision: 117 $
  */
 
-amun.login.form = Ext.extend(Ext.FormPanel, {
+metang.login.form = Ext.extend(Ext.FormPanel, {
 
 	initComponent: function(){
 
@@ -41,7 +41,7 @@ amun.login.form = Ext.extend(Ext.FormPanel, {
 
 			frame: false,
 			border: false,
-			bodyStyle: 'padding:5px 5px 0',
+			bodyStyle: 'padding:5px 5px',
 			trackResetOnLoad: true,
 			defaults: {
 
@@ -71,27 +71,29 @@ amun.login.form = Ext.extend(Ext.FormPanel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.login.form.superclass.initComponent.apply(this, arguments);
+		metang.login.form.superclass.initComponent.apply(this, arguments);
 
 	}
 
 });
 
 
-amun.login.window = Ext.extend(Ext.Window, {
+metang.login.window = Ext.extend(Ext.Window, {
 
 	o_login: null,
 
 	initComponent: function(){
 
-		this.o_login = new amun.login.form();
+		this.o_login = new metang.login.form();
 
 		var config = {
 
-			title: 'Amun',
+			title: 'Metang',
 			layout: 'fit',
+			/*
 			width: 225,
 			height: 80,
+			*/
 			closable: false,
 			resizable: false,
 			draggable: false,
@@ -120,7 +122,7 @@ amun.login.window = Ext.extend(Ext.Window, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		amun.login.window.superclass.initComponent.apply(this, arguments);
+		metang.login.window.superclass.initComponent.apply(this, arguments);
 
 	}
 
@@ -133,7 +135,7 @@ Ext.onReady(function(){
 
 	Ext.form.Field.prototype.msgTarget = 'qtip';
 
-	var w = new amun.login.window();
+	var w = new metang.login.window();
 
 	w.show();
 
