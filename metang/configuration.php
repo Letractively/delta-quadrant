@@ -28,12 +28,12 @@ $config = array(
 	'metang_version'          => '0.0.1 beta',
 	'metang_url'              => 'http://127.0.0.1/projects/amun/public/index.php/',
 
-	'metang_consumer_key'     => 'b8858501073e5fb54e75b973ed044ec19f21a60d',
-	'metang_consumer_secret'  => '07d8b5173afba2575e57ca5966624a39419b5b70',
+	'metang_consumer_key'     => 'd036c3f056b883ed7b0c0963098497de9277bf6f',
+	'metang_consumer_secret'  => '7aa9ede57d44a1b3026c5ce2f5bf31c0e80089f4',
 
-	'metang_request'          => 'http://127.0.0.1/projects/amun/public/index.php/api/auth/request',
-	'metang_authorization'    => 'http://127.0.0.1/projects/amun/public/index.php/api/auth/authorization',
-	'metang_access'           => 'http://127.0.0.1/projects/amun/public/index.php/api/auth/access',
+	'metang_request'          => 'api/auth/request',
+	'metang_authorization'    => 'api/auth/authorization',
+	'metang_access'           => 'api/auth/access',
 
 	'psx_version'             => '0.3.3',
 	'psx_url'                 => 'http://127.0.0.1/projects/metang/public',

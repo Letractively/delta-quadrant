@@ -30,7 +30,7 @@ class callback extends PSX_ModuleAbstract
 				throw new PSX_Exception('Verifier not set');
 			}
 
-			$url = new PSX_Url($this->config['metang_access']);
+			$url = new PSX_Url($this->config['metang_url'] . $this->config['metang_access']);
 
 			$response = $oauth->accessToken($url, $this->config['metang_consumer_key'], $this->config['metang_consumer_secret'], $token, $tokenSecret, $verifier);
 

@@ -21,7 +21,7 @@ class login extends PSX_ModuleAbstract
 			$http  = new PSX_Http(new PSX_Http_Handler_Curl());
 			$oauth = new PSX_Oauth($http);
 
-			$url      = new PSX_Url($this->config['metang_request']);
+			$url      = new PSX_Url($this->config['metang_url'] . $this->config['metang_request']);
 			$callback = $this->config['psx_url'] . '/' . $this->config['psx_dispatch'] . 'callback';
 			$response = $oauth->requestToken($url, $this->config['metang_consumer_key'], $this->config['metang_consumer_secret'], 'HMAC-SHA1', $callback);
 
@@ -38,7 +38,7 @@ class login extends PSX_ModuleAbstract
 
 
 				// send redirect url
-				$url = new PSX_Url($this->config['metang_authorization']);
+				$url = new PSX_Url($this->config['metang_url'] . $this->config['metang_authorization']);
 				$url->addParam('oauth_token', $token);
 
 				$resp = array(
