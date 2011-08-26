@@ -56,7 +56,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'page',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('content_page');
+						metang.main.instance.handlerContentLoader('content_page');
 
 					}
 
@@ -66,7 +66,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'gadget',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('content_gadget');
+						metang.main.instance.handlerContentLoader('content_gadget');
 
 					}
 
@@ -76,7 +76,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'service',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('content_service');
+						metang.main.instance.handlerContentLoader('content_service');
 
 					}
 
@@ -86,7 +86,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'media',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('content_media');
+						metang.main.instance.handlerContentLoader('content_media');
 
 					}
 
@@ -102,7 +102,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'api',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_api');
+						metang.main.instance.handlerContentLoader('system_api');
 
 					}
 
@@ -112,7 +112,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'approval',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_approval');
+						metang.main.instance.handlerContentLoader('system_approval');
 
 					}
 
@@ -122,7 +122,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'country',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_country');
+						metang.main.instance.handlerContentLoader('system_country');
 
 					}
 
@@ -132,7 +132,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'event',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_event');
+						metang.main.instance.handlerContentLoader('system_event');
 
 					}
 
@@ -142,7 +142,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'log',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_log');
+						metang.main.instance.handlerContentLoader('system_log');
 
 					}
 
@@ -152,7 +152,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'vars',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('system_vars');
+						metang.main.instance.handlerContentLoader('system_vars');
 
 					}
 
@@ -168,7 +168,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'account',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_account');
+						metang.main.instance.handlerContentLoader('user_account');
 
 					}
 
@@ -178,7 +178,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'activity',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_activity');
+						metang.main.instance.handlerContentLoader('user_activity');
 
 					}
 
@@ -188,7 +188,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'friend',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_friend');
+						metang.main.instance.handlerContentLoader('user_friend');
 
 					}
 
@@ -198,7 +198,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'group',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_group');
+						metang.main.instance.handlerContentLoader('user_group');
 
 					}
 
@@ -208,7 +208,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'level',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_level');
+						metang.main.instance.handlerContentLoader('user_level');
 
 					}
 
@@ -218,7 +218,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					iconCls: 'right',
 					handler: function(){
 
-						metang.main.instance.handler_content_loader('user_right');
+						metang.main.instance.handlerContentLoader('user_right');
 
 					}
 
@@ -237,7 +237,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 						Ext.Msg.show({
 
 							title: 'About',
-							msg: 'Amun Backend version 0.0.1',
+							msg: 'metang version 0.0.1',
 							buttons: Ext.Msg.OK,
 							icon: Ext.MessageBox.INFO
 
@@ -296,7 +296,7 @@ metang.main.header = Ext.extend(Ext.Panel, {
 					{
 						con.request({
 
-							url: get_proxy_url(uri + '/endSession?format=json'),
+							url: metang.common.getProxyUrl(uri + '/endSession?format=json'),
 							method: 'GET',
 							scope: this,
 							success: function(response){
@@ -325,16 +325,26 @@ metang.main.header = Ext.extend(Ext.Panel, {
 
 metang.main.nav = Ext.extend(Ext.Panel, {
 
-	o_website: null,
-	o_service: null,
+	objWebsite: null,
+	store: null,
 
 	initComponent: function() {
 
 		// website tree panel
-		/*
-		this.o_website = new Ext.tree.TreePanel({
+		this.store = Ext.create('Ext.data.TreeStore', {
+
+			root: {
+				expanded: true,
+				children: {}
+			}
+
+		});
+
+
+		this.objWebsite = new Ext.tree.TreePanel({
 
 			title: 'Website',
+			store: this.store,
 			collapsible: false,
 			rootVisible: false,
 			singleExpand: false,
@@ -342,42 +352,13 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 			containerScroll: true,
 			useArrows: false,
 			enableDD: true,
-			border: false,
-			root: new Ext.tree.TreeNode()
+			border: false
 
 		});
 
-		this.load_nav_website();
-		*/
 
-		// service table
-		/*
-		this.o_service = new Ext.grid.GridPanel({
+		this.loadTree();
 
-			title: 'Services',
-			store: metang.content.service.store,
-			margins: '0 0 0 0',
-			border: false,
-			trackMouseOver: false,
-			hideHeaders: true,
-			autoExpandColumn: 'name',
-			autoScroll: false,
-			viewConfig: {
-
-				forceFit: true,
-				scrollOffset: 0
-
-			},
-			columns: [
-
-				{id: 'name', dataIndex: 'name', menuDisabled: true, sortable: true}
-
-			]
-
-		});
-
-		metang.content.service.store.load();
-		*/
 
 		var config = {
 
@@ -387,7 +368,7 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 			width: 200,
 			border: true,
 			layout: 'accordion',
-			items: [this.o_website, this.o_service]
+			items: [this.objWebsite]
 
 		};
 
@@ -403,48 +384,54 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 
 	},
 
-	load_nav_website: function(){
-
-		this.o_website.getRootNode().removeAll();
-
-		var con = new Ext.data.Connection();
-
-		con.request({
-
-			url: get_proxy_url(amun_url + 'api/content/page/buildTree?format=json'),
-			method: 'GET',
-			scope: this,
-			success: function(response){
-
-				var resp  = Ext.JSON.decode(response.responseText);
-				var entry = Ext.util.Format.defaultValue(resp.entry, []);
-
-				this.parse_rec_tree(this.o_website.getRootNode(), entry, 0);
-
-				this.o_website.expandPath(this.o_website.getNodeById(1).getPath());
-
-			}
-
-		});
-
-	},
-
-	parse_rec_tree: function(node, entries, deep){
+	buildTree: function(node, entries){
 
 		for(var i = 0; i < entries.length; i++)
 		{
-			var child = node.appendChild(new Ext.tree.TreeNode({
+			var child = node.appendChild({
 
 				id: entries[i].id,
 				text: entries[i].text,
-				iconCls: deep == 0 ? 'website' : 'page'
+				iconCls: 'page'
 
-			}));
+			});
 
 			if(typeof(entries[i].children) != 'undefined')
 			{
-				this.parse_rec_tree(child, entries[i].children, deep + 1);
+				this.buildTree(node, entries[i].children);
 			}
+		}
+
+	},
+
+	loadTree: function(){
+
+		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/content/page');
+
+		if(uri !== false)
+		{
+			this.objWebsite.getRootNode().removeAll();
+
+			Ext.Ajax.request({
+
+				url: metang.common.getProxyUrl(uri + '/buildTree?format=json'),
+				method: 'GET',
+				scope: this,
+				disableCaching: true,
+				success: function(response){
+
+					var resp = Ext.JSON.decode(response.responseText);
+
+					this.buildTree(this.store.getRootNode(), resp.entry);
+
+				},
+				failure: function(response){
+
+					Ext.Msg.alert('Error', 'Couldnt load tree.');
+
+				}
+
+			});
 		}
 
 	}
@@ -475,7 +462,7 @@ metang.main.content = Ext.extend(Ext.Panel, {
 
 	},
 
-	add_container: function(id, obj){
+	addContainer: function(id, obj){
 
 		this.services.push({
 
@@ -489,7 +476,7 @@ metang.main.content = Ext.extend(Ext.Panel, {
 		return this.pos++;
 	},
 
-	get_container: function(id){
+	getContainer: function(id){
 
 		for(var i = 0; i < this.services.length; i++)
 		{
@@ -506,63 +493,48 @@ metang.main.content = Ext.extend(Ext.Panel, {
 });
 
 
-metang.main.layout = Ext.extend(Ext.Viewport, {
+Ext.define('metang.main.layout', {
+	extend: 'Ext.Viewport',
 
-	o_header: null,
-	o_nav: null,
-	o_content: null,
+	objHeader: null,
+	objNav: null,
+	objContent: null,
 
 	initComponent: function() {
 
-		this.o_header  = new metang.main.header();
-		this.o_nav     = new metang.main.nav();
-		this.o_content = new metang.main.content();
+		this.objHeader  = new metang.main.header();
+		this.objNav     = new metang.main.nav();
+		this.objContent = new metang.main.content();
 
 		var config = {
 
 			layout: 'border',
-			items: [this.o_header, this.o_nav, this.o_content]
+			items: [this.objHeader, this.objNav, this.objContent]
 
 		};
 
 
-		this.handler_website();
+		/*
+		this.handlerWebsite();
 
-		this.handler_service();
-
+		this.handlerService();
+		*/
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
 		metang.main.layout.superclass.initComponent.apply(this, arguments);
 
-
-		// dashboard panel
-		/*
-		this.o_content.add_container('dashboard', new amun.dashboard.panel({
-
-			margins: '0 0 0 0',
-			border: false,
-
-		}));
-		*/
-
 	},
 
-	onRender: function(){
+	handlerWebsite: function(){
 
-		metang.main.layout.superclass.onRender.apply(this, arguments);
-
-	},
-
-	handler_website: function(){
-
-		this.o_nav.get(0).on('click', function(n){
+		this.objNav.get(0).on('click', function(n){
 
 			// load page panel
-			this.handler_content_loader('content_page');
+			this.handlerContentLoader('content_page');
 
 			// load data
-			metang.content.page.store_gadget.load({
+			metang.content.page.storeGadget.load({
 
 				params: {
 
@@ -573,7 +545,7 @@ metang.main.layout = Ext.extend(Ext.Viewport, {
 				}
 
 			});
-			metang.content.page.store_right.load({
+			metang.content.page.storeRight.load({
 
 				params: {
 
@@ -586,7 +558,7 @@ metang.main.layout = Ext.extend(Ext.Viewport, {
 			});
 
 			// show edit page
-			var obj = this.o_content.layout.activeItem;
+			var obj = this.objContent.layout.activeItem;
 
 			obj.panel_update.load_data(get_proxy_url(metang.content.page.url + '&filterBy=id&filterOp=equals&filterValue=' + n.id));
 
@@ -669,7 +641,7 @@ metang.main.layout = Ext.extend(Ext.Viewport, {
 
 	},
 
-	handler_service: function(){
+	handlerService: function(){
 
 		this.o_nav.get(1).on('rowclick', function(grid, row, e){
 
@@ -683,13 +655,13 @@ metang.main.layout = Ext.extend(Ext.Viewport, {
 
 	},
 
-	handler_content_loader: function(key){
+	handlerContentLoader: function(key){
 
-		pos = this.o_content.get_container(key);
+		pos = this.objContent.getContainer(key);
 
 		if(pos === false)
 		{
-			this.o_content.disable();
+			this.objContent.disable();
 
 			var c   = key.replace(/_/g, '.');
 			var cls = 'metang.' + c + '.panel';
@@ -704,37 +676,37 @@ metang.main.layout = Ext.extend(Ext.Viewport, {
 
 				obj.on('added', function(obj, ownerCt, index){
 
-					this.o_content.layout.setActiveItem(index);
+					this.objContent.layout.setActiveItem(index);
 
-					this.o_content.enable();
+					this.objContent.enable();
 
 				}, this);
 
 				obj.on('help', function(id){
 
-					this.o_about.show_help(id);
+					this.objAbout.showHelp(id);
 
 				}, this);
 
 				obj.on('reloadtree', function(){
 
-					this.o_nav.load_nav_website();
+					this.objNav.loadNavWebsite();
 
 				}, this);
 
 
-				this.o_content.add_container(key, obj);
+				this.objContent.addContainer(key, obj);
 			}
 			catch(e)
 			{
 				Ext.Msg.alert('Notice', e);
 
-				this.o_content.enable();
+				this.objContent.enable();
 			}
 		}
 		else
 		{
-			this.o_content.layout.setActiveItem(pos);
+			this.objContent.layout.setActiveItem(pos);
 		}
 
 	}
@@ -818,11 +790,11 @@ metang.main.parseUser = function(user){
 
 
 					// load ui
-					metang.main.instance = new metang.main.layout();
+					metang.main.instance = Ext.create('metang.main.layout');
 
-					metang.main.instance.handler_content_loader('content_page');
+					metang.main.instance.handlerContentLoader('content_page');
 
-					metang.main.instance.o_header.getTopToolbar().get(5).setText('Logged in as <a href="' + metang.main.user.profileUrl + '">' + metang.main.user.name + '</a> (' + metang.main.user.group + ') ' + metang.main.user.timezone, false);
+					//metang.main.instance.objHeader.getTopToolbar().get(5).setText('Logged in as <a href="' + metang.main.user.profileUrl + '">' + metang.main.user.name + '</a> (' + metang.main.user.group + ') ' + metang.main.user.timezone, false);
 
 				},
 				failure: function(response){
@@ -849,21 +821,19 @@ metang.main.parseUser = function(user){
 metang.main.fetchAmunServices = function(){
 
 	// get available services
-	var proxy = new Ext.data.proxy.Ajax({
-
-		url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
-		reader: {
-			type: 'xml',
-			model: 'Service',
-			record: 'Service'
-		}
-
-	});
-
 	var services = Ext.create('Ext.data.Store', {
 
 		model: 'Service',
-		proxy: proxy,
+		proxy: new Ext.data.proxy.Ajax({
+
+			url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
+			reader: {
+				type: 'xml',
+				model: 'Service',
+				record: 'Service'
+			}
+
+		}),
 		autoLoad: false
 
 	});
@@ -947,17 +917,18 @@ metang.main.checkAuth = function(){
 
 }
 
-Ext.onReady(function(){
+/*
+Ext.application({
 
-	/*
-	Ext.QuickTips.init();
-
-	Ext.form.Field.prototype.msgTarget = 'qtip';
-	*/
-
-	//
-	metang.main.checkAuth();
+	name: 'metang',
+	launch: metang.main.checkAuth()
 
 });
+*/
 
+Ext.onReady(function(){
+
+	metang.main.checkAuth()
+
+});
 
