@@ -25,7 +25,7 @@
 
 $config = array(
 
-	'metang_version'          => '0.0.1 beta',
+	'metang_version'          => '0.0.2 beta',
 	'metang_url'              => 'http://127.0.0.1/projects/amun/public/index.php/',
 
 	'metang_consumer_key'     => 'd036c3f056b883ed7b0c0963098497de9277bf6f',

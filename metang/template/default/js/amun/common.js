@@ -33,17 +33,6 @@ Ext.ns('metang.common');
  * @version    $Revision: 193 $
  */
 
-metang.common.getProxyUrl = function(url, params)
-{
-	var param = '';
-
-	for(k in params)
-	{
-		param+= '&' + k + '=' + encodeURIComponent(params[k]);
-	}
-
-	return metang_url + 'proxy?url=' + encodeURIComponent(url) + param;
-}
 
 /*
 metang.common.form = Ext.extend(Ext.form.FormPanel, {
