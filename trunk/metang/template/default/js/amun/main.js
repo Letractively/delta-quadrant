@@ -21,8 +21,6 @@
  * along with amun. If not, see <http://www.gnu.org/licenses/>.
  */
 
-Ext.ns('metang.main');
-
 /**
  * amun.main
  *
@@ -33,7 +31,8 @@ Ext.ns('metang.main');
  * @version    $Revision: 207 $
  */
 
-metang.main.header = Ext.extend(Ext.Panel, {
+Ext.define('Metang.main.Header', {
+	extend: 'Ext.Panel',
 
 	initComponent: function(){
 
@@ -289,14 +288,14 @@ metang.main.header = Ext.extend(Ext.Panel, {
 				iconCls: 'logout',
 				handler: function(){
 
-					var uri = metang.main.services.find('http://ns.amun.org/2010/amun/my');
+					var uri = Metang.main.Services.find('http://ns.amun.org/2010/amun/my');
 					var con = new Ext.data.Connection();
 
 					if(uri !== false)
 					{
 						con.request({
 
-							url: metang.common.getProxyUrl(uri + '/endSession?format=json'),
+							url: Metang.common.getProxyUrl(uri + '/endSession?format=json'),
 							method: 'GET',
 							scope: this,
 							success: function(response){
@@ -316,14 +315,15 @@ metang.main.header = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		metang.main.header.superclass.initComponent.apply(this, arguments);
+		Metang.main.Header.superclass.initComponent.apply(this, arguments);
 
 	}
 
 });
 
 
-metang.main.nav = Ext.extend(Ext.Panel, {
+Ext.define('Metang.main.Nav', {
+	extend: 'Ext.Panel',
 
 	objWebsite: null,
 	store: null,
@@ -341,7 +341,7 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 		});
 
 
-		this.objWebsite = new Ext.tree.TreePanel({
+		this.objWebsite = Ext.create('Ext.tree.TreePanel', {
 
 			title: 'Website',
 			store: this.store,
@@ -374,13 +374,7 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		metang.main.nav.superclass.initComponent.apply(this, arguments);
-
-	},
-
-	onRender: function(){
-
-		metang.main.nav.superclass.onRender.apply(this, arguments);
+		Metang.main.Nav.superclass.initComponent.apply(this, arguments);
 
 	},
 
@@ -406,7 +400,7 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 
 	loadTree: function(){
 
-		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/content/page');
+		var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/page');
 
 		if(uri !== false)
 		{
@@ -414,7 +408,7 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 
 			Ext.Ajax.request({
 
-				url: metang.common.getProxyUrl(uri + '/buildTree?format=json'),
+				url: Metang.main.Util.getProxyUrl(uri + '/buildTree?format=json'),
 				method: 'GET',
 				scope: this,
 				disableCaching: true,
@@ -439,7 +433,8 @@ metang.main.nav = Ext.extend(Ext.Panel, {
 });
 
 
-metang.main.content = Ext.extend(Ext.Panel, {
+Ext.define('Metang.main.Content', {
+	extend: 'Ext.Panel',
 
 	services: [],
 	pos: 0,
@@ -458,7 +453,7 @@ metang.main.content = Ext.extend(Ext.Panel, {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		metang.main.content.superclass.initComponent.apply(this, arguments);
+		Metang.main.Content.superclass.initComponent.apply(this, arguments);
 
 	},
 
@@ -493,7 +488,7 @@ metang.main.content = Ext.extend(Ext.Panel, {
 });
 
 
-Ext.define('metang.main.layout', {
+Ext.define('Metang.main.Layout', {
 	extend: 'Ext.Viewport',
 
 	objHeader: null,
@@ -502,9 +497,9 @@ Ext.define('metang.main.layout', {
 
 	initComponent: function() {
 
-		this.objHeader  = new metang.main.header();
-		this.objNav     = new metang.main.nav();
-		this.objContent = new metang.main.content();
+		this.objHeader  = Ext.create('Metang.main.Header');
+		this.objNav     = Ext.create('Metang.main.Nav');
+		this.objContent = Ext.create('Metang.main.Content');
 
 		var config = {
 
@@ -522,7 +517,7 @@ Ext.define('metang.main.layout', {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		metang.main.layout.superclass.initComponent.apply(this, arguments);
+		Metang.main.Layout.superclass.initComponent.apply(this, arguments);
 
 	},
 
@@ -530,11 +525,12 @@ Ext.define('metang.main.layout', {
 
 		this.objNav.get(0).on('click', function(n){
 
+				/*
 			// load page panel
 			this.handlerContentLoader('content_page');
 
 			// load data
-			metang.content.page.storeGadget.load({
+			Metang.content.Page.storeGadget.load({
 
 				params: {
 
@@ -545,7 +541,7 @@ Ext.define('metang.main.layout', {
 				}
 
 			});
-			metang.content.page.storeRight.load({
+			Metang.content.Page.storeRight.load({
 
 				params: {
 
@@ -565,9 +561,11 @@ Ext.define('metang.main.layout', {
 			obj.panel_update.set_active_tab(0);
 
 			obj.layout.setActiveItem(2);
+			*/
 
 		}, this);
 
+		/*
 		this.o_nav.get(0).on('startdrag', function(tree, node, event){
 
 			this.o_nav.get(0).oldPosition    = node.parentNode.indexOf(node);
@@ -588,10 +586,8 @@ Ext.define('metang.main.layout', {
 
 				return false;
 
-				/*
 				var url    = amun_url + 'api/content/page/reparentPage?format=json';
 				var params = {'pageId': node.id, 'parentId': newParent.id, 'position': position};
-				*/
 
 			}
 
@@ -638,6 +634,7 @@ Ext.define('metang.main.layout', {
 			});
 
 		}, this);
+		*/
 
 	},
 
@@ -649,7 +646,7 @@ Ext.define('metang.main.layout', {
 			var record = data.getAt(row);
 			var name   = record.get('name');
 
-			this.handler_content_loader('service_' + name);
+			this.handlerContentLoader('service_' + name);
 
 		}, this);
 
@@ -657,18 +654,20 @@ Ext.define('metang.main.layout', {
 
 	handlerContentLoader: function(key){
 
+		return null;
+
 		pos = this.objContent.getContainer(key);
 
 		if(pos === false)
 		{
 			this.objContent.disable();
 
-			var c   = key.replace(/_/g, '.');
-			var cls = 'metang.' + c + '.panel';
+			var ns  = key.replace(/_/g, '.');
+			var cls = 'Metang.' + ns + '.Panel';
 
 			try
 			{
-				obj = eval('new ' + cls);
+				obj = Ext.create(cls);
 
 
 				obj.addEvents('help', 'reloadtree');
@@ -699,7 +698,7 @@ Ext.define('metang.main.layout', {
 			}
 			catch(e)
 			{
-				Ext.Msg.alert('Notice', e);
+				Ext.Msg.alert('Exception', e);
 
 				this.objContent.enable();
 			}
@@ -714,208 +713,258 @@ Ext.define('metang.main.layout', {
 });
 
 
-metang.main.services = {
+Ext.define('Metang.main.Services', {
 
-	services: [],
+	statics: {
 
-	add: function(type, uri){
+		services: [],
 
-		this.services.push({type: type, uri: uri});
+		add: function(type, uri){
 
-	},
+			this.services.push({type: type, uri: uri});
 
-	find: function(type){
+		},
 
-		for(var i = 0; i < this.services.length; i++)
-		{
-			if(this.services[i].type == type)
+		find: function(type){
+
+			for(var i = 0; i < this.services.length; i++)
 			{
-				return this.services[i].uri;
+				if(this.services[i].type == type)
+				{
+					return this.services[i].uri;
+				}
 			}
-		}
 
-		return false;
+			return false;
+
+		}
 
 	}
 
-};
+});
 
 
-Ext.define('Service', {
-
+Ext.define('Metang.main.ServiceItem', {
 	extend: 'Ext.data.Model',
+
 	fields: ['Type', 'URI']
 
 });
 
 
-metang.main.parseUser = function(user){
+Ext.define('Metang.main.Util', {
 
-	metang.main.user = user;
+	constructor: function(config) {
+		this.initConfig(config);
 
-	if(metang.main.user.loggedIn == true && metang.main.user.status == 'Administrator')
-	{
-		// get available services and load depending js
-		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/content/service');
+		return this;
+	},
 
-		if(uri !== false)
+	statics: {
+
+		user: null,
+		xrds: null,
+
+		getProxyUrl: function(url, params)
 		{
-			Ext.Ajax.request({
+			var param = '';
 
-				url: metang.common.getProxyUrl(uri),
-				method: 'GET',
-				scope: this,
-				disableCaching: true,
-				success: function(response){
-
-					var resp  = Ext.JSON.decode(response.responseText);
-					var entry = Ext.util.Format.defaultValue(resp.entry, []);
-
-					if(entry.length > 0)
-					{
-						var url = metang_url + 'loader?js=';
-
-						for(var i = 0; i < entry.length; i++)
-						{
-							url+= 'service_' + entry[i].name + '|';
-						}
-
-						Ext.core.DomHelper.append(Ext.core.DomQuery.selectNode('head'), {
-
-							tag: 'script',
-							src: url
-
-						});
-					}
-
-
-					// load ui
-					metang.main.instance = Ext.create('metang.main.layout');
-
-					metang.main.instance.handlerContentLoader('content_page');
-
-					//metang.main.instance.objHeader.getTopToolbar().get(5).setText('Logged in as <a href="' + metang.main.user.profileUrl + '">' + metang.main.user.name + '</a> (' + metang.main.user.group + ') ' + metang.main.user.timezone, false);
-
-				},
-				failure: function(response){
-
-					Ext.Msg.alert('Error', 'Couldnt request services.');
-
-				}
-
-			});
-		}
-		else
-		{
-			Ext.Msg.alert('Error', 'Couldnt request services.');
-		}
-	}
-	else
-	{
-		Ext.Msg.alert('Error', 'Couldnt request services.');
-	}
-
-}
-
-
-metang.main.fetchAmunServices = function(){
-
-	// get available services
-	var services = Ext.create('Ext.data.Store', {
-
-		model: 'Service',
-		proxy: new Ext.data.proxy.Ajax({
-
-			url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
-			reader: {
-				type: 'xml',
-				model: 'Service',
-				record: 'Service'
+			for(k in params)
+			{
+				param+= '&' + k + '=' + encodeURIComponent(params[k]);
 			}
 
-		}),
-		autoLoad: false
+			return metang_url + 'proxy?url=' + encodeURIComponent(url) + param;
+		},
 
-	});
+		checkAuth: function(){
 
-	services.on('load', function(){
-
-		// add discovered services
-		services.each(function(rec){
-
-			metang.main.services.add(rec.get('Type'), rec.get('URI'));
-
-		});
-
-		// find my service
-		var uri = metang.main.services.find('http://ns.amun-project.org/2011/amun/service/my');
-
-		if(uri !== false)
-		{
-			// check whether user is logged in
 			Ext.Ajax.request({
 
-				url: metang.common.getProxyUrl(uri + '/verifyCredentials?format=json'),
+				url: Metang.main.Util.getProxyUrl(amun_url + 'api/meta/xrds'),
 				method: 'GET',
 				scope: this,
 				disableCaching: true,
 				success: function(response){
 
-					var user = Ext.JSON.decode(response.responseText);
+					var contentType = response.getResponseHeader('Content-Type')
 
-					metang.main.parseUser(user);
+					if(contentType == 'application/xrds+xml')
+					{
+						var startIndex = response.responseText.indexOf('<XRD>');
+						var length = response.responseText.indexOf('</XRD>');
+
+						if(startIndex > 0 && length > 0)
+						{
+							Metang.main.Util.xrds = response.responseText.substring(startIndex, length + 6);
+
+							Metang.main.Util.fetchAmunServices();
+						}
+						else
+						{
+							Ext.Msg.alert('Error', 'Invalid XRDS file');
+						}
+					}
+					else
+					{
+						window.location.href = metang_url + 'login';
+					}
 
 				},
 				failure: function(response){
 
-					Ext.Msg.alert('Error', 'Couldnt connect to API.');
+					Ext.Msg.alert('Error', response.responseText);
 
 				}
 
 			});
-		}
-		else
-		{
-			Ext.Msg.alert('Error', 'Remote API has not the "my" service installed');
-		}
 
-	}, this);
+		},
 
-	services.load();
+		fetchAmunServices: function(){
 
-}
+			// get available services
+			var services = Ext.create('Ext.data.Store', {
 
-metang.main.checkAuth = function(){
+				autoLoad: false,
+				model: 'Metang.main.ServiceItem',
+				proxy: {
 
-	Ext.Ajax.request({
+					type: 'ajax',
+					url: Metang.main.Util.getProxyUrl(amun_url + 'api/meta/xrds'),
+					reader: {
 
-		url: metang.common.getProxyUrl(amun_url + 'api/meta/xrds'),
-		method: 'GET',
-		scope: this,
-		disableCaching: true,
-		success: function(response){
+						type: 'xml',
+						root: 'XRD',
+						record: 'Service'
 
-			var contentType = response.getResponseHeader('Content-Type')
+					}
 
-			if(contentType == 'application/xrds+xml')
+				}
+
+			});
+
+			services.on('load', function(){
+
+				// add discovered services
+				services.each(function(rec){
+
+					Metang.main.Services.add(rec.get('Type'), rec.get('URI'));
+
+				});
+
+				// find my service
+				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/service/my');
+
+				if(uri !== false)
+				{
+					// check whether user is logged in
+					Ext.Ajax.request({
+
+						url: Metang.main.Util.getProxyUrl(uri + '/verifyCredentials?format=json'),
+						method: 'GET',
+						scope: this,
+						disableCaching: true,
+						success: function(response){
+
+							Metang.main.Util.user = Ext.JSON.decode(response.responseText);
+
+							Metang.main.Util.doLogin();
+
+						},
+						failure: function(response){
+
+							Ext.Msg.alert('Error', 'Couldnt connect to API.');
+
+						}
+
+					});
+				}
+				else
+				{
+					Ext.Msg.alert('Error', 'Remote API has not the "my" service installed');
+				}
+
+			});
+
+			services.load();
+
+		},
+
+		doLogin: function(){
+
+			if(Metang.main.Util.user.loggedIn == true && Metang.main.Util.user.status == 'Administrator')
 			{
-				metang.main.fetchAmunServices();
+				// get available services and load depending js
+				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/service');
+
+				if(uri !== false)
+				{
+					Ext.Ajax.request({
+
+						url: Metang.main.Util.getProxyUrl(uri),
+						method: 'GET',
+						scope: this,
+						disableCaching: true,
+						success: function(response){
+
+							var resp  = Ext.JSON.decode(response.responseText);
+							var entry = Ext.util.Format.defaultValue(resp.entry, []);
+
+							if(entry.length > 0)
+							{
+								var url = metang_url + 'loader?js=';
+
+								for(var i = 0; i < entry.length; i++)
+								{
+									url+= 'service_' + entry[i].name + '|';
+								}
+
+								Ext.core.DomHelper.append(Ext.core.DomQuery.selectNode('head'), {
+
+									tag: 'script',
+									src: url
+
+								});
+							}
+
+
+							// load ui
+							Metang.main.Instance = Ext.create('Metang.main.Layout');
+
+							Metang.main.Instance.handlerContentLoader('content_page');
+
+							//metang.main.instance.objHeader.getTopToolbar().get(5).setText('Logged in as <a href="' + metang.main.user.profileUrl + '">' + metang.main.user.name + '</a> (' + metang.main.user.group + ') ' + metang.main.user.timezone, false);
+
+						},
+						failure: function(response){
+
+							Ext.Msg.alert('Error', 'Couldnt request services.');
+
+						}
+
+					});
+				}
+				else
+				{
+					Ext.Msg.alert('Error', 'Couldnt request services.');
+				}
 			}
 			else
 			{
-				window.location.href = metang_url + 'login';
+				Ext.Msg.alert('Error', 'Couldnt request services.');
 			}
-
-		},
-		failure: function(response){
-
-			window.location.href = metang_url + 'login';
 
 		}
 
-	});
+	}
 
-}
+});
+
+
+
+
+
 
 /*
 Ext.application({
@@ -928,7 +977,7 @@ Ext.application({
 
 Ext.onReady(function(){
 
-	metang.main.checkAuth()
+	Metang.main.Util.checkAuth();
 
 });
 
