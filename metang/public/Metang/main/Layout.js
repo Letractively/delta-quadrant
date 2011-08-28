@@ -34,6 +34,14 @@ Ext.define('Metang.main.Layout', {
 
 		Metang.main.Layout.superclass.initComponent.apply(this, arguments);
 
+
+		// header select handler
+		this.objHeader.on('item_selected', function(url){
+
+			this.handlerContentLoader(url);
+
+		}, this);
+
 	},
 
 	handlerWebsite: function(){
@@ -153,75 +161,47 @@ Ext.define('Metang.main.Layout', {
 
 	},
 
-	handlerService: function(){
+	handlerContentLoader: function(url){
 
-		this.o_nav.get(1).on('rowclick', function(grid, row, e){
-
-			var data   = grid.getStore();
-			var record = data.getAt(row);
-			var name   = record.get('name');
-
-			this.handlerContentLoader('service_' + name);
-
-		}, this);
-
-	},
-
-	handlerContentLoader: function(key){
-
-		return null;
-
-		pos = this.objContent.getContainer(key);
+		alert(url);
+		return;
+		var pos = this.objContent.getContainer(url);
 
 		if(pos === false)
 		{
-			this.objContent.disable();
+				// load fields
 
-			var ns  = key.replace(/_/g, '.');
-			var cls = 'Metang.' + ns + '.Panel';
+				// build store
+				Ext.create('Ext.data.Store', {
+
+					fields:['name', 'email', 'phone'],
+
+				});
+
+				// build grid
+
+
+				// build panel
+				var panel = Ext.create('Ext.panel.Panel', {
+
+					layout: 'fix',
+					html: 'some content: ' + url
+
+				});
+
+				pos = this.objContent.addContainer(url, panel);
 
 			try
 			{
-				obj = Ext.create(cls);
 
-
-				obj.addEvents('help', 'reloadtree');
-
-
-				obj.on('added', function(obj, ownerCt, index){
-
-					this.objContent.layout.setActiveItem(index);
-
-					this.objContent.enable();
-
-				}, this);
-
-				obj.on('help', function(id){
-
-					this.objAbout.showHelp(id);
-
-				}, this);
-
-				obj.on('reloadtree', function(){
-
-					this.objNav.loadNavWebsite();
-
-				}, this);
-
-
-				this.objContent.addContainer(key, obj);
 			}
 			catch(e)
 			{
 				Ext.Msg.alert('Exception', e);
-
-				this.objContent.enable();
 			}
 		}
-		else
-		{
-			this.objContent.layout.setActiveItem(pos);
-		}
+
+		this.objContent.getLayout().setActiveItem(pos);
 
 	}
 

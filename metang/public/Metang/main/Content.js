@@ -1,6 +1,6 @@
 
 Ext.define('Metang.main.Content', {
-	extend: 'Ext.Panel',
+	extend: 'Ext.panel.Panel',
 
 	services: [],
 	pos: 0,
@@ -32,7 +32,7 @@ Ext.define('Metang.main.Content', {
 
 		});
 
-		this.add(obj);
+		this.getLayout().setActiveItem(obj);
 
 		return this.pos++;
 	},

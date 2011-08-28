@@ -9,7 +9,10 @@ class callback extends PSX_ModuleAbstract
 		$this->session = new PSX_Session('metang', $this->validate);
 
 		$this->get = new PSX_Get($this->validate);
+	}
 
+	public function onGet()
+	{
 		try
 		{
 			$http  = new PSX_Http(new PSX_Http_Handler_Curl());

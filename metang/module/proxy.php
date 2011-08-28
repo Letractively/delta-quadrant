@@ -117,9 +117,11 @@ class proxy extends PSX_ModuleAbstract
 				$response  = $http->request($request);
 				$lastError = $http->getLastError();
 
+				/*
 				$h = fopen(PSX_PATH_CACHE . '/log.txt', 'a+');
 				fwrite($h, $http->getRequest() . "\n" . $http->getResponse() . "\n\n");
 				fclose($h);
+				*/
 
 				if(empty($lastError))
 				{

@@ -10,8 +10,11 @@ class login extends PSX_ModuleAbstract
 		$this->validate = new PSX_Validate();
 
 		$this->session = new PSX_Session('metang', $this->validate);
+	}
 
-		$this->template->set('login.tpl');
+	public function onGet()
+	{
+		throw new Exception('Invalid request method');
 	}
 
 	public function onPost()

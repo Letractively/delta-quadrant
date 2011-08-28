@@ -1,7 +1,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title id="title">Amun</title>
+	<title id="title">metang</title>
 
 	<!-- css -->
 	<link rel="stylesheet" type="text/css" href="<?php echo $base; ?>/extjs/resources/css/ext-all.css" />
@@ -17,11 +17,6 @@
 	<!-- ext -->
 	<script type="text/javascript" src="<?php echo $base; ?>/extjs/ext-all-debug.js"></script>
 	<script type="text/javascript" src="<?php echo $base; ?>/metang.js"></script>
-
-	<!--
-	<script type="text/javascript" src="<?php echo $url; ?>loader?js=default"></script>
-	<script type="text/javascript" src="<?php echo $url; ?>loader?js=service"></script>
-	-->
 </head>
 <body>
 </body>

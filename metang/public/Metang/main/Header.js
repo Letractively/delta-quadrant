@@ -1,37 +1,48 @@
 
 Ext.define('Metang.main.Header', {
-	extend: 'Ext.Panel',
+	extend: 'Ext.panel.Panel',
+
+	tbar: null,
 
 	initComponent: function(){
 
-		var tbar = [];
+		var items = [];
 
-		tbar.push(this.buildMenu('http://ns.amun-project.org/2011/amun/content'));
-		tbar.push(this.buildMenu('http://ns.amun-project.org/2011/amun/system'));
-		tbar.push(this.buildMenu('http://ns.amun-project.org/2011/amun/user'));
-		tbar.push(this.buildMenu('http://ns.amun-project.org/2011/amun/service'));
-		tbar.push(this.buildHelpMenu());
-		tbar.push('->');
-		tbar.push(this.buildStatus());
-		tbar.push('-');
-		tbar.push(this.buildLogout());
+		items.push(this.buildMenu('http://ns.amun-project.org/2011/amun/content'));
+		items.push(this.buildMenu('http://ns.amun-project.org/2011/amun/system'));
+		items.push(this.buildMenu('http://ns.amun-project.org/2011/amun/user'));
+		items.push(this.buildMenu('http://ns.amun-project.org/2011/amun/service'));
+		items.push(this.buildHelpMenu());
+		items.push('->');
+		items.push(this.buildStatus());
+		items.push('-');
+		items.push(this.buildLogout());
+
+		this.tbar = Ext.create('Ext.toolbar.Toolbar', {
+
+			items: items
+
+		});
 
 
 		var config = {
 
 			title: 'metang (' + metang_version + ')',
-			html: '',
+			id: 'header',
 			region: 'north',
 			height: 63,
 			margins: '5 0 5 0',
 			border: false,
-			tbar: tbar
+			tbar: this.tbar
 
 		};
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
 		Metang.main.Header.superclass.initComponent.apply(this, arguments);
+
+
+		this.addEvents('item_selected');
 
 	},
 
@@ -70,10 +81,11 @@ Ext.define('Metang.main.Header', {
 						menu.menu.push({
 
 							text: title,
+							id: item.uri,
 							iconCls: title,
 							handler: function(){
 
-								Metang.main.Instance.handlerContentLoader(item.uri);
+								Ext.getCmp('header').fireEvent('item_selected', this.getId());
 
 							}
 
