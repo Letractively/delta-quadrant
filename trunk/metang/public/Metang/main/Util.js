@@ -1,4 +1,5 @@
 
+Ext.require('Ext.data.Store');
 Ext.require('Metang.main.Services');
 Ext.require('Metang.main.ServiceItem');
 
@@ -57,7 +58,8 @@ Ext.define('Metang.main.Util', {
 					}
 					else
 					{
-						window.location.href = metang_url + 'login';
+						// load login ui
+						Ext.create('Metang.main.Login');
 					}
 
 				},
@@ -180,9 +182,18 @@ Ext.define('Metang.main.Util', {
 
 
 							// load ui
-							Metang.main.Instance = Ext.create('Metang.main.Layout');
+							var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/page');
 
-							Metang.main.Instance.handlerContentLoader('content_page');
+							if(uri !== false)
+							{
+								Metang.main.Instance = Ext.create('Metang.main.Layout');
+
+								Metang.main.Instance.handlerContentLoader(uri);
+							}
+							else
+							{
+								Ext.Msg.alert('Error', 'Could not find content page service');
+							}
 
 						},
 						failure: function(response){
