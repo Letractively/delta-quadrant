@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -43,13 +43,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.k42b3.zubat.Configuration;
+import com.k42b3.zubat.ServiceItem;
+import com.k42b3.zubat.Zubat;
+
 /**
  * ColumnPanel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 139 $
  */
 public class ColumnPanel extends JFrame
 {

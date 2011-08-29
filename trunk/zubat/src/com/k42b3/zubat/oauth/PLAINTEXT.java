@@ -23,7 +23,6 @@
 
 package com.k42b3.zubat.oauth;
 
-import com.k42b3.zubat.Oauth;
 
 /**
  * PLAINTEXT

@@ -39,6 +39,7 @@ import javax.swing.JPanel;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.k42b3.zubat.oauth.Oauth;
 import com.k42b3.zubat.oauth.OauthProvider;
 
 /**

@@ -24,6 +24,7 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
 
+import com.k42b3.zubat.oauth.Oauth;
 import com.k42b3.zubat.oauth.OauthProvider;
 
 /**
@@ -49,15 +51,11 @@ public class Zubat extends JFrame
 	private Oauth oauth;
 	private Http http;
 	private Logger logger;
-
 	private Services availableServices;
 	
-	private ServiceItem selectedService;
-	private ArrayList<String> selectedFields;
-
 	private MenuPanel menuPanel;
 	private TreePanel treePanel;
-	private BodyPanel bodyPanel;
+	private ContainerPanel containerPanel;
 	private TrafficPanel trafficPanel;
 
 	private TrafficTableModel trafficTm;
@@ -114,9 +112,9 @@ public class Zubat extends JFrame
 			this.add(treePanel, BorderLayout.WEST);
 
 
-			bodyPanel = new BodyPanel(this);
+			containerPanel = new ContainerPanel();
 
-			this.add(bodyPanel, BorderLayout.CENTER);
+			this.add(containerPanel, BorderLayout.CENTER);
 
 
 			trafficPanel = new TrafficPanel(trafficTm);
@@ -144,19 +142,14 @@ public class Zubat extends JFrame
 		return config;
 	}
 
+	public Http getHttp()
+	{
+		return http;
+	}
+
 	public Services getAvailableServices()
 	{
 		return availableServices;
-	}
-
-	public ServiceItem getSelectedService()
-	{
-		return selectedService;
-	}
-
-	public ArrayList<String> getSelectedFields()
-	{
-		return selectedFields;
 	}
 
 	private void doAuthentication() throws Exception
@@ -193,6 +186,21 @@ public class Zubat extends JFrame
 
 		if(item != null)
 		{
+			loadContainer(item);
+
+			setVisible(true);
+		}
+		else
+		{
+			throw new Exception("Could not find page service");
+		}
+	}
+
+	public void loadContainer(ServiceItem item)
+	{
+		try
+		{
+			// load default fields
 			ArrayList<String> types = item.getTypes();
 			ArrayList<String> fields = new ArrayList<String>();
 
@@ -209,49 +217,31 @@ public class Zubat extends JFrame
 				}
 			}
 
-			loadService(availableServices.getItem("http://ns.amun-project.org/2011/amun/content/page"), fields);
+			
+			// load container
+			Container instance;
+			String className = getClassNameFromType(item.getTypeStartsWith("http://ns.amun-project.org/2011/amun"));
 
-			setVisible(true);
-		}
-		else
-		{
-			throw new Exception("Could not find page service");
-		}
-	}
+			try
+			{
+				Class container = Class.forName(className);
 
-	public void loadService(ServiceItem service, ArrayList<String> fields)
-	{
-		try
-		{
-			selectedService = service;
-			selectedFields = fields;
+				instance = (Container) container.newInstance();
+			}
+			catch(ClassNotFoundException e)
+			{
+				instance = new com.k42b3.zubat.basic.Container();
+			}
 
+			logger.info("Load class " + className);
 
-			ViewPanel view = new ViewPanel(http, service, fields);
+			instance.onLoad(http, item, fields);
 
+			containerPanel.add(instance.getComponent(), className);
 
-			bodyPanel.setComponentAt(0, view);
+			CardLayout cl = (CardLayout) containerPanel.getLayout();
 
-			bodyPanel.setSelectedIndex(0);
-
-			bodyPanel.validate();
-		}
-		catch(Exception e)
-		{
-			Zubat.handleException(e);
-		}
-	}
-
-	public void loadForm(int tabIndex, String url)
-	{
-		try
-		{
-			FormPanel form = new FormPanel(url, http);
-
-
-			bodyPanel.setComponentAt(tabIndex, form);
-
-			bodyPanel.validate();
+			cl.show(containerPanel, className);
 		}
 		catch(Exception e)
 		{
@@ -266,5 +256,33 @@ public class Zubat extends JFrame
 		Logger.getLogger("com.k42b3.zubat").warning(e.getMessage());
 	}
 
+	public static String getClassNameFromType(String type) throws Exception
+	{
+		String baseNs = "http://ns.amun-project.org/2011/amun/";
 
+		if(!type.startsWith(baseNs))
+		{
+			throw new Exception("Type must be in amun namespace");
+		}
+
+		type = type.substring(baseNs.length());
+
+
+		String[] parts = type.split("/");
+		String className = "";
+
+		for(int i = 0; i < parts.length; i++)
+		{
+			className+= parts[i] + ".";
+		}
+
+		if(className.isEmpty())
+		{
+			throw new Exception("Invalid type");
+		}
+
+		className = "com.k42b3.zubat.amun." + className + "Container";
+
+		return className;
+	}
 }

@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic.form;
 
 import java.awt.BorderLayout;
 
@@ -29,7 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import com.k42b3.zubat.form.FormElementInterface;
+import com.k42b3.zubat.Http;
 
 /**
  * CheckboxList
@@ -37,7 +37,7 @@ import com.k42b3.zubat.form.FormElementInterface;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 129 $
  */
 public class CheckboxList extends JPanel implements FormElementInterface
 {

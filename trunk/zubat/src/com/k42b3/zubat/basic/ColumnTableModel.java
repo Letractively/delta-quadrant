@@ -21,12 +21,13 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.table.AbstractTableModel;
+
 
 /**
  * ColumnTableModel
@@ -34,7 +35,7 @@ import javax.swing.table.AbstractTableModel;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 130 $
  */
 public class ColumnTableModel extends AbstractTableModel
 {

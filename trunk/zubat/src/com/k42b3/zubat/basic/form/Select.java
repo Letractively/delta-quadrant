@@ -21,22 +21,38 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat.form;
+package com.k42b3.zubat.basic.form;
 
-import javax.swing.JTextField;
+import javax.swing.ComboBoxModel;
+import javax.swing.JComboBox;
+
 
 /**
- * Input
+ * Select
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 102 $
  */
-public class Input extends JTextField implements FormElementInterface
+public class Select extends JComboBox implements FormElementInterface
 {
+	public Select(ComboBoxModel model)
+	{
+		super(model);
+	}
+
 	public String getValue() 
 	{
-		return this.getText();
+		Object item = this.getSelectedItem();
+		
+		if(item instanceof SelectItem)
+		{
+			return ((SelectItem) item).getKey();
+		}
+		else
+		{
+			return null;
+		}
 	}
 }
