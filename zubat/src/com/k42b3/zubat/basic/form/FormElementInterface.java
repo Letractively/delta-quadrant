@@ -21,22 +21,17 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat.form;
-
-import javax.swing.JTextArea;
+package com.k42b3.zubat.basic.form;
 
 /**
- * Textarea
+ * FormElementInterface
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 102 $
  */
-public class Textarea extends JTextArea implements FormElementInterface
+public interface FormElementInterface 
 {
-	public String getValue() 
-	{
-		return this.getText();
-	}
+	public String getValue();
 }

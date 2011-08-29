@@ -21,8 +21,9 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.table.AbstractTableModel;
@@ -32,75 +33,127 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.k42b3.zubat.Http;
+
 /**
- * CheckboxListTableModel
+ * ViewTablelModel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 139 $
  */
-public class CheckboxListTableModel extends AbstractTableModel
+public class ViewTableModel extends AbstractTableModel
 {
+	protected String baseUrl;
 	protected String url;
 	protected Http http;
 	protected Logger logger;
 
+	protected ArrayList<String> supportedFields = new ArrayList<String>();
+	protected ArrayList<String> fields = new ArrayList<String>();
 	protected Object[][] rows;
 
 	protected int totalResults;
 	protected int startIndex;
 	protected int itemsPerPage;
 
-	public CheckboxListTableModel(String url, Http http) throws Exception 
+	public ViewTableModel(String url, Http http) throws Exception
 	{
+		this.baseUrl = url;
 		this.url = url;
 		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
-		
+
+		this.requestSupportedFields(url);
+	}
+
+	public void loadData(ArrayList<String> fields) throws Exception
+	{
+		this.fields = fields;
+
 		this.request(url);
+	}
+
+	public void loadData() throws Exception
+	{
+		this.fields = null;
+
+		this.request(url);
+	}
+
+	public void nextPage() throws Exception
+	{
+		int index = startIndex + itemsPerPage;
+
+		String url = Http.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+
+		this.request(url);
+	}
+
+	public void prevPage() throws Exception
+	{
+		int index = startIndex - itemsPerPage;
+		index = index < 0 ? 0 : index;
+
+		String url = Http.appendQuery(this.url, "count=" + itemsPerPage + "&startIndex=" + index);
+
+		this.request(url);
+	}
+
+	public String getBaseUrl()
+	{
+		return baseUrl;
+	}
+
+	public String getUrl()
+	{
+		return url;
+	}
+
+	public void setUrl(String url)
+	{
+		this.url = url;
+	}
+
+	public ArrayList<String> getSupportedFields()
+	{
+		return this.supportedFields;
+	}
+
+	public ArrayList<String> getFields()
+	{
+		return fields;
+	}
+
+	public int getTotalResults()
+	{
+		return totalResults;
+	}
+
+	public int getStartIndex()
+	{
+		return startIndex;
+	}
+
+	public int getItemsPerPage()
+	{
+		return itemsPerPage;
 	}
 
 	public int getColumnCount()
 	{
-		return 2;
+		return fields.size();
 	}
 
 	public String getColumnName(int columnIndex)
 	{
-		switch(columnIndex)
-		{
-			case 0:
-
-				return "Checked";
-
-			case 1:
-
-				return "Title";
-
-			default:
-
-				return null;
-		}
+		return fields.get(columnIndex);
 	}
 
 	public int getRowCount() 
 	{
 		return rows.length;
-	}
-
-	public Class getColumnClass(int columnIndex)
-	{
-		switch(columnIndex)
-		{
-			case 0:
-
-				return Boolean.class;
-
-			default:
-
-				return String.class;
-		}
 	}
 
 	public Object getValueAt(int rowIndex, int columnIndex)
@@ -115,9 +168,29 @@ public class CheckboxListTableModel extends AbstractTableModel
 
 		return null;
 	}
-
+	
 	private void request(String url) throws Exception
 	{
+		// request
+		if(fields != null)
+		{
+			StringBuilder queryFields = new StringBuilder();
+
+			for(int i = 0; i < fields.size(); i++)
+			{
+				if(this.supportedFields.contains(fields.get(i)))
+				{
+					queryFields.append(fields.get(i) + ",");
+				}
+			}
+
+			if(queryFields.length() > 0)
+			{
+				url = Http.appendQuery(url, "fields=" + queryFields.substring(0, queryFields.length() - 1));
+			}
+		}
+
+
 		Document doc = http.requestXml(Http.GET, url);
 
 
@@ -144,7 +217,7 @@ public class CheckboxListTableModel extends AbstractTableModel
 
 
 		// build row
-		rows = new Object[entry.getLength()][3];
+		rows = new Object[entry.getLength()][fields.size()];
 
 
 		// parse entries
@@ -155,15 +228,18 @@ public class CheckboxListTableModel extends AbstractTableModel
 			Node serviceNode = entryList.item(i);
 			Element serviceElement = (Element) serviceNode;
 
-			Element idElement = (Element) serviceElement.getElementsByTagName("id").item(0);
-			Element titleElement = (Element) serviceElement.getElementsByTagName("title").item(0);
-			Element checkedElement = (Element) serviceElement.getElementsByTagName("checked").item(0);
-
-			if(idElement != null && titleElement != null && checkedElement != null)
+			for(int j = 0; j < fields.size(); j++)
 			{
-				rows[i][0] = Boolean.parseBoolean(checkedElement.getTextContent());
-				rows[i][1] = titleElement.getTextContent();
-				rows[i][2] = Integer.parseInt(idElement.getTextContent());
+				Element valueElement = (Element) serviceElement.getElementsByTagName(fields.get(j)).item(0);
+
+				if(valueElement != null)
+				{
+					rows[i][j] = valueElement.getTextContent();
+				}
+				else
+				{
+					rows[i][j] = null;
+				}
 			}
 		}
 
@@ -175,20 +251,26 @@ public class CheckboxListTableModel extends AbstractTableModel
 
 		this.fireTableDataChanged();
 	}
-	
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex)
+
+	private void requestSupportedFields(String url) throws Exception
 	{
-		if(rowIndex >= 0 && rowIndex < rows.length)
+		// request
+		Document doc = http.requestXml(Http.GET, url + "/@supportedFields");
+
+
+		NodeList itemList = doc.getElementsByTagName("item");
+		
+		for(int i = 0; i < itemList.getLength(); i++) 
 		{
-			if(columnIndex >= 0 && columnIndex < rows[rowIndex].length)
+			Node itemNode = itemList.item(i);
+			Element itemElement = (Element) itemNode;
+			
+			if(itemElement != null)
 			{
-				rows[rowIndex][columnIndex] = aValue;
+				this.supportedFields.add(itemElement.getTextContent());
 			}
 		}
-	}
-
-	public boolean isCellEditable(int rowIndex, int columnIndex)
-	{
-		return columnIndex == 0;
+		
+		logger.info("Found " + this.supportedFields.size() + " supported fields");
 	}
 }

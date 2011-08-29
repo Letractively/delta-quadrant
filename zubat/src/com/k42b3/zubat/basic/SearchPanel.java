@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -44,13 +44,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import com.k42b3.zubat.Http;
+import com.k42b3.zubat.ReferenceItem;
+import com.k42b3.zubat.Zubat;
+
 /**
  * SearchPanel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 128 $
  */
 public class SearchPanel extends JFrame
 {

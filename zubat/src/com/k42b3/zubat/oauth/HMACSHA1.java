@@ -31,7 +31,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 
-import com.k42b3.zubat.Oauth;
 
 /**
  * HMACSHA1

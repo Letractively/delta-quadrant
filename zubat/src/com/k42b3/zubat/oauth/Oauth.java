@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.oauth;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -35,9 +35,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
-import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
@@ -57,8 +57,10 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 
-import com.k42b3.zubat.oauth.OauthProvider;
-import com.k42b3.zubat.oauth.SignatureInterface;
+import com.k42b3.zubat.Http;
+import com.k42b3.zubat.TrafficItem;
+import com.k42b3.zubat.TrafficListenerInterface;
+import com.k42b3.zubat.Zubat;
 
 /**
  * Oauth
@@ -66,7 +68,7 @@ import com.k42b3.zubat.oauth.SignatureInterface;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 116 $
  */
 public class Oauth 
 {

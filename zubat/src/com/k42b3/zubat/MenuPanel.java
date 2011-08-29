@@ -27,7 +27,6 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
-import java.util.ArrayList;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -194,32 +193,15 @@ public class MenuPanel extends JMenuBar
 	class MenuItemListener implements ActionListener
 	{
 		private ServiceItem item;
-		private ArrayList<String> fields;
 
 		public MenuItemListener(ServiceItem item)
 		{
 			this.item = item;
-			this.fields = null;
-
-			ArrayList<String> types = item.getTypes();
-
-			for(int i = 0; i < types.size(); i++)
-			{
-				if(zubat.getConfig().getServices().containsKey(types.get(i)))
-				{
-					ArrayList<String> selectedFields = zubat.getConfig().getServices().get(types.get(i));
-					
-					if(selectedFields.size() > 0)
-					{
-						this.fields = selectedFields;
-					}
-				}
-			}
 		}
 
 		public void actionPerformed(ActionEvent e)
 		{
-			zubat.loadService(item, fields);
+			zubat.loadContainer(item);
 		}
 	}
 }

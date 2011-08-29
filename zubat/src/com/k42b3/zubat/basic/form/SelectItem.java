@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat.form;
+package com.k42b3.zubat.basic.form;
 
 /**
  * SelectItem
@@ -29,7 +29,7 @@ package com.k42b3.zubat.form;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 102 $
  */
 public class SelectItem 
 {

@@ -23,7 +23,8 @@
 
 package com.k42b3.zubat;
 
-import com.k42b3.zubat.form.Input;
+import com.k42b3.zubat.basic.SearchPanel;
+import com.k42b3.zubat.basic.form.Input;
 
 /**
  * ReferenceItem

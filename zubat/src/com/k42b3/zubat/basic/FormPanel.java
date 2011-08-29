@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -57,11 +57,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.k42b3.zubat.form.FormElementInterface;
-import com.k42b3.zubat.form.Input;
-import com.k42b3.zubat.form.Select;
-import com.k42b3.zubat.form.SelectItem;
-import com.k42b3.zubat.form.Textarea;
+import com.k42b3.zubat.Http;
+import com.k42b3.zubat.Message;
+import com.k42b3.zubat.ReferenceItem;
+import com.k42b3.zubat.Zubat;
+import com.k42b3.zubat.basic.form.CheckboxList;
+import com.k42b3.zubat.basic.form.FormElementInterface;
+import com.k42b3.zubat.basic.form.Input;
+import com.k42b3.zubat.basic.form.Select;
+import com.k42b3.zubat.basic.form.SelectItem;
+import com.k42b3.zubat.basic.form.Textarea;
 
 /**
  * FormPanel
@@ -69,7 +74,7 @@ import com.k42b3.zubat.form.Textarea;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 128 $
  */
 public class FormPanel extends JPanel
 {
