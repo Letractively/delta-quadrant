@@ -161,14 +161,13 @@ Ext.define('Metang.main.Layout', {
 
 	},
 
-	handlerContentLoader: function(url){
+	handlerContentLoader: function(ns){
 
-		alert(url);
-		return;
 		var pos = this.objContent.getContainer(url);
 
 		if(pos === false)
 		{
+			/*
 				// load fields
 
 				// build store
@@ -199,6 +198,7 @@ Ext.define('Metang.main.Layout', {
 			{
 				Ext.Msg.alert('Exception', e);
 			}
+			*/
 		}
 
 		this.objContent.getLayout().setActiveItem(pos);

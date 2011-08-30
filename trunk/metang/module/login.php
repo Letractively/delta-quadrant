@@ -14,7 +14,23 @@ class login extends PSX_ModuleAbstract
 
 	public function onGet()
 	{
-		throw new Exception('Invalid request method');
+		$file = PSX_PATH_CACHE . '/credentials.ser';
+
+		if(PSX_File::isFile($file))
+		{
+			$content = file_get_contents($file);
+			$content = unserialize($content);
+
+			if(is_array($content) && isset($content['token']) && isset($content['tokenSecret']))
+			{
+				$this->session->token       = $content['token'];
+				$this->session->tokenSecret = $content['tokenSecret'];
+				$this->session->authed      = true;
+
+				header('Location: /index.php');
+				exit;
+			}
+		}
 	}
 
 	public function onPost()
@@ -33,8 +49,6 @@ class login extends PSX_ModuleAbstract
 
 			if(!empty($token) && !empty($tokenSecret))
 			{
-				// @todo save token and token secret probably in file
-				// or db
 				$this->session->set('token', $token);
 				$this->session->set('tokenSecret', $tokenSecret);
 				$this->session->set('authed', true);

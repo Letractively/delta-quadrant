@@ -144,15 +144,6 @@ class proxy extends PSX_ModuleAbstract
 			{
 				throw new PSX_Exception('Not authenticated');
 			}
-
-
-			// clear the session where the access token is stored
-			if($this->get->logout('string'))
-			{
-				$this->session->token       = null;
-				$this->session->tokenSecret = null;
-				$this->session->authed      = false;
-			}
 		}
 		catch(Exception $e)
 		{

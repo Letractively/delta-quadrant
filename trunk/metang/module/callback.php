@@ -42,8 +42,19 @@ class callback extends PSX_ModuleAbstract
 
 			if(!empty($token) && !empty($tokenSecret))
 			{
-				// @todo save token and token secret probably in file
-				// or db
+				// save to file
+				$file    = PSX_PATH_CACHE . '/credentials.ser';
+				$content = serialize(array(
+
+					'token'       => $token,
+					'tokenSecret' => $tokenSecret
+
+				));
+
+				file_put_contents($file, $content);
+
+
+				// write to session
 				$this->session->set('token', $token);
 				$this->session->set('tokenSecret', $tokenSecret);
 				$this->session->set('authed', true);
