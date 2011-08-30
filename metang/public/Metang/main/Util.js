@@ -147,7 +147,23 @@ Ext.define('Metang.main.Util', {
 
 			if(Metang.main.Util.user.loggedIn == true && Metang.main.Util.user.status == 'Administrator')
 			{
+				// load ui
+				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/page');
+
+				if(uri !== false)
+				{
+					Metang.main.Instance = Ext.create('Metang.main.Layout');
+
+					Metang.main.Instance.handlerContentLoader(uri);
+				}
+				else
+				{
+					Ext.Msg.alert('Error', 'Could not find content page service');
+				}
+
+
 				// get available services and load depending js
+				/*
 				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/service');
 
 				if(uri !== false)
@@ -181,19 +197,7 @@ Ext.define('Metang.main.Util', {
 							}
 
 
-							// load ui
-							var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/page');
 
-							if(uri !== false)
-							{
-								Metang.main.Instance = Ext.create('Metang.main.Layout');
-
-								Metang.main.Instance.handlerContentLoader(uri);
-							}
-							else
-							{
-								Ext.Msg.alert('Error', 'Could not find content page service');
-							}
 
 						},
 						failure: function(response){
@@ -208,6 +212,7 @@ Ext.define('Metang.main.Util', {
 				{
 					Ext.Msg.alert('Error', 'Couldnt request services.');
 				}
+				*/
 			}
 			else
 			{
