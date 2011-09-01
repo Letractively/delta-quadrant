@@ -9,12 +9,11 @@ Ext.define('Metang.main.Content', {
 
 		var config = {
 
-			title: 'Content',
 			id: 'content',
 			region: 'center',
 			layout: 'card',
 			margins: '0 0 0 0',
-			border: true
+			border: false
 
 		};
 

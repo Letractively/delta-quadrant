@@ -179,19 +179,11 @@ Ext.define('Metang.main.Layout', {
 
 					try
 					{
-						panel = Ext.create(className, {
-
-							title: uri
-
-						});
+						panel = Ext.create(className);
 					}
 					catch(e)
 					{
-						panel = Ext.create('Metang.basic.Container', {
-
-							title: uri
-
-						});
+						panel = Ext.create('Metang.basic.Container');
 					}
 
 					this.objContent.addContainer(ns, panel);
@@ -207,7 +199,7 @@ Ext.define('Metang.main.Layout', {
 			}
 		}
 
-		panel.onLoad();
+		panel.onLoad(Metang.main.Services.find(ns));
 
 	},
 
