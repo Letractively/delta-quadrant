@@ -25,6 +25,7 @@ Ext.define('Metang.main.Nav', {
 		var config = {
 
 			title: 'Navigation',
+			id: 'nav',
 			region: 'west',
 			margins: '0 5 0 0',
 			width: 200,

@@ -148,18 +148,9 @@ Ext.define('Metang.main.Util', {
 			if(Metang.main.Util.user.loggedIn == true && Metang.main.Util.user.status == 'Administrator')
 			{
 				// load ui
-				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/page');
+				var layout = Ext.create('Metang.main.Layout');
 
-				if(uri !== false)
-				{
-					Metang.main.Instance = Ext.create('Metang.main.Layout');
-
-					Metang.main.Instance.handlerContentLoader(uri);
-				}
-				else
-				{
-					Ext.Msg.alert('Error', 'Could not find content page service');
-				}
+				layout.handlerContentLoader('http://ns.amun-project.org/2011/amun/content/page');
 
 
 				// get available services and load depending js

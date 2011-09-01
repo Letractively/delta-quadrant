@@ -19,6 +19,7 @@ Ext.define('Metang.main.Layout', {
 		var config = {
 
 			layout: 'border',
+			id: 'viewport',
 			items: [this.objHeader, this.objNav, this.objContent]
 
 		};
@@ -163,45 +164,81 @@ Ext.define('Metang.main.Layout', {
 
 	handlerContentLoader: function(ns){
 
-		var pos = this.objContent.getContainer(url);
+		var panel = this.objContent.getContainer(ns);
 
-		if(pos === false)
+		if(panel === false)
 		{
-			/*
-				// load fields
-
-				// build store
-				Ext.create('Ext.data.Store', {
-
-					fields:['name', 'email', 'phone'],
-
-				});
-
-				// build grid
-
-
-				// build panel
-				var panel = Ext.create('Ext.panel.Panel', {
-
-					layout: 'fix',
-					html: 'some content: ' + url
-
-				});
-
-				pos = this.objContent.addContainer(url, panel);
-
 			try
 			{
+				var uri = Metang.main.Services.find(ns);
 
+				if(uri !== false)
+				{
+					var className = this.getClassNameFromType(ns);
+					var panel;
+
+					try
+					{
+						panel = Ext.create(className, {
+
+							title: uri
+
+						});
+					}
+					catch(e)
+					{
+						panel = Ext.create('Metang.basic.Container', {
+
+							title: uri
+
+						});
+					}
+
+					this.objContent.addContainer(ns, panel);
+				}
+				else
+				{
+					Ext.Msg.alert('Error', 'Could not find service: ' + ns);
+				}
 			}
 			catch(e)
 			{
 				Ext.Msg.alert('Exception', e);
 			}
-			*/
 		}
 
-		this.objContent.getLayout().setActiveItem(pos);
+		panel.onLoad();
+
+	},
+
+	getClassNameFromType: function(type){
+
+		baseNs = "http://ns.amun-project.org/2011/amun/";
+
+		if(type.substring(0, baseNs.length) != baseNs)
+		{
+			throw new Error('Type must be in amun namespace');
+		}
+
+		type = type.substring(baseNs.length);
+
+
+		parts = type.split("/");
+		className = "";
+
+		for(var i = 0; i < parts.length; i++)
+		{
+			className+= parts[i] + ".";
+		}
+
+		if(className == '')
+		{
+			throw new Error('Invalid type');
+		}
+
+		className = 'Metang.amun.' + className + 'Container';
+
+		return className;
 
 	}
 

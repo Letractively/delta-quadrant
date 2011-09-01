@@ -81,7 +81,7 @@ Ext.define('Metang.main.Header', {
 						menu.menu.push({
 
 							text: title,
-							id: item.uri,
+							id: item.type,
 							iconCls: title,
 							handler: function(){
 
@@ -93,21 +93,20 @@ Ext.define('Metang.main.Header', {
 					}
 					else
 					{
-						/*
 						var tmpMenu = [{
 
 							text: title,
+							id: item.type,
 							iconCls: title,
 							handler: function(){
 
-								Metang.main.Instance.handlerContentLoader(item.uri);
+								Ext.getCmp('header').fireEvent('item_selected', this.getId());
 
 							}
 
 						}];
 
 						childMenu.menu = tmpMenu.concat(childMenu.menu);
-						*/
 
 						menu.menu.push(childMenu);
 					}
