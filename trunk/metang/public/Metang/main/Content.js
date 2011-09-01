@@ -10,6 +10,7 @@ Ext.define('Metang.main.Content', {
 		var config = {
 
 			title: 'Content',
+			id: 'content',
 			region: 'center',
 			layout: 'card',
 			margins: '0 0 0 0',
@@ -23,11 +24,11 @@ Ext.define('Metang.main.Content', {
 
 	},
 
-	addContainer: function(id, obj){
+	addContainer: function(ns, obj){
 
 		this.services.push({
 
-			id: id,
+			ns: ns,
 			pos: this.pos
 
 		});
@@ -37,17 +38,35 @@ Ext.define('Metang.main.Content', {
 		return this.pos++;
 	},
 
-	getContainer: function(id){
+	getPos: function(ns){
 
 		for(var i = 0; i < this.services.length; i++)
 		{
-			if(this.services[i].id == id)
+			if(this.services[i].ns == ns)
 			{
 				return this.services[i].pos;
 			}
 		}
 
 		return false;
+
+	},
+
+	getContainer: function(ns){
+
+		var items = this.getLayout().getLayoutItems();
+		var pos = this.getPos(ns);
+
+		if(pos !== false)
+		{
+			this.getLayout().setActiveItem(pos);
+
+			return items[pos];
+		}
+		else
+		{
+			return false;
+		}
 
 	}
 
