@@ -55,14 +55,13 @@ Ext.define('Metang.basic.Grid', {
 			proxy: {
 
 				type: 'ajax',
-				url: this.uri + '?format=json',
+				url: Metang.main.Util.getProxyUrl(this.uri + '?format=json'),
+				reader: {
 
-					reader: {
+					type: 'json',
+					root: 'entry'
 
-						type: 'json',
-						root: 'entry'
-
-					}
+				}
 
 			}
 
@@ -81,8 +80,6 @@ Ext.define('Metang.basic.Grid', {
 			});
 		}
 
-
-		// build store
 		var grid = Ext.create('Ext.grid.Panel', {
 
 			store: this.store,
