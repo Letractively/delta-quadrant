@@ -82,7 +82,6 @@ Ext.define('Metang.main.Header', {
 
 							text: title,
 							id: item.type,
-							iconCls: title,
 							handler: function(){
 
 								Ext.getCmp('header').fireEvent('item_selected', this.getId());
@@ -97,7 +96,6 @@ Ext.define('Metang.main.Header', {
 
 							text: title,
 							id: item.type,
-							iconCls: title,
 							handler: function(){
 
 								Ext.getCmp('header').fireEvent('item_selected', this.getId());
@@ -127,8 +125,16 @@ Ext.define('Metang.main.Header', {
 			scale: 'medium',
 			menu: [{
 
+				text: 'Website',
+				handler: function(){
+
+					window.location = 'http://amun.phpsx.org';
+
+				}
+
+			},{
+
 				text: 'About',
-				iconCls: 'about',
 				handler: function(){
 
 					Ext.Msg.show({
@@ -139,36 +145,6 @@ Ext.define('Metang.main.Header', {
 						icon: Ext.MessageBox.INFO
 
 					});
-
-				}
-
-			},{
-
-				text: 'Report bug',
-				iconCls: 'bug',
-				handler: function(){
-
-					window.location = 'mailto:phpsx@googlegroups.com';
-
-				}
-
-			},{
-
-				text: 'Donate',
-				iconCls: 'donate',
-				handler: function(){
-
-					window.location = 'https://sourceforge.net/project/project_donations.php?group_id=220002';
-
-				}
-
-			},{
-
-				text: 'Website',
-				iconCls: 'website',
-				handler: function(){
-
-					window.location = 'http://amun.phpsx.org';
 
 				}
 

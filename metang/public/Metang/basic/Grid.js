@@ -22,6 +22,9 @@ Ext.define('Metang.basic.Grid', {
 
 		this.loadAvailableFields();
 
+
+		this.addEvents('itemclick');
+
 	},
 
 	build: function(){
@@ -95,6 +98,16 @@ Ext.define('Metang.basic.Grid', {
 			}]
 
 		});
+
+
+		// row select
+		grid.on('itemclick', function(el, rec){
+
+			var id = rec.get(this.supportedFields[0]);
+
+			this.fireEvent('itemclick', id);
+
+		}, this);
 
 
 		this.add(grid);

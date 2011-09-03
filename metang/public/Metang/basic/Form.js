@@ -17,9 +17,9 @@ Ext.define('Metang.basic.Form', {
 
 	},
 
-	load: function(){
+	load: function(id){
 
-		this.loadForm();
+		this.loadForm(id);
 
 	},
 
@@ -283,13 +283,20 @@ Ext.define('Metang.basic.Form', {
 
 	},
 
-	loadForm: function(){
+	loadForm: function(id){
 
 		this.setLoading(true);
 
+		var queryId = '';
+
+		if(typeof id != 'undefined')
+		{
+			queryId = '&id=' + parseInt(id);
+		}
+
 		Ext.Ajax.request({
 
-			url: Metang.main.Util.getProxyUrl(this.uri + '&format=json'),
+			url: Metang.main.Util.getProxyUrl(this.uri + '&format=json' + queryId),
 			method: 'GET',
 			scope: this,
 			disableCaching: true,
