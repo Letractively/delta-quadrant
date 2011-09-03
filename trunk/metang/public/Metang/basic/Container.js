@@ -39,9 +39,12 @@ Ext.define('Metang.basic.Container', {
 
 		}));
 
-		this.view.on('selectRow', function(id){
+		this.view.on('itemclick', function(id){
 
-			this.selectedId = id
+			this.selectedId = id;
+
+			this.items.get(2).setDisabled(false);
+			this.items.get(3).setDisabled(false);
 
 		}, this);
 
@@ -55,6 +58,7 @@ Ext.define('Metang.basic.Container', {
 		this.add(Ext.create('Metang.basic.Form', {
 
 			title: 'Update',
+			disabled: true,
 			uri: uri + '/form?method=update'
 
 		}));
@@ -62,6 +66,7 @@ Ext.define('Metang.basic.Container', {
 		this.add(Ext.create('Metang.basic.Form', {
 
 			title: 'Delete',
+			disabled: true,
 			uri: uri + '/form?method=delete'
 
 		}));
