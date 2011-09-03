@@ -1,12 +1,11 @@
 
 Ext.define('Metang.basic.Form', {
-	extend: 'Ext.form.Panel'
+	extend: 'Ext.form.Panel',
 
 	initComponent: function(){
 
 		var config = {
 
-			title: 'View',
 			layout: 'fit',
 			border: false
 
@@ -14,48 +13,54 @@ Ext.define('Metang.basic.Form', {
 
 		Ext.apply(this, Ext.apply(this.initialConfig, config));
 
-		Metang.basic.Grid.superclass.initComponent.apply(this, arguments);
-
-
-		this.loadForm();
+		Metang.basic.Form.superclass.initComponent.apply(this, arguments);
 
 	},
 
 	load: function(){
 
+		this.loadForm();
+
 	},
 
-	build: function(node){
+	parse: function(node){
 
-		if(node.class == 'form')
+		var type = '';
+
+		if(typeof node['class'] != 'undefined')
+		{
+			type = node['class'].toLowerCase();
+		}
+
+		if(type == 'form')
 		{
 			return this.parseForm(node);
 		}
-		else if(node.class == 'input')
+		else if(type == 'input')
 		{
 			return this.parseInput(node);
 		}
-		else if(node.class == 'textarea')
+		else if(type == 'textarea')
 		{
 			return this.parseTextarea(node);
 		}
-		else if(node.class == 'select')
+		else if(type == 'select')
 		{
 			return this.parseSelect(node);
 		}
-		else if(node.class == 'tabbedpane')
+		else if(type == 'tabbedpane')
 		{
 			return this.parseTabbedPane(node);
 		}
-		else if(node.class == 'panel')
+		else if(type == 'panel')
 		{
 			return this.parsePanel(node);
 		}
-		else if(node.class == 'reference')
+		else if(type == 'reference')
 		{
 			return this.parseReference(node);
 		}
-		else if(node.class == 'checkboxlist')
+		else if(type == 'checkboxlist')
 		{
 			return this.parseChecboxList(node);
 		}
@@ -66,14 +71,15 @@ Ext.define('Metang.basic.Form', {
 
 	parseForm: function(node){
 
-		var form = Ext.create('Ext.form.Panel', {
+		var el = Ext.create('Ext.form.Panel', {
 
-			url: node.action,
+			url: Metang.main.Util.getProxyUrl(node.action),
 			items: this.parse(node.item),
+			border: false,
 			buttons: [{
 
 				text: 'Reset',
-				handler: function() {
+				handler: function(){
 
 					this.up('form').getForm().reset();
 
@@ -82,9 +88,7 @@ Ext.define('Metang.basic.Form', {
 			},{
 
 				text: 'Submit',
-				formBind: true,
-				disabled: true,
-				handler: function() {
+				handler: function(){
 
 					var form = this.up('form').getForm();
 
@@ -92,14 +96,15 @@ Ext.define('Metang.basic.Form', {
 					{
 						form.submit({
 
+							clientValidation: true,
 							success: function(form, action){
 
-								Ext.Msg.alert('Success', action.result.msg);
+								Ext.Msg.alert('Success', action.result.text);
 
 							},
 							failure: function(form, action) {
 
-								Ext.Msg.alert('Failed', action.result.msg);
+								Ext.Msg.alert('Failed', action.result.text);
 
 							}
 
@@ -112,46 +117,156 @@ Ext.define('Metang.basic.Form', {
 
 		});
 
-		return form;
+		return el;
 
 	},
 
-	parseInput: function(){
+	parseInput: function(node){
 
+		var xtype = 'textfield';
+
+		if(node.type == 'hidden')
+		{
+			xtype = 'hidden';
+		}
+		else if(node.type == 'date' || node.type == 'datetime')
+		{
+			xtype = 'datefield';
+		}
+
+		var el = {
+
+			xtype: xtype,
+			fieldLabel: node.label,
+			name: node.ref,
+			value: node.value,
+			disabled: node.disabled
+
+		};
+
+		return el;
 
 	},
 
-	parseTextarea: function(){
+	parseSelect: function(node){
 
+		var data = [];
+
+		for(var i = 0; i < node.children.item.length; i++)
+		{
+			data.push({
+
+				label: node.children.item[i].label,
+				value: node.children.item[i].value,
+
+			});
+		}
+
+		var store = Ext.create('Ext.data.Store', {
+
+			fields: ['label', 'value'],
+			data: data
+
+		});
+
+		var el = Ext.create('Ext.form.ComboBox', {
+
+			fieldLabel: node.label,
+			name: node.ref,
+			store: store,
+			queryMode: 'local',
+			displayField: 'label',
+			valueField: 'value',
+			value: node.value
+
+		});
+
+		return el;
 
 	},
 
-	parseSelect: function(){
+	parseTextarea: function(node){
 
+		var el = {
+
+			xtype: 'textarea',
+			fieldLabel: node.label,
+			name: node.ref,
+			value: node.value
+
+		};
+
+		return el;
 
 	},
 
-	parseTabbedPane: function(){
+	parseTabbedPane: function(node){
 
+		var items = [];
+
+		for(var i = 0; i < node.children.item.length; i++)
+		{
+			var panel = this.parse(node.children.item[i])
+
+			if(panel != null && typeof panel === 'object')
+			{
+				items.push(panel);
+			}
+		}
+
+		var el = Ext.create('Ext.tab.Panel', {
+
+			border: false,
+			items: items
+
+		});
+
+		return el;
 
 	},
 
-	parsePanel: function(){
+	parsePanel: function(node){
 
+		var items = [];
+
+		for(var i = 0; i < node.children.item.length; i++)
+		{
+			var panel = this.parse(node.children.item[i])
+
+			if(panel != null && typeof panel == 'object')
+			{
+				items.push(panel);
+			}
+		}
+
+		var el = Ext.create('Ext.panel.Panel', {
+
+			title: node.label,
+			border: false,
+			bodyPadding: 6,
+			items: items
+
+		});
+
+		return el;
 
 	},
 
 	parseReference: function(){
 
+		return null;
 
 	},
 
 	parseChecboxList: function(){
 
+		return null;
 
 	},
 
 	loadForm: function(){
+
+		this.setLoading(true);
 
 		Ext.Ajax.request({
 
@@ -163,7 +278,11 @@ Ext.define('Metang.basic.Form', {
 
 				var form = Ext.JSON.decode(response.responseText);
 
-				this.build(form);
+				this.add(this.parse(form));
+
+				this.doLayout();
+
+				this.setLoading(false);
 
 			},
 			failure: function(response){

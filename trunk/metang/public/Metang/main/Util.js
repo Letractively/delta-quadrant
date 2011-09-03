@@ -32,29 +32,17 @@ Ext.define('Metang.main.Util', {
 
 			Ext.Ajax.request({
 
-				url: Metang.main.Util.getProxyUrl(amun_url + 'api/meta/xrds'),
+				url: metang_url + 'login/checkAuth',
 				method: 'GET',
 				scope: this,
 				disableCaching: true,
 				success: function(response){
 
-					var contentType = response.getResponseHeader('Content-Type')
+					var resp = Ext.JSON.decode(response.responseText);
 
-					if(contentType == 'application/xrds+xml')
+					if(resp)
 					{
-						var startIndex = response.responseText.indexOf('<XRD>');
-						var length = response.responseText.indexOf('</XRD>');
-
-						if(startIndex > 0 && length > 0)
-						{
-							Metang.main.Util.xrds = response.responseText.substring(startIndex, length + 6);
-
-							Metang.main.Util.fetchAmunServices();
-						}
-						else
-						{
-							Ext.Msg.alert('Error', 'Invalid XRDS file');
-						}
+						this.fetchAmunServices();
 					}
 					else
 					{

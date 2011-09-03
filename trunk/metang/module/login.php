@@ -12,25 +12,36 @@ class login extends PSX_ModuleAbstract
 		$this->session = new PSX_Session('metang', $this->validate);
 	}
 
-	public function onGet()
+	public function checkAuth()
 	{
-		$file = PSX_PATH_CACHE . '/credentials.ser';
+		$resp = false;
 
-		if(PSX_File::isFile($file))
+		if($this->session->authed == false)
 		{
-			$content = file_get_contents($file);
-			$content = unserialize($content);
+			$file = PSX_PATH_CACHE . '/credentials.ser';
 
-			if(is_array($content) && isset($content['token']) && isset($content['tokenSecret']))
+			if(PSX_File::isFile($file))
 			{
-				$this->session->token       = $content['token'];
-				$this->session->tokenSecret = $content['tokenSecret'];
-				$this->session->authed      = true;
+				$content = file_get_contents($file);
+				$content = unserialize($content);
 
-				header('Location: /index.php');
-				exit;
+				if(is_array($content) && isset($content['token']) && isset($content['tokenSecret']))
+				{
+					$this->session->set('token', $content['token']);
+					$this->session->set('tokenSecret', $content['tokenSecret']);
+					$this->session->set('authed', true);
+
+					$resp = true;
+				}
 			}
 		}
+		else
+		{
+			$resp = true;
+		}
+
+		echo PSX_Json::encode($resp);
+		exit;
 	}
 
 	public function onPost()

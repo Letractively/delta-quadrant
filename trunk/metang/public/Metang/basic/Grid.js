@@ -10,7 +10,6 @@ Ext.define('Metang.basic.Grid', {
 
 		var config = {
 
-			title: 'View',
 			layout: 'fit',
 			border: false
 
