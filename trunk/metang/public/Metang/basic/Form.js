@@ -123,26 +123,32 @@ Ext.define('Metang.basic.Form', {
 
 	parseInput: function(node){
 
-		var xtype = 'textfield';
-
-		if(node.type == 'hidden')
-		{
-			xtype = 'hidden';
-		}
-		else if(node.type == 'date' || node.type == 'datetime')
-		{
-			xtype = 'datefield';
-		}
-
 		var el = {
 
-			xtype: xtype,
 			fieldLabel: node.label,
 			name: node.ref,
 			value: node.value,
 			disabled: node.disabled
 
 		};
+
+		if(node.type == 'hidden')
+		{
+			el.xtype = 'hidden';
+		}
+		else if(node.type == 'date' || node.type == 'datetime')
+		{
+			el.xtype = 'datefield';
+		}
+		if(node.type == 'password')
+		{
+			el.xtype = 'textfield';
+			el.inputType = 'password';
+		}
+		else
+		{
+			el.xtype = 'textfield';
+		}
 
 		return el;
 
@@ -252,9 +258,22 @@ Ext.define('Metang.basic.Form', {
 
 	},
 
-	parseReference: function(){
+	parseReference: function(node){
 
-		return null;
+		var el = Ext.create('Metang.basic.Reference', {
+
+			fieldLabel: node.label,
+			name: node.ref,
+			value: node.value,
+			disabled: node.disabled,
+
+			valueField: node.valueField,
+			labelField: node.labelField,
+			src: node.src
+
+		});
+
+		return el;
 
 	},
 
