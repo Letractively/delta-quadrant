@@ -1,6 +1,6 @@
 <?php
 /*
- *  $Id: index.php 274 2011-04-27 21:43:46Z k42b3.x $
+ *  $Id$
  *
  * psx
  * A object oriented and modular based PHP framework for developing
