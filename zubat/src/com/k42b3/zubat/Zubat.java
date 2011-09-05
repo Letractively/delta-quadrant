@@ -45,7 +45,7 @@ import com.k42b3.zubat.oauth.OauthProvider;
  */
 public class Zubat extends JFrame
 {
-	public static String version = "0.0.4 beta";
+	public static String version = "0.0.5 beta";
 
 	private Configuration config;
 	private Oauth oauth;
