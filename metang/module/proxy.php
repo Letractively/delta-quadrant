@@ -155,13 +155,17 @@ class proxy extends PSX_ModuleAbstract
 
 				if(empty($lastError))
 				{
+					$disallowedHeaders = array('transfer-encoding');
+
 					header($response->getScheme() . ' ' . $response->getCode() . ' ' . $response->getMessage());
 
 					foreach($response->getHeader() as $k => $v)
 					{
-						header($k . ': ' . $v);
+						if(!in_array($k, $disallowedHeaders))
+						{
+							header($k . ': ' . $v);
+						}
 					}
-
 
 					echo $response->getBody();
 				}
