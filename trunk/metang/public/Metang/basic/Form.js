@@ -108,15 +108,6 @@ Ext.define('Metang.basic.Form', {
 			border: false,
 			buttons: [{
 
-				text: 'Reset',
-				handler: function(){
-
-					this.up('form').getForm().reset();
-
-				}
-
-			},{
-
 				text: 'Submit',
 				handler: function(){
 
@@ -140,6 +131,15 @@ Ext.define('Metang.basic.Form', {
 
 						});
 					}
+
+				}
+
+			},{
+
+				text: 'Reset',
+				handler: function(){
+
+					this.up('form').getForm().reset();
 
 				}
 
