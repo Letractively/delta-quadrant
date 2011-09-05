@@ -3,8 +3,8 @@
     <baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
     <consumerKey>d036c3f056b883ed7b0c0963098497de9277bf6f</consumerKey>
     <consumerSecret>7aa9ede57d44a1b3026c5ce2f5bf31c0e80089f4</consumerSecret>
-    <token>cfcda5ac5c7b694d648e268c04dca4a54dfef8c1</token>
-    <tokenSecret>444d7356ae18f74aff75d18b3b0b5c577556f933</tokenSecret>
+    <token>8e503d6c36fc7d3d295eafcf4b6607a7a1045965</token>
+    <tokenSecret>a967c8798a2326c45d28d873d0546eb385d814d6</tokenSecret>
     <service type="http://ns.amun-project.org/2011/amun/content/gadget">
         <item>id</item>
         <item>title</item>
@@ -27,7 +27,6 @@
     </service>
     <service type="http://ns.amun-project.org/2011/amun/content/page">
         <item>id</item>
-        <item>parentId</item>
         <item>title</item>
         <item>template</item>
         <item>cache</item>
@@ -135,4 +134,10 @@
     <service type="http://ns.amun-project.org/2011/amun/user/group"/>
     <service type="http://ns.amun-project.org/2011/amun/user/group/right"/>
     <service type="http://ns.amun-project.org/2011/amun/user/right"/>
+    <service type="http://ns.amun-project.org/2011/amun/service/news">
+        <item>title</item>
+    </service>
+    <service type="http://ns.amun-project.org/2011/amun/service/page">
+        <item>date</item>
+    </service>
 </zubat>
