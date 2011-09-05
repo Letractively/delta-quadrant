@@ -83,13 +83,14 @@ Ext.define('Metang.main.Nav', {
 
 				id: entries[i].id,
 				text: entries[i].text,
-				iconCls: 'page'
+				leaf: entries[i].children.length == 0
+				//iconCls: 'page'
 
 			});
 
 			if(typeof(entries[i].children) != 'undefined')
 			{
-				this.buildTree(node, entries[i].children);
+				this.buildTree(child, entries[i].children);
 			}
 		}
 
@@ -114,6 +115,8 @@ Ext.define('Metang.main.Nav', {
 					var resp = Ext.JSON.decode(response.responseText);
 
 					this.buildTree(this.store.getRootNode(), resp.entry);
+
+					this.getRootNode().firstChild.expand();
 
 				},
 				failure: function(response){
