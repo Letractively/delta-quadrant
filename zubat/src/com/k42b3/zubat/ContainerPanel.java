@@ -1,7 +1,6 @@
 package com.k42b3.zubat;
 
 import java.awt.CardLayout;
-import java.awt.Component;
 
 import javax.swing.JPanel;
 

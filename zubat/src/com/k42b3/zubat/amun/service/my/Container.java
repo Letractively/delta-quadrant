@@ -1,8 +1,8 @@
 package com.k42b3.zubat.amun.service.my;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,7 @@ import java.util.HashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,6 +25,15 @@ public class Container extends JPanel implements com.k42b3.zubat.Container
 	private Http http;
 	private ServiceItem item;
 	private ArrayList<String> fields;
+
+	public Container()
+	{
+		FlowLayout fl = new FlowLayout();
+		fl.setAlignment(FlowLayout.LEFT);
+
+		this.setBorder(new EmptyBorder(4, 4, 4, 4));
+		this.setLayout(fl);
+	}
 
 	public Component getComponent() 
 	{
