@@ -169,59 +169,6 @@ Ext.define('Metang.main.Util', {
 				var layout = Ext.create('Metang.main.Layout');
 
 				layout.handlerContentLoader('http://ns.amun-project.org/2011/amun/content/page');
-
-
-				// get available services and load depending js
-				/*
-				var uri = Metang.main.Services.find('http://ns.amun-project.org/2011/amun/content/service');
-
-				if(uri !== false)
-				{
-					Ext.Ajax.request({
-
-						url: Metang.main.Util.getProxyUrl(uri),
-						method: 'GET',
-						scope: this,
-						disableCaching: true,
-						success: function(response){
-
-							var resp  = Ext.JSON.decode(response.responseText);
-							var entry = Ext.util.Format.defaultValue(resp.entry, []);
-
-							if(entry.length > 0)
-							{
-								var url = metang_url + 'loader?js=';
-
-								for(var i = 0; i < entry.length; i++)
-								{
-									url+= 'service_' + entry[i].name + '|';
-								}
-
-								Ext.core.DomHelper.append(Ext.core.DomQuery.selectNode('head'), {
-
-									tag: 'script',
-									src: url
-
-								});
-							}
-
-
-
-
-						},
-						failure: function(response){
-
-							Ext.Msg.alert('Error', 'Couldnt request services.');
-
-						}
-
-					});
-				}
-				else
-				{
-					Ext.Msg.alert('Error', 'Couldnt request services.');
-				}
-				*/
 			}
 			else
 			{

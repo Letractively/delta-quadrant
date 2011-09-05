@@ -26,10 +26,10 @@
 $config = array(
 
 	'metang_version'          => '0.0.3 beta',
-	'metang_url'              => 'http://127.0.0.1/projects/amun/public/index.php/',
+	'metang_url'              => 'http://127.0.0.1/websites/amun.phpsx.org/public/index.php/',
 
-	'metang_consumer_key'     => '0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33',
-	'metang_consumer_secret'  => '62cdb7020ff920e5aa642c3d4066950dd1f01f4d',
+	'metang_consumer_key'     => '',
+	'metang_consumer_secret'  => '',
 
 	'metang_request'          => 'api/auth/request',
 	'metang_authorization'    => 'api/auth/authorization',

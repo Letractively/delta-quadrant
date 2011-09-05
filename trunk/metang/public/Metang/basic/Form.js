@@ -343,7 +343,9 @@ Ext.define('Metang.basic.Form', {
 			},
 			failure: function(response){
 
-				Ext.Msg.alert('Error', 'Could not get supported fields.');
+				Ext.Msg.alert('Error', 'Could not load form');
+
+				this.setLoading(false);
 
 			}
 
