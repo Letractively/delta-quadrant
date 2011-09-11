@@ -29,7 +29,7 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 
 /**
- * out
+ * Out
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3

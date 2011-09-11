@@ -44,7 +44,7 @@ import com.k42b3.oat.ConfigFilter;
  */
 public class ContentLengthConfig extends ConfigFilter
 {
-	private JCheckBox ckb_active;
+	private JCheckBox ckbActive;
 	
 	public String getName()
 	{
@@ -58,41 +58,32 @@ public class ContentLengthConfig extends ConfigFilter
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
+		return this.ckbActive.isSelected();
 	}
 
 	public ContentLengthConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
+
 		JPanel panel = new JPanel();
-		
 		panel.setLayout(new GridLayout(0, 1));
 		
 		
 		// active
-		JPanel panel_active = new JPanel();
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
 
-		panel_active.setLayout(new FlowLayout());
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
 
 
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-	
 		this.add(panel);
 	}
 }

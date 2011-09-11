@@ -33,9 +33,9 @@ package com.k42b3.oat.http.filterRequest.oauthSignature;
  */
 public class PLAINTEXT implements SignatureInterface
 {
-	public String build(String base_string, String consumer_secret, String token_secret)
+	public String build(String baseString, String consumerSecret, String tokenSecret)
 	{
-		String key = Util.urlEncode(consumer_secret) + "&" + Util.urlEncode(token_secret);
+		String key = Util.urlEncode(consumerSecret) + "&" + Util.urlEncode(tokenSecret);
 
 		return key;
 	}

@@ -21,50 +21,49 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filterRequest.oauthSignature;
+package com.k42b3.oat;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import com.k42b3.oat.Oat;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import javax.swing.JFrame;
 
 /**
- * HMACSHA1
+ * Form
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 165 $
  */
-public class HMACSHA1 implements SignatureInterface
+public class Form extends JFrame
 {
-	public String build(String baseString, String consumerSecret, String tokenSecret)
+	private CallbackInterface cb;
+
+	public Form()
 	{
-		try
+		// settings
+		this.setTitle("oat " + Oat.VERSION);
+		this.setLocation(100, 100);
+		this.setSize(500, 400);
+		this.setMinimumSize(this.getSize());
+		this.setLayout(new BorderLayout());
+	}
+	
+	public void parseHtml(String html)
+	{
+	}
+
+	public void setCallback(CallbackInterface cb)
+	{
+		this.cb = cb;
+	}
+	
+	public class setHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
 		{
-			String key = Util.urlEncode(consumerSecret) + "&" + Util.urlEncode(tokenSecret);
-
-
-			KeyGenerator kg = KeyGenerator.getInstance("HmacSHA1");
-
-			SecretKey sk = kg.generateKey();
-
-			Mac mac = Mac.getInstance("HmacSHA1");
-
-			mac.init(sk);
-
-			byte[] result = mac.doFinal(key.getBytes());
-
-
-			return Base64.encode(result);
-		}
-		catch(Exception e)
-		{
-			Oat.handleException(e);
-
-			return null;
 		}
 	}
 }

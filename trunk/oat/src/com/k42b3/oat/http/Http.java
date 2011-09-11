@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.k42b3.oat.CallbackInterface;
+import com.k42b3.oat.Oat;
 import com.k42b3.oat.ResponseFilterInterface;
 
 /**
@@ -85,7 +86,7 @@ import com.k42b3.oat.ResponseFilterInterface;
  */
 public class Http implements Runnable
 {
-	public final static String new_line = "\r\n";
+	public final static String newLine = "\r\n";
 	public final static String type = "HTTP/1.1";
 	public final static String method = "GET";
 	public final static String url = "/";
@@ -97,8 +98,8 @@ public class Http implements Runnable
 	 * The buffer size. Increase the size if you expect header greater then 1024
 	 * bytes to avoid the problesm described in the comment
 	 */
-	private int buffer_size = 1024;
-	
+	private int bufferSize = 1024;
+
 	/**
 	 * The response header as string
 	 */
@@ -113,25 +114,25 @@ public class Http implements Runnable
 	/**
 	 * The found content length of the body
 	 */
-	private int content_length = -1;
+	private int contentLength = -1;
 
 	/**
 	 * Indicates whether we have found the header
 	 */
-	private boolean found_header = false;
+	private boolean foundHeader = false;
 
 	/**
 	 * Indicates whether the transfer encoding is chunked
 	 */
 	private boolean chunked = false;
 
-	private ArrayList<ByteBuffer> buffer_header_list = new ArrayList<ByteBuffer>();
-	private ArrayList<ByteBuffer> buffer_body_list = new ArrayList<ByteBuffer>();
-	
+	private ArrayList<ByteBuffer> bufferHeaderList = new ArrayList<ByteBuffer>();
+	private ArrayList<ByteBuffer> bufferBodyList = new ArrayList<ByteBuffer>();
+
 	private int read = 0;
-	
-	private CharsetDecoder default_decoder;
-	private CharsetEncoder default_encoder;
+
+	private CharsetDecoder defaultDecoder;
+	private CharsetEncoder defaultEncoder;
 
 	private String host;
 	private int port;
@@ -139,34 +140,34 @@ public class Http implements Runnable
 	private Response response;
 	private CallbackInterface callback;
 
-	private ArrayList<ResponseFilterInterface> response_filter = new ArrayList<ResponseFilterInterface>();
+	private ArrayList<ResponseFilterInterface> responseFilter = new ArrayList<ResponseFilterInterface>();
 
-	public Http(String raw_url, Request request, CallbackInterface callback) throws Exception
+	public Http(String rawUrl, Request request, CallbackInterface callback) throws Exception
 	{
 		// get host and port from url
 		URL url;
-		
-		if(raw_url.startsWith("http://") || raw_url.startsWith("https://"))
+
+		if(rawUrl.startsWith("http://") || rawUrl.startsWith("https://"))
 		{
-			url = new URL(raw_url);
+			url = new URL(rawUrl);
 		}
 		else
 		{
-			url = new URL("http://" + raw_url);
+			url = new URL("http://" + rawUrl);
 		}
-	
+
 		this.host = url.getHost();
 		this.port = url.getPort() == -1 ? 80 : url.getPort();
-		
-		
+
+
 		// set params
 		this.request = request;
 		this.callback = callback;
 	}
 
-	public void add_response_filter(ResponseFilterInterface filter)
+	public void addResponseFilter(ResponseFilterInterface filter)
 	{
-		this.response_filter.add(filter);
+		this.responseFilter.add(filter);
 	}
 
 	public void run()
@@ -176,25 +177,25 @@ public class Http implements Runnable
 			SocketChannel channel = null;
 
 
-			InetSocketAddress socket_address = new InetSocketAddress(this.host, this.port);
+			InetSocketAddress socketAddress = new InetSocketAddress(this.host, this.port);
 
 
 			// charset
-			Charset default_charset = Charset.forName("UTF-8");
+			Charset defaultCharset = Charset.forName("UTF-8");
 
-			this.default_decoder = default_charset.newDecoder();
-			this.default_encoder = default_charset.newEncoder();
+			this.defaultDecoder = defaultCharset.newDecoder();
+			this.defaultEncoder = defaultCharset.newEncoder();
 
 
 			// allocate buffer
-			ByteBuffer buffer_temp;
-			ByteBuffer buffer = ByteBuffer.allocateDirect(this.buffer_size);
+			ByteBuffer bufferTemp;
+			ByteBuffer buffer = ByteBuffer.allocateDirect(this.bufferSize);
 
 
 			// connect
 			channel = SocketChannel.open();
 			channel.configureBlocking(false);
-			channel.connect(socket_address);
+			channel.connect(socketAddress);
 
 			selector = Selector.open();
 
@@ -202,35 +203,34 @@ public class Http implements Runnable
 
 			while(selector.select(500) > 0) 
 			{
-				Set ready_keys = selector.selectedKeys();
-				
-				Iterator ready_itor = ready_keys.iterator();
+				Set readyKeys = selector.selectedKeys();
+				Iterator readyIterator = readyKeys.iterator();
 
-				while(ready_itor.hasNext())
+				while(readyIterator.hasNext())
 				{
-					SelectionKey key = (SelectionKey) ready_itor.next();
+					SelectionKey key = (SelectionKey) readyIterator.next();
 					
-					ready_itor.remove();
+					readyIterator.remove();
 
-					SocketChannel key_channel = (SocketChannel) key.channel();
+					SocketChannel keyChannel = (SocketChannel) key.channel();
 
 					if(key.isConnectable())
 					{
-			            if(key_channel.isConnectionPending()) 
+			            if(keyChannel.isConnectionPending()) 
 			            {
-			            	key_channel.finishConnect();
+			            	keyChannel.finishConnect();
 			            }
 
 			            channel.register(selector, SelectionKey.OP_WRITE);
 					}
 					else if(key.isReadable())
 					{
-						key_channel.read(buffer);
+						keyChannel.read(buffer);
 
 						buffer.flip();
 
 
-						if(!this.found_header)
+						if(!this.foundHeader)
 						{
 							// search the byte buffer for \r\n\r\n add the
 							// bytes before to the header buffer the rest
@@ -244,7 +244,7 @@ public class Http implements Runnable
 								buffer.get(i - 1) == 0xD && 
 								buffer.get(i)     == 0xA)
 								{
-									this.found_header = true;
+									this.foundHeader = true;
 
 									buffer.position(i + 1);
 
@@ -254,42 +254,41 @@ public class Http implements Runnable
 
 
 							// if we dont find the header in the first buffer
-							// we throw an exception because we are not able to
-							// parse the response
-							if(!this.found_header)
+							// add the buffer to the list
+							if(!this.foundHeader)
 							{
 								this.read+= buffer.limit();
-								
-								buffer_temp = ByteBuffer.allocateDirect(buffer.limit());
 
-								buffer_temp.put(buffer);
+								bufferTemp = ByteBuffer.allocateDirect(buffer.limit());
 
-								this.buffer_header_list.add(buffer_temp);
+								bufferTemp.put(buffer);
+
+								this.bufferHeaderList.add(bufferTemp);
 							}
 							else
 							{
 								this.read+= buffer.position();
 
-								buffer_temp = ByteBuffer.allocateDirect(buffer.position());
+								bufferTemp = ByteBuffer.allocateDirect(buffer.position());
 
 								for(int i = 0; i < buffer.position(); i++)
 								{
-									buffer_temp.put(buffer.get(i));
+									bufferTemp.put(buffer.get(i));
 								}
 
-								this.buffer_header_list.add(buffer_temp);
+								this.bufferHeaderList.add(bufferTemp);
 
 
 								// get complete header
-								ByteBuffer buffer_header = this.merge_buffer(this.buffer_header_list, this.read);
+								ByteBuffer bufferHeader = this.mergeBuffer(this.bufferHeaderList, this.read);
 
-								
+
 								// decode header as UTF-8
-								CharBuffer char_buffer_header = CharBuffer.allocate(this.read);
-								
-								this.default_decoder.decode(buffer_header, char_buffer_header, false);
+								CharBuffer charBufferHeader = CharBuffer.allocate(this.read);
 
-								char_buffer_header.flip();
+								this.defaultDecoder.decode(bufferHeader, charBufferHeader, false);
+
+								charBufferHeader.flip();
 
 
 								// reset read count
@@ -297,15 +296,15 @@ public class Http implements Runnable
 								
 								
 								// parse header
-								this.header = char_buffer_header.toString();
+								this.header = charBufferHeader.toString();
 
 
 								// search for content-length or transfer-encoding
-								Map<String, String> header = Util.parse_header(this.header, Http.new_line);
+								Map<String, String> header = Util.parseHeader(this.header, Http.newLine);
 
 								if(header.containsKey("Content-Length"))
 								{
-									this.content_length = Integer.parseInt(header.get("Content-Length"));
+									this.contentLength = Integer.parseInt(header.get("Content-Length"));
 								}
 								else if(header.containsKey("Transfer-Encoding") && header.get("Transfer-Encoding").equals("chunked"))
 								{
@@ -318,7 +317,7 @@ public class Http implements Runnable
 
 
 								// clear header buffer
-								char_buffer_header.clear();
+								charBufferHeader.clear();
 
 
 								// add read
@@ -326,11 +325,11 @@ public class Http implements Runnable
 
 
 								// add buffer to list
-								buffer_temp = ByteBuffer.allocateDirect(buffer.slice().limit());
+								bufferTemp = ByteBuffer.allocateDirect(buffer.slice().limit());
 
-								buffer_temp.put(buffer);
-								
-								this.buffer_body_list.add(buffer_temp);
+								bufferTemp.put(buffer);
+
+								this.bufferBodyList.add(bufferTemp);
 							}
 						}
 						else
@@ -340,13 +339,13 @@ public class Http implements Runnable
 
 
 							// add buffer to list
-							buffer_temp = ByteBuffer.allocateDirect(buffer.limit());
+							bufferTemp = ByteBuffer.allocateDirect(buffer.limit());
 
-							buffer_temp.put(buffer);
+							bufferTemp.put(buffer);
 
-							this.buffer_body_list.add(buffer_temp);
-							
-							
+							this.bufferBodyList.add(bufferTemp);
+
+
 							// close channel if ready
 							if(this.chunked)
 							{
@@ -366,7 +365,7 @@ public class Http implements Runnable
 							else
 							{
 								// check content length
-								if(this.read >= this.content_length)
+								if(this.read >= this.contentLength)
 								{
 									channel.close();
 								}
@@ -379,7 +378,7 @@ public class Http implements Runnable
 					}
 					else if(key.isWritable())
 					{
-						key_channel.write(default_encoder.encode(CharBuffer.wrap(request.get_http_message())));
+						keyChannel.write(defaultEncoder.encode(CharBuffer.wrap(request.getHttpMessage())));
 
 						channel.register(selector, SelectionKey.OP_READ);
 					}
@@ -400,13 +399,13 @@ public class Http implements Runnable
 				}
 				catch(Exception e)
 				{
-					e.printStackTrace();
+					Oat.handleException(e);
 				}
 			}
 
 
 			// build body ByteBuffer from buffer_list
-			this.body = this.merge_buffer(this.buffer_body_list, this.read);
+			this.body = this.mergeBuffer(this.bufferBodyList, this.read);
 
 
 			// create response
@@ -414,9 +413,16 @@ public class Http implements Runnable
 
 
 			// apply response filter 
-			for(int i = 0; i < this.response_filter.size(); i++)
+			for(int i = 0; i < this.responseFilter.size(); i++)
 			{
-				this.response_filter.get(i).exec(this.response);
+				try
+				{
+					this.responseFilter.get(i).exec(this.response);
+				}
+				catch(Exception e)
+				{
+					Oat.handleException(e);
+				}
 			}
 
 
@@ -424,17 +430,17 @@ public class Http implements Runnable
 		}
 	}
 
-	public Request get_request()
+	public Request getRequest()
 	{
 		return this.request;
 	}
 	
-	public Response get_response()
+	public Response getResponse()
 	{
 		return this.response;
 	}
 	
-	private ByteBuffer merge_buffer(ArrayList<ByteBuffer> list, int capacity)
+	private ByteBuffer mergeBuffer(ArrayList<ByteBuffer> list, int capacity)
 	{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
 

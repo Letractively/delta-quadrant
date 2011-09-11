@@ -29,7 +29,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 /**
- * toolbar
+ * Toolbar
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -39,50 +39,63 @@ import javax.swing.JPanel;
 public class Toolbar extends JPanel
 {
 	private JButton btnRun;
+	private JButton btnNewTab;
 	private JButton btnSave;
 	private JButton btnReset;
 	private JButton btnDig;
+	private JButton btnForm;
 	private JButton btnAbout;
 	private JButton btnExit;
-	
+
 	public Toolbar()
 	{
 		super();
-		
-		this.btnRun   = new JButton("Run");
-		this.btnSave  = new JButton("Save");
-		this.btnReset = new JButton("Reset");
-		this.btnDig   = new JButton("Dig");
-		this.btnAbout = new JButton("About");
-		this.btnExit  = new JButton("Exit");
-		
+
+		this.btnRun    = new JButton("Run");
+		this.btnNewTab = new JButton("New Tab");
+		this.btnSave   = new JButton("Save");
+		this.btnReset  = new JButton("Reset");
+		this.btnDig    = new JButton("Dig");
+		this.btnForm   = new JButton("Form");
+		this.btnAbout  = new JButton("About");
+		this.btnExit   = new JButton("Exit");
+
 		this.btnRun.setMnemonic(java.awt.event.KeyEvent.VK_R);
+		this.btnNewTab.setMnemonic(java.awt.event.KeyEvent.VK_T);
 		this.btnSave.setMnemonic(java.awt.event.KeyEvent.VK_S);
 		this.btnReset.setMnemonic(java.awt.event.KeyEvent.VK_E);
 		this.btnDig.setMnemonic(java.awt.event.KeyEvent.VK_D);
+		this.btnForm.setMnemonic(java.awt.event.KeyEvent.VK_F);
 		this.btnAbout.setMnemonic(java.awt.event.KeyEvent.VK_A);
 		this.btnExit.setMnemonic(java.awt.event.KeyEvent.VK_Q);
-		
+
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
-		
+
 		this.add(this.btnRun);
+		this.add(this.btnNewTab);
 		this.add(this.btnSave);
 		this.add(this.btnReset);
 		this.add(this.btnDig);
+		this.add(this.btnForm);
 		this.add(this.btnAbout);
 		this.add(this.btnExit);
 	}
-	
+
 	public JButton getRun()
 	{
 		return this.btnRun;
 	}
-	
+
+	public JButton getNewTab()
+	{
+		return this.btnNewTab;
+	}
+
 	public JButton getSave()
 	{
 		return this.btnSave;
 	}
-	
+
 	public JButton getReset()
 	{
 		return this.btnReset;
@@ -93,11 +106,16 @@ public class Toolbar extends JPanel
 		return this.btnDig;
 	}
 
+	public JButton getForm()
+	{
+		return this.btnForm;
+	}
+
 	public JButton getAbout()
 	{
 		return this.btnAbout;
 	}
-	
+
 	public JButton getExit()
 	{
 		return this.btnExit;

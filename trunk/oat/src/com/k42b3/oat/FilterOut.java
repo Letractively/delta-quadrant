@@ -40,7 +40,7 @@ import javax.swing.ScrollPaneConstants;
 
 
 /**
- * filter_out
+ * FilterOut
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -173,7 +173,7 @@ public class FilterOut extends JFrame
 			{
 				if(filtersConfig.get(i).isActive())
 				{
-					filters.get(i).set_config(filtersConfig.get(i).onSave());
+					filters.get(i).setConfig(filtersConfig.get(i).onSave());
 					
 					list.add(filters.get(i));
 				}

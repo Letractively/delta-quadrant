@@ -46,13 +46,13 @@ import com.k42b3.oat.ConfigFilter;
  */
 public class OauthConfig extends ConfigFilter
 {
-	private JCheckBox ckb_active;
-	private JTextField txt_consumer_key;
-	private JTextField txt_consumer_secret;
-	private JTextField txt_token;
-	private JTextField txt_token_secret;
-	private JComboBox cbo_method;
-	
+	private JCheckBox ckbActive;
+	private JTextField txtConsumerKey;
+	private JTextField txtConsumerSecret;
+	private JTextField txtToken;
+	private JTextField txtTokenSecret;
+	private JComboBox cboMethod;
+
 	public String getName()
 	{
 		return "OAuth";
@@ -61,19 +61,19 @@ public class OauthConfig extends ConfigFilter
 	public Properties onSave()
 	{
 		Properties props = new Properties();
-		
-		props.setProperty("consumer_key", this.txt_consumer_key.getText());
-		props.setProperty("consumer_secret", this.txt_consumer_secret.getText());
-		props.setProperty("token", this.txt_token.getText());
-		props.setProperty("token_secret", this.txt_token_secret.getText());
-		props.setProperty("method", this.cbo_method.getSelectedItem().toString());
+
+		props.setProperty("consumer_key", this.txtConsumerKey.getText());
+		props.setProperty("consumer_secret", this.txtConsumerSecret.getText());
+		props.setProperty("token", this.txtToken.getText());
+		props.setProperty("token_secret", this.txtTokenSecret.getText());
+		props.setProperty("method", this.cboMethod.getSelectedItem().toString());
 
 		return props;
 	}
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
+		return this.ckbActive.isSelected();
 	}
 	
 	public OauthConfig()
@@ -81,150 +81,100 @@ public class OauthConfig extends ConfigFilter
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 		
 		JPanel panel = new JPanel();
-		
 		panel.setLayout(new GridLayout(0, 1));
-		
-		
+
+
 		// active
-		JPanel panel_active = new JPanel();
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
 
-		panel_active.setLayout(new FlowLayout());
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
 
 
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-		
 		// consumer key
-		JPanel panel_consumer_key = new JPanel();
+		JPanel panelConsumerKey = new JPanel();
+		panelConsumerKey.setLayout(new FlowLayout());
 
-		panel_consumer_key.setLayout(new FlowLayout());
+		JLabel lblConsumerKey = new JLabel("Consumer key:");
+		lblConsumerKey.setPreferredSize(new Dimension(100, 24));
+		panelConsumerKey.add(lblConsumerKey);
+
+		this.txtConsumerKey = new JTextField();
+		this.txtConsumerKey.setPreferredSize(new Dimension(200, 24));
+		panelConsumerKey.add(this.txtConsumerKey);
+
+		panel.add(panelConsumerKey);
 
 
-		JLabel lbl_consumer_key = new JLabel("Consumer key:");
-
-		lbl_consumer_key.setPreferredSize(new Dimension(100, 24));
-
-		panel_consumer_key.add(lbl_consumer_key);
-
-
-		this.txt_consumer_key = new JTextField();
-		
-		this.txt_consumer_key.setPreferredSize(new Dimension(200, 24));
-		
-		panel_consumer_key.add(this.txt_consumer_key);
-		
-		
-		panel.add(panel_consumer_key);
-		
-		
 		// consumer secret
-		JPanel panel_consumer_secret = new JPanel();
-		
-		panel_consumer_secret.setLayout(new FlowLayout());
-		
-		
-		JLabel lbl_consumer_secret = new JLabel("Consumer secret:");
+		JPanel panelConsumerSecret = new JPanel();
+		panelConsumerSecret.setLayout(new FlowLayout());
 
-		lbl_consumer_secret.setPreferredSize(new Dimension(100, 24));
+		JLabel lblConsumerSecret = new JLabel("Consumer secret:");
+		lblConsumerSecret.setPreferredSize(new Dimension(100, 24));
+		panelConsumerSecret.add(lblConsumerSecret);
 
-		panel_consumer_secret.add(lbl_consumer_secret);
+		this.txtConsumerSecret = new JTextField();
+		this.txtConsumerSecret.setPreferredSize(new Dimension(200, 24));
+		panelConsumerSecret.add(this.txtConsumerSecret);
+
+		panel.add(panelConsumerSecret);
 
 
-		this.txt_consumer_secret = new JTextField();
-		
-		this.txt_consumer_secret.setPreferredSize(new Dimension(200, 24));
-		
-		panel_consumer_secret.add(this.txt_consumer_secret);
-		
-		
-		panel.add(panel_consumer_secret);
-		
-		
 		// token
-		JPanel panel_token = new JPanel();
-		
-		panel_token.setLayout(new FlowLayout());
-		
-		
-		JLabel lbl_token = new JLabel("Token:");
+		JPanel panelToken = new JPanel();
+		panelToken.setLayout(new FlowLayout());
 
-		lbl_token.setPreferredSize(new Dimension(100, 24));
+		JLabel lblToken = new JLabel("Token:");
+		lblToken.setPreferredSize(new Dimension(100, 24));
+		panelToken.add(lblToken);
 
-		panel_token.add(lbl_token);
+		this.txtToken = new JTextField();
+		this.txtToken.setPreferredSize(new Dimension(200, 24));
+		panelToken.add(this.txtToken);
+
+		panel.add(panelToken);
 
 
-		this.txt_token = new JTextField();
-		
-		this.txt_token.setPreferredSize(new Dimension(200, 24));
-		
-		panel_token.add(this.txt_token);
-		
-		
-		panel.add(panel_token);
-		
-		
 		// token secret
-		JPanel panel_token_secret = new JPanel();
-		
-		panel_token_secret.setLayout(new FlowLayout());
-		
-		
-		JLabel lbl_token_secret = new JLabel("Token secret:");
+		JPanel panelTokenSecret = new JPanel();
+		panelTokenSecret.setLayout(new FlowLayout());
 
-		lbl_token_secret.setPreferredSize(new Dimension(100, 24));
+		JLabel lblTokenSecret = new JLabel("Token secret:");
+		lblTokenSecret.setPreferredSize(new Dimension(100, 24));
+		panelTokenSecret.add(lblTokenSecret);
 
-		panel_token_secret.add(lbl_token_secret);
+		this.txtTokenSecret = new JTextField();
+		this.txtTokenSecret.setPreferredSize(new Dimension(200, 24));
+		panelTokenSecret.add(this.txtTokenSecret);
+
+		panel.add(panelTokenSecret);
 
 
-		this.txt_token_secret = new JTextField();
-		
-		this.txt_token_secret.setPreferredSize(new Dimension(200, 24));
-		
-		panel_token_secret.add(this.txt_token_secret);
-		
-		
-		panel.add(panel_token_secret);
-		
-		
 		// method
-		JPanel panel_method = new JPanel();
-		
-		panel_method.setLayout(new FlowLayout());
-		
-		
-		JLabel lbl_method = new JLabel("Method:");
+		JPanel panelMethod = new JPanel();
+		panelMethod.setLayout(new FlowLayout());
 
-		lbl_method.setPreferredSize(new Dimension(100, 24));
-
-		panel_method.add(lbl_method);
-
+		JLabel lblMethod = new JLabel("Method:");
+		lblMethod.setPreferredSize(new Dimension(100, 24));
+		panelMethod.add(lblMethod);
 
 		String[] methods = {"PLAINTEXT", "HMAC-SHA1"};
-		
-		this.cbo_method = new JComboBox(methods);
+		this.cboMethod = new JComboBox(methods);
+		this.cboMethod.setPreferredSize(new Dimension(200, 24));
+		panelMethod.add(this.cboMethod);
 
-		this.cbo_method.setPreferredSize(new Dimension(200, 24));
-		
-		panel_method.add(this.cbo_method);
-		
-		
-		panel.add(panel_method);
-		
-		
+		panel.add(panelMethod);
+
+
 		this.add(panel);
 	}
 }

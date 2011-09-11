@@ -45,36 +45,36 @@ public class Request extends Message
 	{
 		this.header = new HashMap<String, String>();
 		
-		this.parse_url(url);
+		this.parseUrl(url);
 		
 		this.parse(request);
 	}
 
-	public String get_request_method()
+	public String getRequestMethod()
 	{
 		return this.method;
 	}
 
-	public String get_url()
+	public String getUrl()
 	{
 		return this.url.toString();
 	}
 
-	public HashMap<String, String> get_params()
+	public HashMap<String, String> getParams()
 	{
 		HashMap<String, String> params = new HashMap<String, String>();
 		
 		return params;
 	}
 	
-	private void parse_url(String raw_url) throws Exception
+	private void parseUrl(String rawUrl) throws Exception
 	{
-		if(!raw_url.startsWith("http://") && !raw_url.startsWith("https://"))
+		if(!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"))
 		{
-			raw_url = "http://" + raw_url;
+			rawUrl = "http://" + rawUrl;
 		}
 
-		this.url = new URL(raw_url);
+		this.url = new URL(rawUrl);
 		
 		this.host = url.getHost();
 		this.path = url.getPath();
@@ -106,36 +106,36 @@ public class Request extends Message
 
 
 		// get request line
-		this.set_line(this.parse_request_line(header));
+		this.setLine(this.parseRequestLine(header));
 
 
 		// parse header
-		this.set_headers(Util.parse_header(header, "\n"));
+		this.setHeaders(Util.parseHeader(header, "\n"));
 
-		this.set_header("Host", this.host);
+		this.setHeader("Host", this.host);
 
 
 		// set body
-		this.set_body(body);
+		this.setBody(body);
 	}
 
-	private String parse_request_line(String raw_request)
+	private String parseRequestLine(String rawRequest)
 	{
-		String raw_line;
-		int pos = raw_request.indexOf("\n");
+		String rawLine;
+		int pos = rawRequest.indexOf("\n");
 		
 		if(pos == -1)
 		{
-			raw_line = raw_request.trim();
+			rawLine = rawRequest.trim();
 		}
 		else
 		{
-			raw_line = raw_request.substring(0, pos).trim();
+			rawLine = rawRequest.substring(0, pos).trim();
 		}
 
 
 		// split parts
-		String[] parts = raw_line.split(" ");
+		String[] parts = rawLine.split(" ");
 
 		String method = "";
 		String path = "";
@@ -168,7 +168,7 @@ public class Request extends Message
 		
 		
 		// check method
-		if(!Util.is_valid_method(method))
+		if(!Util.isValidMethod(method))
 		{
 			method = Http.method;
 		}
@@ -187,7 +187,7 @@ public class Request extends Message
 		
 		
 		// check type
-		if(!Util.is_valid_type(type))
+		if(!Util.isValidType(type))
 		{
 			type = Http.type;
 		}
@@ -201,11 +201,11 @@ public class Request extends Message
 
 	public String toString()
 	{
-		return Util.build_message(this.line, this.header, this.body, "\n");
+		return Util.buildMessage(this.line, this.header, this.body, "\n");
 	}
 
-	public String get_http_message()
+	public String getHttpMessage()
 	{
-		return Util.build_message(this.line, this.header, this.body, Http.new_line);
+		return Util.buildMessage(this.line, this.header, this.body, Http.newLine);
 	}
 }

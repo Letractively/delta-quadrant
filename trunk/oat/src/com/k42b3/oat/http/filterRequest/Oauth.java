@@ -52,64 +52,57 @@ import com.k42b3.oat.http.filterRequest.oauthSignature.Util;
 public class Oauth implements RequestFilterInterface
 {
 	private Properties config = new Properties();
-	
-	public void exec(Request request) 
+
+	public void exec(Request request) throws Exception
 	{
-		try
-		{
-			// get config
-			String consumer_key = this.config.getProperty("consumer_key");
-			String consumer_secret = this.config.getProperty("consumer_secret");
-			String token = this.config.getProperty("token");
-			String token_secret = this.config.getProperty("token_secret");
-			String method = this.config.getProperty("method");
+		// get config
+		String consumerKey = this.config.getProperty("consumer_key");
+		String consumerSecret = this.config.getProperty("consumer_secret");
+		String token = this.config.getProperty("token");
+		String tokenSecret = this.config.getProperty("token_secret");
+		String method = this.config.getProperty("method");
 
 
-			// add values
-			HashMap<String, String> values = new HashMap<String, String>();
+		// add values
+		HashMap<String, String> values = new HashMap<String, String>();
 
-			values.put("oauth_consumer_key", consumer_key);
-			values.put("oauth_token", token);
-			values.put("oauth_signature_method", method);
-			values.put("oauth_timestamp", this.get_timestamp());
-			values.put("oauth_nonce", this.get_nonce());
-			values.put("oauth_version", this.get_version());
-
-
-			// add get vars to values
-			values.putAll(request.get_params());
+		values.put("oauth_consumer_key", consumerKey);
+		values.put("oauth_token", token);
+		values.put("oauth_signature_method", method);
+		values.put("oauth_timestamp", this.getTimestamp());
+		values.put("oauth_nonce", this.getNonce());
+		values.put("oauth_version", this.getVersion());
 
 
-			// build base string
-			String base_string = this.build_base_string(request.get_request_method(), request.get_url(), values);
+		// add get vars to values
+		values.putAll(request.getParams());
 
 
-			// get signature
-			SignatureInterface sig;
-
-			String cls = "com.k42b3.oat.http.filterRequest.oauthSignature." + this.resolveMethod(method);
-
-			Class c = Class.forName(cls);
-			
-			sig = (SignatureInterface) c.newInstance();
+		// build base string
+		String baseString = this.buildBaseString(request.getRequestMethod(), request.getUrl(), values);
 
 
-			// build signature
-			values.put("oauth_signature", sig.build(base_string, consumer_secret, token_secret));
-			
-			
-			// add header to request
-			request.set_header("Authorization", "OAuth realm=\"oat\", " + this.build_auth_string(values));
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+		// get signature
+		SignatureInterface sig;
+
+		String cls = "com.k42b3.oat.http.filterRequest.oauthSignature." + this.resolveMethod(method);
+
+		Class c = Class.forName(cls);
+
+		sig = (SignatureInterface) c.newInstance();
+
+
+		// build signature
+		values.put("oauth_signature", sig.build(baseString, consumerSecret, tokenSecret));
+
+
+		// add header to request
+		request.setHeader("Authorization", "OAuth realm=\"oat\", " + this.buildAuthString(values));
 	}
 
-	private String build_auth_string(HashMap<String, String> values)
+	private String buildAuthString(HashMap<String, String> values)
 	{
-		StringBuilder auth_string = new StringBuilder();
+		StringBuilder authString = new StringBuilder();
 
 		Iterator<Entry<String, String>> it = values.entrySet().iterator();
 
@@ -117,37 +110,37 @@ public class Oauth implements RequestFilterInterface
 		{
 			Entry<String, String> e = it.next();
 
-			auth_string.append(Util.urlEncode(e.getKey()) + "=\"" + Util.urlEncode(e.getValue()) + "\", ");
+			authString.append(Util.urlEncode(e.getKey()) + "=\"" + Util.urlEncode(e.getValue()) + "\", ");
 		}
 
-		String str = auth_string.toString();
+		String str = authString.toString();
 
-		
+
 		// remove ", " from string
 		str = str.substring(0, str.length() - 2);
 
-		
+
 		return str;
 	}
 
-	private String build_base_string(String request_method, String url, HashMap<String, String> params)
+	private String buildBaseString(String request_method, String url, HashMap<String, String> params)
 	{
 		StringBuilder base = new StringBuilder();
-		
-		base.append(Util.urlEncode(this.get_normalized_method(request_method)));
+
+		base.append(Util.urlEncode(this.getNormalizedMethod(request_method)));
 
 		base.append('&');
-		
-		base.append(Util.urlEncode(this.get_normalized_url(url)));
+
+		base.append(Util.urlEncode(this.getNormalizedUrl(url)));
 
 		base.append('&');
-		
-		base.append(Util.urlEncode(this.get_normalized_parameters(params)));
+
+		base.append(Util.urlEncode(this.getNormalizedParameters(params)));
 
 		return base.toString();
 	}
 	
-	private String get_normalized_parameters(HashMap<String, String> params)
+	private String getNormalizedParameters(HashMap<String, String> params)
 	{
 		Iterator<Entry<String, String>> it = params.entrySet().iterator();
 
@@ -166,14 +159,14 @@ public class Oauth implements RequestFilterInterface
 
 
 		// build normalized params
-		StringBuilder normalized_params = new StringBuilder();
+		StringBuilder normalizedParams = new StringBuilder();
 
 		for(int i = 0; i < keys.size(); i++)
 		{
-			normalized_params.append(Util.urlEncode(keys.get(i)) + "=" + Util.urlEncode(params.get(keys.get(i))) + "&");
+			normalizedParams.append(Util.urlEncode(keys.get(i)) + "=" + Util.urlEncode(params.get(keys.get(i))) + "&");
 		}
 
-		String str = normalized_params.toString();
+		String str = normalizedParams.toString();
 
 
 		// remove trailing &
@@ -183,13 +176,13 @@ public class Oauth implements RequestFilterInterface
 		return str;
 	}
 
-	private String get_normalized_url(String raw_url)
+	private String getNormalizedUrl(String rawUrl)
 	{
 		try
 		{
-			raw_url = raw_url.toLowerCase();
+			rawUrl = rawUrl.toLowerCase();
 
-			URL url = new URL(raw_url);
+			URL url = new URL(rawUrl);
 
 			int port = url.getPort();
 
@@ -210,17 +203,17 @@ public class Oauth implements RequestFilterInterface
 		}
 	}
 
-	private String get_normalized_method(String method)
+	private String getNormalizedMethod(String method)
 	{
 		return method.toUpperCase();
 	}
 
-	private String get_timestamp()
+	private String getTimestamp()
 	{
 		return "" + (System.currentTimeMillis() / 1000);
 	}
 
-	private String get_nonce()
+	private String getNonce()
 	{
 		try
 		{
@@ -241,7 +234,7 @@ public class Oauth implements RequestFilterInterface
 		}
 	}
 
-	private String get_version()
+	private String getVersion()
 	{
 		return "1.0";
 	}
@@ -263,7 +256,7 @@ public class Oauth implements RequestFilterInterface
 		}
 	}
 
-	public void set_config(Properties config)
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}

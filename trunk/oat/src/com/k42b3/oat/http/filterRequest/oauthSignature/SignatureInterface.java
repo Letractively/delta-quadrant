@@ -33,5 +33,5 @@ package com.k42b3.oat.http.filterRequest.oauthSignature;
  */
 public interface SignatureInterface 
 {
-	public String build(String base_string, String consumer_secret, String token_secret);
+	public String build(String baseString, String consumerSecret, String tokenSecret);
 }

@@ -42,17 +42,17 @@ public class BasicAuth implements RequestFilterInterface
 {
 	private Properties config = new Properties();
 
-	public void exec(Request request) 
+	public void exec(Request request)
 	{
 		String user = this.config.getProperty("user");
 		String pw = this.config.getProperty("pw");
 
 		String auth = new BASE64Encoder().encode((user + ":" + pw).getBytes());
 
-		request.set_header("Authorization", "Basic " + auth);
+		request.setHeader("Authorization", "Basic " + auth);
 	}
 
-	public void set_config(Properties config)
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}
