@@ -95,7 +95,7 @@ public class Util
 		codes.put(505, "HTTP Version Not Supported");
 	}
 
-	public static boolean is_valid_code(int code, String message)
+	public static boolean isValidCode(int code, String message)
 	{
 		if(Util.codes.containsKey(code))
 		{
@@ -105,7 +105,7 @@ public class Util
 		return false;
 	}
 
-	public static boolean is_valid_method(String method)
+	public static boolean isValidMethod(String method)
 	{
 		for(int i = 0; i < Util.methods.length; i++)
 		{
@@ -118,7 +118,7 @@ public class Util
 		return false;
 	}
 	
-	public static boolean is_valid_type(String type)
+	public static boolean isValidType(String type)
 	{
 		for(int i = 0; i < Util.types.length; i++)
 		{
@@ -131,20 +131,20 @@ public class Util
 		return false;
 	}
 	
-	public static Charset get_content_type_charset(String content_type)
+	public static Charset getContentTypeCharset(String contentType)
 	{
 		// default charset
 		String charset = "UTF-8";
 
 		
 		// we look in the content-type header for an charset
-		if(content_type != null)
+		if(contentType != null)
 		{
-			int pos = content_type.indexOf("charset=");
+			int pos = contentType.indexOf("charset=");
 			
 			if(pos != -1)
 			{
-				charset = content_type.substring(pos + 8).trim();
+				charset = contentType.substring(pos + 8).trim();
 			}
 		}
 
@@ -152,11 +152,11 @@ public class Util
 		return Charset.forName(charset);
 	}
 	
-	public static Map<String, String> parse_header(String raw_header, String delimiter)
+	public static Map<String, String> parseHeader(String rawHeader, String delimiter)
 	{
 		LinkedHashMap<String, String> headers = new LinkedHashMap<String, String>();
 		
-		String[] lines = raw_header.split(delimiter);
+		String[] lines = rawHeader.split(delimiter);
 
 		if(lines.length > 0)
 		{
@@ -181,13 +181,13 @@ public class Util
 		return headers;
 	}
 	
-	public static String build_message(String status_line, Map<String, String> header, String body, String delimter)
+	public static String buildMessage(String statusLine, Map<String, String> header, String body, String delimter)
 	{
 		StringBuilder str = new StringBuilder();
 
 		Iterator<Entry<String, String>> itr = header.entrySet().iterator();
 
-		str.append(status_line + delimter);
+		str.append(statusLine + delimter);
 
 		while(itr.hasNext())
 		{

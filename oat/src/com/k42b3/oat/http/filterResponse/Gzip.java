@@ -45,52 +45,45 @@ public class Gzip implements ResponseFilterInterface
 {
 	private Properties config = new Properties();
 	
-	public void exec(Response response) 
+	public void exec(Response response) throws Exception
 	{
-		if(response.get_header().containsKey("Content-Encoding"))
+		if(response.getHeader().containsKey("Content-Encoding"))
 		{
-			String encoding = response.get_header().get("Content-Encoding");
+			String encoding = response.getHeader().get("Content-Encoding");
 
 			if(encoding.indexOf("gzip") != -1)
 			{
-				try
+				ByteBuffer raw_body = response.getRawBody();
+
+				raw_body.rewind();
+
+				byte[] bytes = new byte[raw_body.capacity()];
+
+				raw_body.get(bytes, 0, bytes.length);
+
+
+				GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
+
+				BufferedReader br = new BufferedReader(new InputStreamReader(gis));
+
+
+				// decode
+				StringBuilder buffer = new StringBuilder();
+				char[] buf = new char[512];
+				int len;
+				
+				while((len = br.read(buf)) > 0)
 				{
-					ByteBuffer raw_body = response.get_raw_body();
-
-					raw_body.rewind();
-
-					byte[] bytes = new byte[raw_body.capacity()];
-
-					raw_body.get(bytes, 0, bytes.length);
-
-
-					GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
-
-					BufferedReader br = new BufferedReader(new InputStreamReader(gis));
-
-
-					// decode
-					StringBuilder buffer = new StringBuilder();
-					char[] buf = new char[512];
-					int len;
-					
-					while((len = br.read(buf)) > 0)
-					{
-						buffer.append(buf, 0, len);
-					}
-
-
-					response.set_body(buffer.toString());
+					buffer.append(buf, 0, len);
 				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
+
+
+				response.setBody(buffer.toString());
 			}
 		}
 	}
-	
-	public void set_config(Properties config)
+
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}

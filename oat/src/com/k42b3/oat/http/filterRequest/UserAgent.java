@@ -44,10 +44,10 @@ public class UserAgent implements RequestFilterInterface
 	{
 		String agent = this.config.getProperty("agent");
 
-		request.set_header("User-Agent", agent);
+		request.setHeader("User-Agent", agent);
 	}
 
-	public void set_config(Properties config)
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}

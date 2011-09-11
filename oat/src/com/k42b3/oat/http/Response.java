@@ -35,18 +35,18 @@ import java.nio.ByteBuffer;
  */
 public class Response extends Message
 {
-	public Response(String header, ByteBuffer raw_body)
+	public Response(String header, ByteBuffer rawBody)
 	{
 		// get request line
-		this.set_line(this.parse_response_line(header));
+		this.setLine(this.parseResponseLine(header));
 		
 		
 		// parse header
-		this.set_headers(Util.parse_header(header, Http.new_line));
+		this.setHeaders(Util.parseHeader(header, Http.newLine));
 		
 		
 		// set raw body
-		this.set_raw_body(raw_body);
+		this.setRawBody(rawBody);
 
 
 		// set body in hex format
@@ -54,9 +54,9 @@ public class Response extends Message
 		String hex;
 		int i = 0;
 
-		raw_body.rewind();
+		rawBody.rewind();
 
-		while(i < raw_body.remaining())
+		while(i < rawBody.remaining())
 		{
 			if(i > 0 && i % 16 == 0)
 			{
@@ -64,7 +64,7 @@ public class Response extends Message
 			}
 			
 			
-			hex = (Integer.toHexString(raw_body.get(i))).toUpperCase();
+			hex = (Integer.toHexString(rawBody.get(i))).toUpperCase();
 			
 			if(hex.length() == 1)
 			{
@@ -76,34 +76,34 @@ public class Response extends Message
 			i++;
 		}
 		
-		this.set_body(body.toString());
+		this.setBody(body.toString());
 	}
 
-	private String parse_response_line(String raw_response)
+	private String parseResponseLine(String rawResponse)
 	{
 		// get response line
-		String raw_line;
-		int pos = raw_response.indexOf(Http.new_line);
+		String rawLine;
+		int pos = rawResponse.indexOf(Http.newLine);
 		
 		if(pos == -1)
 		{
-			raw_line = raw_response.trim();
+			rawLine = rawResponse.trim();
 		}
 		else
 		{
-			raw_line = raw_response.substring(0, pos).trim();
+			rawLine = rawResponse.substring(0, pos).trim();
 		}
 
-		return raw_line;
+		return rawLine;
 	}
 	
 	public String toString()
 	{
-		return Util.build_message(this.line, this.header, this.body, "\n");
+		return Util.buildMessage(this.line, this.header, this.body, "\n");
 	}
 
-	public String get_http_message()
+	public String getHttpMessage()
 	{
-		return Util.build_message(this.line, this.header, this.body, Http.new_line);
+		return Util.buildMessage(this.line, this.header, this.body, Http.newLine);
 	}
 }

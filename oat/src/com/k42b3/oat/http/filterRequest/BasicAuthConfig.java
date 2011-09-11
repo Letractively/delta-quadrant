@@ -45,9 +45,9 @@ import com.k42b3.oat.ConfigFilter;
  */
 public class BasicAuthConfig extends ConfigFilter
 {
-	private JCheckBox ckb_active;
-	private JTextField txt_user;
-	private JTextField txt_pw;
+	private JCheckBox ckbActive;
+	private JTextField txtUser;
+	private JTextField txtPw;
 	
 	public String getName()
 	{
@@ -58,95 +58,70 @@ public class BasicAuthConfig extends ConfigFilter
 	{
 		Properties props = new Properties();
 		
-		props.setProperty("user", this.txt_user.getText());
-		props.setProperty("pw", this.txt_pw.getText());
+		props.setProperty("user", this.txtUser.getText());
+		props.setProperty("pw", this.txtPw.getText());
 
 		return props;
 	}
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
+		return this.ckbActive.isSelected();
 	}
 
 	public BasicAuthConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
+
 		JPanel panel = new JPanel();
-		
 		panel.setLayout(new GridLayout(0, 1));
-		
-		
+
+
 		// active
-		JPanel panel_active = new JPanel();
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
 
-		panel_active.setLayout(new FlowLayout());
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
 
 
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-		
 		// user
-		JPanel panel_user = new JPanel();
+		JPanel panelUser = new JPanel();
+		panelUser.setLayout(new FlowLayout());
 
-		panel_user.setLayout(new FlowLayout());
+		JLabel lblUser = new JLabel("User:");
+		lblUser.setPreferredSize(new Dimension(100, 24));
+		panelUser.add(lblUser);
+
+		this.txtUser = new JTextField();
+		this.txtUser.setPreferredSize(new Dimension(200, 24));
+		panelUser.add(this.txtUser);
+
+		panel.add(panelUser);
 
 
-		JLabel lbl_user = new JLabel("User:");
-
-		lbl_user.setPreferredSize(new Dimension(100, 24));
-
-		panel_user.add(lbl_user);
-
-
-		this.txt_user = new JTextField();
-		
-		this.txt_user.setPreferredSize(new Dimension(200, 24));
-		
-		panel_user.add(this.txt_user);
-		
-		
-		panel.add(panel_user);
-		
-		
 		// password
-		JPanel panel_pw = new JPanel();
+		JPanel panelPw = new JPanel();
+		panelPw.setLayout(new FlowLayout());
 
-		panel_pw.setLayout(new FlowLayout());
+		JLabel lblPw = new JLabel("Password:");
+		lblPw.setPreferredSize(new Dimension(100, 24));
+		panelPw.add(lblPw);
+
+		this.txtPw = new JTextField();
+		this.txtPw.setPreferredSize(new Dimension(200, 24));
+		panelPw.add(this.txtPw);
+
+		panel.add(panelPw);
 
 
-		JLabel lbl_pw = new JLabel("Password:");
-
-		lbl_pw.setPreferredSize(new Dimension(100, 24));
-
-		panel_pw.add(lbl_pw);
-
-
-		this.txt_pw = new JTextField();
-		
-		txt_pw.setPreferredSize(new Dimension(200, 24));
-		
-		panel_pw.add(txt_pw);
-		
-		
-		panel.add(panel_pw);
-		
-		
 		this.add(panel);
 	}
 }

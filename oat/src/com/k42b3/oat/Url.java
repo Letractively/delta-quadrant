@@ -28,7 +28,7 @@ import java.awt.Font;
 import javax.swing.JTextField;
 
 /**
- * url
+ * Url
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3

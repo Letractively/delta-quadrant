@@ -27,7 +27,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- * entry
+ * Entry
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -66,7 +66,7 @@ public class Entry
 		}
 		catch(Exception e)
 		{
-			System.out.print(e.getMessage());
+			Oat.handleException(e);
 		}
 	}
 }

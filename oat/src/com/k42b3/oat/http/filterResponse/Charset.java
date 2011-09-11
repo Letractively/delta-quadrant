@@ -42,22 +42,22 @@ public class Charset implements ResponseFilterInterface
 {
 	private Properties config = new Properties();
 	
-	public void exec(Response response) 
+	public void exec(Response response) throws Exception
 	{
 		// default charset
-		String charset_name = this.config.getProperty("charset");
+		String charsetName = this.config.getProperty("charset");
 
 
 		// we look in the content-type header for an charset
-		String content_type = response.get_header().get("Content-Type");
+		String contentType = response.getHeader().get("Content-Type");
 		
-		if(content_type != null)
+		if(contentType != null)
 		{
-			int pos = content_type.indexOf("charset=");
+			int pos = contentType.indexOf("charset=");
 			
 			if(pos != -1)
 			{
-				charset_name = content_type.substring(pos + 8).trim();
+				charsetName = contentType.substring(pos + 8).trim();
 			}
 		}
 
@@ -67,7 +67,7 @@ public class Charset implements ResponseFilterInterface
 
 		try
 		{
-			charset = java.nio.charset.Charset.forName(charset_name);
+			charset = java.nio.charset.Charset.forName(charsetName);
 		}
 		catch(Exception e)
 		{
@@ -78,19 +78,12 @@ public class Charset implements ResponseFilterInterface
 		// decode
 		CharsetDecoder decoder = charset.newDecoder();
 		
-		try
-		{
-			CharBuffer body = decoder.decode(response.get_raw_body());
-			
-			response.set_body(body.toString());
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
+		CharBuffer body = decoder.decode(response.getRawBody());
+
+		response.setBody(body.toString());
 	}
 
-	public void set_config(Properties config)
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}

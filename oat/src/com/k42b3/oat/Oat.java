@@ -24,6 +24,8 @@
 package com.k42b3.oat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -43,7 +45,9 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
@@ -66,7 +70,7 @@ import com.k42b3.oat.http.Http;
 import com.k42b3.oat.http.Request;
 
 /**
- * oat
+ * Oat
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -78,16 +82,17 @@ public class Oat extends JFrame
 	public static String VERSION = "0.0.4 beta";
 	
 	private JTextField url;
-	private In in;
-	private Out out;
+	private JTabbedPane tp;
 	private Toolbar toolbar;
 	private JList list;
-	
+
 	private ArrayList<RequestFilterInterface> filtersIn = new ArrayList<RequestFilterInterface>();
 	private ArrayList<ResponseFilterInterface> filtersOut = new ArrayList<ResponseFilterInterface>();
 	private boolean isActive = false;
 
 	private Logger logger;
+	private Dig digWin;
+	private Form formWin;
 
 	public Oat()
 	{
@@ -103,7 +108,7 @@ public class Oat extends JFrame
 
 		// url
 		JPanel panelUrl = new JPanel();
-		panelUrl.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
+		panelUrl.setBorder(BorderFactory.createEmptyBorder(2, 2, 4, 2));
 		panelUrl.setLayout(new BorderLayout());
 
 		this.url = new Url();
@@ -132,154 +137,44 @@ public class Oat extends JFrame
 		this.add(panelUrl, BorderLayout.NORTH);
 
 
-		// main panel
-		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		// tabbed pane
+		this.tp = new JTabbedPane();
 
-
-		// in
-		JPanel panelIn = new JPanel();
-		
-		panelIn.setLayout(new BorderLayout());
-				
-		
-		// header
-		JPanel panelInHeader = new JPanel();
-		
-		panelInHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
-		
-		panelInHeader.setLayout(new BorderLayout());
-		
-		
-		JLabel lblIn = new JLabel("Request:");
-		
-		panelInHeader.add(lblIn, BorderLayout.CENTER);
-		
-		
-		JPanel panelBtnFilterIn = new JPanel();
-		
-		panelBtnFilterIn.setLayout(new FlowLayout());
-		
-		JButton btnInFilter = new JButton("Filter");
-		
-		btnInFilter.addActionListener(new inFilterHandler());
-		
-		panelBtnFilterIn.add(btnInFilter);
-		
-		panelInHeader.add(panelBtnFilterIn, BorderLayout.EAST);
-		
-		
-		panelIn.add(panelInHeader, BorderLayout.NORTH);
-		
-		
-		
-		this.in  = new In();
-		
-		JScrollPane scrIn = new JScrollPane(this.in);
-
-		scrIn.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
-		
-		scrIn.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		scrIn.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
-		
-		panelIn.add(scrIn, BorderLayout.CENTER);
-		
-		
-		sp.add(panelIn);
-		
-		
-		// out
-		JPanel panelOut = new JPanel();
-		
-		panelOut.setLayout(new BorderLayout());
-				
-		
-		// header
-		JPanel panelOutHeader = new JPanel();
-		
-		panelOutHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
-		
-		panelOutHeader.setLayout(new BorderLayout());
-		
-		
-		JLabel lblOut = new JLabel("Response:");
-		
-		panelOutHeader.add(lblOut, BorderLayout.CENTER);
-		
-		
-		JPanel panelBtnFilterOut = new JPanel();
-		
-		panelBtnFilterOut.setLayout(new FlowLayout());
-		
-		JButton btnOutFilter = new JButton("Filter");
-		
-		btnOutFilter.addActionListener(new outFilterHandler());
-		
-		panelBtnFilterOut.add(btnOutFilter);
-		
-		panelOutHeader.add(panelBtnFilterOut, BorderLayout.EAST);
-		
-		
-		panelOut.add(panelOutHeader, BorderLayout.NORTH);
-		
-		
-		this.out = new Out();
-			
-		JScrollPane scrOut = new JScrollPane(this.out);
-		
-		scrOut.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
-		
-		scrOut.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		
-		scrOut.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
-
-		panelOut.add(scrOut, BorderLayout.CENTER);
-
-
-		sp.add(panelOut);
-
-
-		this.add(sp, BorderLayout.CENTER);
+		this.add(this.tp, BorderLayout.CENTER);
 
 
 		// toolbar
 		this.toolbar = new Toolbar();
-		
-		this.toolbar.getRun().addActionListener(new runHandler());
-		
-		this.toolbar.getSave().addActionListener(new saveHandler());
-		
-		this.toolbar.getReset().addActionListener(new resetHandler());
-		
-		this.toolbar.getDig().addActionListener(new digHandler());
-
-		this.toolbar.getAbout().addActionListener(new aboutHandler());
-		
-		this.toolbar.getExit().addActionListener(new exitHandler());
+		this.toolbar.getRun().addActionListener(new RunHandler());
+		this.toolbar.getNewTab().addActionListener(new NewTabHandler());
+		this.toolbar.getSave().addActionListener(new SaveHandler());
+		this.toolbar.getReset().addActionListener(new ResetHandler());
+		this.toolbar.getDig().addActionListener(new DigHandler());
+		this.toolbar.getForm().addActionListener(new FormHandler());
+		this.toolbar.getAbout().addActionListener(new AboutHandler());
+		this.toolbar.getExit().addActionListener(new ExitHandler());
 
 		this.add(this.toolbar, BorderLayout.SOUTH);
 
 
 		// list
 		this.list = new JList();
-
 		this.list.setModel(new FileList());
-
-		this.list.addListSelectionListener(new listHandler());
-
+		this.list.addListSelectionListener(new ListHandler());
 		this.list.setPreferredSize(new Dimension(128, 400));
 
 		JScrollPane scrList = new JScrollPane(this.list);
-		
 		scrList.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-		
 		scrList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
 		scrList.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		this.add(scrList, BorderLayout.EAST);
 
-		
+
+		// add new tab
+		this.buildNewTab();
+
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
@@ -298,7 +193,7 @@ public class Oat extends JFrame
 			uri.setTextContent(this.url.getText());
 
 			Element request = doc.createElement("request");
-			request.setTextContent(this.in.getText());
+			request.setTextContent(this.getActiveIn().getText());
 
 			root.appendChild(uri);
 			root.appendChild(request);
@@ -317,7 +212,7 @@ public class Oat extends JFrame
 			}
 
 			URL url = new URL(rawUrl);
-			String hash = DigestUtils.md5Hex(this.in.getText()).substring(0, 8);
+			String hash = DigestUtils.md5Hex(this.getActiveIn().getText()).substring(0, 8);
 			String fileName = url.getHost() + "_" + hash + ".xml";
 
 			File file = new File(fileName);
@@ -333,7 +228,7 @@ public class Oat extends JFrame
 		}
 		catch(Exception e)
 		{
-			out.setText(e.getMessage());
+			getActiveOut().setText(e.getMessage());
 		}
 	}
 
@@ -344,7 +239,7 @@ public class Oat extends JFrame
 			this.isActive = true;
 
 			SwingUtilities.invokeLater(new Runnable(){
-				
+
 				public void run() 
 				{
 					toolbar.getRun().setEnabled(false);
@@ -354,18 +249,18 @@ public class Oat extends JFrame
 
 			try
 			{
-				Request request = new Request(url.getText(), in.getText());
+				Request request = new Request(url.getText(), getActiveIn().getText());
 
 				Http http = new Http(url.getText(), request, new CallbackInterface(){
 
 					public void response(Object content) 
 					{
-						out.setText(content.toString());
+						getActiveOut().setText(content.toString());
 
 						isActive = false;
-						
+
 						SwingUtilities.invokeLater(new Runnable(){
-							
+
 							public void run() 
 							{
 								toolbar.getRun().setEnabled(true);
@@ -380,7 +275,7 @@ public class Oat extends JFrame
 				// add response filters
 				for(int i = 0; i < filtersOut.size(); i++)
 				{
-					http.add_response_filter(filtersOut.get(i));
+					http.addResponseFilter(filtersOut.get(i));
 				}
 
 
@@ -392,51 +287,219 @@ public class Oat extends JFrame
 
 
 				// start thread
-				new Thread(new ThreadGroup("http"), http).start();
+				Thread thread = new Thread(http);
+				thread.start();
 
 
-				out.setText("");
+				getActiveOut().setText("");
 
-				in.setText(request.toString());
+				getActiveIn().setText(request.toString());
 			}
 			catch(Exception ex)
 			{
-				out.setText(ex.getMessage());
+				getActiveOut().setText(ex.getMessage());
 			}
 		}
 	}
 
-	public class resetHandler implements ActionListener
+	public void buildNewTab()
 	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			url.setText("");
-			in.setText("");
-			out.setText("");
+		// main panel
+		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		sp.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
 
-			url.requestFocusInWindow();
-		}
+
+		// in
+		JPanel panelIn = new JPanel();
+		panelIn.setLayout(new BorderLayout());	
+
+
+		// header
+		JPanel panelInHeader = new JPanel();
+		panelInHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		panelInHeader.setLayout(new BorderLayout());
+
+		JLabel lblIn = new JLabel("Request:");
+		panelInHeader.add(lblIn, BorderLayout.CENTER);
+
+		JPanel panelBtnFilterIn = new JPanel();
+		panelBtnFilterIn.setLayout(new FlowLayout());
+
+		JButton btnInFilter = new JButton("Filter");
+		btnInFilter.addActionListener(new InFilterHandler());
+
+		panelBtnFilterIn.add(btnInFilter);
+		panelInHeader.add(panelBtnFilterIn, BorderLayout.EAST);
+
+		panelIn.add(panelInHeader, BorderLayout.NORTH);
+		
+		
+		// in textarea
+		In in  = new In();
+		
+		JScrollPane scrIn = new JScrollPane(in);
+		scrIn.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+		scrIn.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrIn.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
+
+		panelIn.add(scrIn, BorderLayout.CENTER);
+
+
+		// out
+		JPanel panelOut = new JPanel();
+		panelOut.setLayout(new BorderLayout());
+
+
+		// header
+		JPanel panelOutHeader = new JPanel();
+		panelOutHeader.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
+		panelOutHeader.setLayout(new BorderLayout());
+
+
+		JLabel lblOut = new JLabel("Response:");
+		panelOutHeader.add(lblOut, BorderLayout.CENTER);
+
+		JPanel panelBtnFilterOut = new JPanel();
+		panelBtnFilterOut.setLayout(new FlowLayout());
+
+		JButton btnOutFilter = new JButton("Filter");
+		btnOutFilter.addActionListener(new OutFilterHandler());
+
+		panelBtnFilterOut.add(btnOutFilter);
+		panelOutHeader.add(panelBtnFilterOut, BorderLayout.EAST);
+
+		panelOut.add(panelOutHeader, BorderLayout.NORTH);
+
+
+		// out textarea
+		Out out = new Out();
+
+		JScrollPane scrOut = new JScrollPane(out);
+		scrOut.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+		scrOut.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrOut.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);	
+
+		panelOut.add(scrOut, BorderLayout.CENTER);
+
+
+		sp.add(panelIn);
+		sp.add(panelOut);
+
+
+		this.tp.addTab("Request #" + this.tp.getTabCount(), sp);
+		this.tp.setSelectedIndex(this.tp.getTabCount() - 1);
+
+		reset();
 	}
 
-	public class digHandler implements ActionListener
+	private void reset()
 	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			Dig win = new Dig();
-			win.pack();
-			win.setVisible(true);
-		}
+		getActiveIn().setText("");
+		getActiveOut().setText("");
+
+		url.setText("");
+		url.requestFocusInWindow();
 	}
 
-	public class runHandler implements ActionListener
+	private In getActiveIn()
+	{
+		JSplitPane sp = (JSplitPane) this.tp.getSelectedComponent();
+		JPanel pa = (JPanel) sp.getComponent(1);
+		JScrollPane cp = (JScrollPane) pa.getComponent(1);
+		JViewport vp = (JViewport) cp.getComponent(0);
+		In in = (In) vp.getComponent(0);
+
+		return in;
+	}
+
+	private Out getActiveOut()
+	{
+		JSplitPane sp = (JSplitPane) this.tp.getSelectedComponent();
+		JPanel pa = (JPanel) sp.getComponent(2);
+		JScrollPane cp = (JScrollPane) pa.getComponent(1);
+		JViewport vp = (JViewport) cp.getComponent(0);
+		Out out = (Out) vp.getComponent(0);
+
+		return out;
+	}
+
+	public static void handleException(Exception e)
+	{
+		e.printStackTrace();
+	}
+
+	public class RunHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
 			run();
 		}
 	}
-	
-	public class saveHandler implements ActionListener
+
+	public class NewTabHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{
+			buildNewTab();
+		}
+	}
+
+	public class ResetHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			reset();
+		}
+	}
+
+	public class DigHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(digWin == null)
+			{
+				digWin = new Dig();
+				digWin.pack();
+			}
+
+			if(!digWin.isVisible())
+			{
+				digWin.setVisible(true);
+			}
+
+			digWin.requestFocus();
+		}
+	}
+
+	public class FormHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			if(formWin == null)
+			{
+				formWin = new Form();
+				formWin.pack();
+			}
+
+			if(!formWin.isVisible())
+			{
+				formWin.setVisible(true);
+			}
+
+			formWin.parseHtml(getActiveOut().getText());
+			formWin.setCallback(new CallbackInterface() {
+
+				public void response(Object content) 
+				{
+					getActiveIn().setBody(content.toString());
+				}
+
+			});
+			formWin.requestFocus();
+		}
+	}
+
+	public class SaveHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e)
 		{
@@ -446,17 +509,18 @@ public class Oat extends JFrame
 			}
 			catch(Exception ex)
 			{
-				out.setText(ex.getMessage());
+				getActiveOut().setText(ex.getMessage());
 			}
 		}
 	}
 	
-	public class aboutHandler implements ActionListener
+	public class AboutHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
+			Out out = getActiveOut();
+
 			out.setText("");
-			
 			out.append("Version: oat " + VERSION + "\n");
 			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
 			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
@@ -469,7 +533,7 @@ public class Oat extends JFrame
 		}
 	}
 	
-	public class exitHandler implements ActionListener
+	public class ExitHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -477,7 +541,7 @@ public class Oat extends JFrame
 		}
 	}
 	
-	public class listHandler implements ListSelectionListener
+	public class ListHandler implements ListSelectionListener
 	{
 		public void valueChanged(ListSelectionEvent e) 
 		{
@@ -500,7 +564,7 @@ public class Oat extends JFrame
 				if(uriList.getLength() > 0 && requestList.getLength() > 0)
 				{
 					url.setText(uriList.item(0).getTextContent());
-					in.setText(requestList.item(0).getTextContent());
+					getActiveIn().setText(requestList.item(0).getTextContent());
 				}
 				else
 				{
@@ -509,12 +573,12 @@ public class Oat extends JFrame
 			}
 			catch(Exception ex)
 			{
-				out.setText(ex.getMessage());
+				getActiveOut().setText(ex.getMessage());
 			}
 		}
 	}
 
-	public class inFilterHandler implements ActionListener
+	public class InFilterHandler implements ActionListener
 	{
 		private FilterIn win;
 		
@@ -539,7 +603,6 @@ public class Oat extends JFrame
 						}
 
 						win.pack();
-
 						win.setVisible(true);		
 					}
 					
@@ -548,7 +611,7 @@ public class Oat extends JFrame
 		}
 	}
 	
-	public class outFilterHandler implements ActionListener
+	public class OutFilterHandler implements ActionListener
 	{
 		private FilterOut win;
 		
@@ -571,9 +634,8 @@ public class Oat extends JFrame
 
 							});
 						}
-						
+
 						win.pack();
-						
 						win.setVisible(true);			
 					}
 					

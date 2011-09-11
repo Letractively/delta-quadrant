@@ -29,7 +29,7 @@ import java.awt.Font;
 import javax.swing.JTextArea;
 
 /**
- * in
+ * In
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -49,5 +49,24 @@ public class In extends JTextArea
 		this.setBackground(new Color(255, 255, 255));
 
 		this.setForeground(new Color(0, 0, 0));
+	}
+	
+	public void setBody(String body)
+	{
+		// split header body
+		String header = "";
+
+		int pos = this.getText().indexOf("\n\n");
+
+		if(pos == -1)
+		{
+			header = this.getText();
+		}
+		else
+		{
+			header = this.getText().substring(0, pos).trim();
+		}
+
+		this.setText(header + "\n\n" + body);
 	}
 }

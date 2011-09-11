@@ -48,9 +48,9 @@ import com.k42b3.oat.ConfigFilter;
  */
 public class UserAgentConfig extends ConfigFilter
 {
-	private JCheckBox ckb_active;
-	private JComboBox cbo_agent;
-	
+	private JCheckBox ckbActive;
+	private JComboBox cboAgent;
+
 	public String getName()
 	{
 		return "User agent";
@@ -59,12 +59,12 @@ public class UserAgentConfig extends ConfigFilter
 	public Properties onSave() 
 	{
 		Properties props = new Properties();
-		
-		Object item = this.cbo_agent.getSelectedItem();
+
+		Object item = this.cboAgent.getSelectedItem();
 		
 		if(item != null)
 		{
-			props.setProperty("agent", ((agent_entry) item).get_value());
+			props.setProperty("agent", ((AgentEntry) item).getValue());
 		}
 
 		return props;
@@ -72,98 +72,81 @@ public class UserAgentConfig extends ConfigFilter
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
+		return this.ckbActive.isSelected();
 	}
 
 	public UserAgentConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
+
 		JPanel panel = new JPanel();
-		
 		panel.setLayout(new GridLayout(0, 1));
-		
-		
+
+
 		// active
-		JPanel panel_active = new JPanel();
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
 
-		panel_active.setLayout(new FlowLayout());
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
 
 
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-		
 		// agent
-		JPanel panel_agent = new JPanel();
+		JPanel panelAgent = new JPanel();
+		panelAgent.setLayout(new FlowLayout());
 
-		panel_agent.setLayout(new FlowLayout());
+		JLabel lblAgent = new JLabel("User agent:");
+		lblAgent.setPreferredSize(new Dimension(100, 24));
+		panelAgent.add(lblAgent);
 
+		this.cboAgent = new JComboBox();
+		this.cboAgent.setPreferredSize(new Dimension(200, 24));
+		panelAgent.add(this.cboAgent);
 
-		JLabel lbl_agent = new JLabel("User agent:");
-
-		lbl_agent.setPreferredSize(new Dimension(100, 24));
-
-		panel_agent.add(lbl_agent);
-
-
-		this.cbo_agent = new JComboBox();
-		
-		this.cbo_agent.setPreferredSize(new Dimension(200, 24));
-
-		panel_agent.add(this.cbo_agent);
-
-
-		panel.add(panel_agent);
+		panel.add(panelAgent);
 
 
 		this.add(panel);
-		
-		
+
+
 		// add agents
-		ArrayList<agent_entry> agents = new ArrayList<agent_entry>();
-		
-		agents.add(new agent_entry("Firefox 4.0", "Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.3) Gecko/20100401 Firefox/4.0 (.NET CLR 3.5.30729)"));
-		agents.add(new agent_entry("Firefox 3.8", "Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.9.0.2) Gecko/20121223 Ubuntu/9.25 (jaunty) Firefox/3.8"));
-		agents.add(new agent_entry("Internet Explorer 8", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.2; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)"));
-		agents.add(new agent_entry("Internet Explorer 7", "Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)"));
-		agents.add(new agent_entry("Internet Explorer 6", "Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)"));
-		agents.add(new agent_entry("Lynx 2.8.7", "Lynx/2.8.7dev.4 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/0.9.8d"));
-		agents.add(new agent_entry("Opera 9.70", "Opera/9.70 (Linux i686 ; U; en) Presto/2.2.1"));
-		agents.add(new agent_entry("Safari 5.0", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_5_8; ja-jp) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16"));
-		agents.add(new agent_entry("Safari 4.1", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_4_11; nl-nl) AppleWebKit/533.16 (KHTML, like Gecko) Version/4.1 Safari/533.16"));
-		agents.add(new agent_entry("Konqueror 4.4", "Mozilla/5.0 (compatible; Konqueror/4.4; Linux) KHTML/4.4.1 (like Gecko) Fedora/4.4.1-1.fc12"));
-		agents.add(new agent_entry("Googlebot 2.1", "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"));
-		
-		this.cbo_agent.setModel(new agent_model(agents));
+		ArrayList<AgentEntry> agents = new ArrayList<AgentEntry>();
+
+		agents.add(new AgentEntry("Firefox 4.0", "Mozilla/5.0 (Windows; U; Windows NT 6.1; ru; rv:1.9.2.3) Gecko/20100401 Firefox/4.0 (.NET CLR 3.5.30729)"));
+		agents.add(new AgentEntry("Firefox 3.8", "Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.9.0.2) Gecko/20121223 Ubuntu/9.25 (jaunty) Firefox/3.8"));
+		agents.add(new AgentEntry("Internet Explorer 8", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.2; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0)"));
+		agents.add(new AgentEntry("Internet Explorer 7", "Mozilla/5.0 (Windows; U; MSIE 7.0; Windows NT 6.0; en-US)"));
+		agents.add(new AgentEntry("Internet Explorer 6", "Mozilla/5.0 (Windows; U; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 2.0.50727)"));
+		agents.add(new AgentEntry("Lynx 2.8.7", "Lynx/2.8.7dev.4 libwww-FM/2.14 SSL-MM/1.4.1 OpenSSL/0.9.8d"));
+		agents.add(new AgentEntry("Opera 9.70", "Opera/9.70 (Linux i686 ; U; en) Presto/2.2.1"));
+		agents.add(new AgentEntry("Safari 5.0", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_5_8; ja-jp) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16"));
+		agents.add(new AgentEntry("Safari 4.1", "Mozilla/5.0 (Macintosh; U; PPC Mac OS X 10_4_11; nl-nl) AppleWebKit/533.16 (KHTML, like Gecko) Version/4.1 Safari/533.16"));
+		agents.add(new AgentEntry("Konqueror 4.4", "Mozilla/5.0 (compatible; Konqueror/4.4; Linux) KHTML/4.4.1 (like Gecko) Fedora/4.4.1-1.fc12"));
+		agents.add(new AgentEntry("Googlebot 2.1", "Googlebot/2.1 (+http://www.googlebot.com/bot.html)"));
+
+		this.cboAgent.setModel(new AgentModel(agents));
 	}
 
-	class agent_model implements ComboBoxModel
+	class AgentModel implements ComboBoxModel
 	{
-		ArrayList<agent_entry> agents = new ArrayList<agent_entry>();
+		ArrayList<AgentEntry> agents = new ArrayList<AgentEntry>();
 		ArrayList<ListDataListener> listener = new ArrayList<ListDataListener>();
 		
 		private Object selected;
 
-		public agent_model(ArrayList<agent_entry> agents)
+		public AgentModel(ArrayList<AgentEntry> agents)
 		{
 			this.agents.addAll(agents);
 		}
 
-		public agent_model()
+		public AgentModel()
 		{
 			this(null);
 		}
@@ -199,30 +182,30 @@ public class UserAgentConfig extends ConfigFilter
 		}
 	}
 	
-	class agent_entry
+	class AgentEntry
 	{
 		private String key;
 		private String value;
 		
-		public agent_entry(String key, String value)
+		public AgentEntry(String key, String value)
 		{
 			this.key = key;
 			this.value = value;
 		}
 		
-		public String get_key()
+		public String getKey()
 		{
 			return this.key;
 		}
 		
-		public String get_value()
+		public String getValue()
 		{
 			return this.value;
 		}
 		
 		public String toString()
 		{
-			return this.get_key();
+			return this.getKey();
 		}
 	}
 }

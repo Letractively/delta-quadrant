@@ -28,7 +28,7 @@ import java.util.Properties;
 import com.k42b3.oat.http.Request;
 
 /**
- * irequest_filter
+ * RequestFilterInterface
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -37,6 +37,6 @@ import com.k42b3.oat.http.Request;
  */
 public interface RequestFilterInterface 
 {
-	public void exec(Request request);
-	public void set_config(Properties config);
+	public void exec(Request request) throws Exception;
+	public void setConfig(Properties config);
 }

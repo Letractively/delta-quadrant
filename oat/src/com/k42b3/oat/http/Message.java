@@ -39,49 +39,49 @@ public class Message
 	protected String line;
 	protected Map<String, String> header;
 	protected String body;
-	protected ByteBuffer raw_body;
-	
-	public String get_line()
+	protected ByteBuffer rawBody;
+
+	public String getLine()
 	{
 		return this.line;
 	}
-	
-	public Map<String, String> get_header()
+
+	public Map<String, String> getHeader()
 	{
 		return this.header;
 	}
-	
-	public String get_body()
+
+	public String getBody()
 	{
 		return this.body;
 	}
-		
-	public ByteBuffer get_raw_body()
+
+	public ByteBuffer getRawBody()
 	{
-		return this.raw_body;
+		return this.rawBody;
 	}
-	
-	public void set_line(String line)
+
+	public void setLine(String line)
 	{
 		this.line = line;
 	}
-	
-	public void set_headers(Map<String, String> headers)
+
+	public void setHeaders(Map<String, String> headers)
 	{
 		this.header = headers;
 	}
 
-	public void set_body(String body)
+	public void setBody(String body)
 	{
 		this.body = body;
 	}
 
-	public void set_raw_body(ByteBuffer raw_body)
+	public void setRawBody(ByteBuffer raw_body)
 	{
-		this.raw_body = raw_body;
+		this.rawBody = raw_body;
 	}
 	
-	public void set_header(String key, String value)
+	public void setHeader(String key, String value)
 	{
 		this.header.put(key, value);
 	}

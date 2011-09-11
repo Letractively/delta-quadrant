@@ -42,10 +42,10 @@ public class ContentLength implements RequestFilterInterface
 
 	public void exec(Request request) 
 	{
-		request.set_header("Content-Length", "" + request.get_body().length());
+		request.setHeader("Content-Length", "" + request.getBody().length());
 	}
 
-	public void set_config(Properties config)
+	public void setConfig(Properties config)
 	{
 		this.config = config;
 	}
