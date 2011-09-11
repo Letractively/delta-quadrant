@@ -28,6 +28,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -73,7 +75,7 @@ import com.k42b3.oat.http.Request;
  */
 public class Oat extends JFrame
 {
-	public static String ver = "0.0.4 beta";
+	public static String VERSION = "0.0.4 beta";
 	
 	private JTextField url;
 	private In in;
@@ -83,6 +85,7 @@ public class Oat extends JFrame
 	
 	private ArrayList<RequestFilterInterface> filtersIn = new ArrayList<RequestFilterInterface>();
 	private ArrayList<ResponseFilterInterface> filtersOut = new ArrayList<ResponseFilterInterface>();
+	private boolean isActive = false;
 
 	private Logger logger;
 
@@ -90,30 +93,41 @@ public class Oat extends JFrame
 	{
 		logger = Logger.getLogger("com.k42b3.oat");
 
-
-		this.setTitle("oat (version: " + ver + ")");
-		
+		// settings
+		this.setTitle("oat " + VERSION);
 		this.setLocation(100, 100);
-		
 		this.setSize(600, 500);
-		
 		this.setMinimumSize(this.getSize());
-
 		this.setLayout(new BorderLayout());
 
 
 		// url
 		JPanel panelUrl = new JPanel();
-		
 		panelUrl.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
 		panelUrl.setLayout(new BorderLayout());
-				
-		
-		this.url = new Url();
-		
-		panelUrl.add(this.url, BorderLayout.CENTER);
 
+		this.url = new Url();
+		this.url.addKeyListener(new KeyListener() {
+
+			public void keyTyped(KeyEvent e) 
+			{
+			}
+
+			public void keyReleased(KeyEvent e) 
+			{
+				if(e.getKeyCode() == KeyEvent.VK_ENTER)
+				{
+					run();
+				}
+			}
+
+			public void keyPressed(KeyEvent e) 
+			{
+			}
+
+		});
+
+		panelUrl.add(this.url, BorderLayout.CENTER);
 
 		this.add(panelUrl, BorderLayout.NORTH);
 
@@ -121,7 +135,7 @@ public class Oat extends JFrame
 		// main panel
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 
-		
+
 		// in
 		JPanel panelIn = new JPanel();
 		
@@ -237,6 +251,8 @@ public class Oat extends JFrame
 		
 		this.toolbar.getReset().addActionListener(new resetHandler());
 		
+		this.toolbar.getDig().addActionListener(new digHandler());
+
 		this.toolbar.getAbout().addActionListener(new aboutHandler());
 		
 		this.toolbar.getExit().addActionListener(new exitHandler());
@@ -321,6 +337,75 @@ public class Oat extends JFrame
 		}
 	}
 
+	private void run()
+	{
+		if(!this.isActive)
+		{
+			this.isActive = true;
+
+			SwingUtilities.invokeLater(new Runnable(){
+				
+				public void run() 
+				{
+					toolbar.getRun().setEnabled(false);
+				}
+
+			});
+
+			try
+			{
+				Request request = new Request(url.getText(), in.getText());
+
+				Http http = new Http(url.getText(), request, new CallbackInterface(){
+
+					public void response(Object content) 
+					{
+						out.setText(content.toString());
+
+						isActive = false;
+						
+						SwingUtilities.invokeLater(new Runnable(){
+							
+							public void run() 
+							{
+								toolbar.getRun().setEnabled(true);
+							}
+
+						});
+					}
+
+				});
+
+
+				// add response filters
+				for(int i = 0; i < filtersOut.size(); i++)
+				{
+					http.add_response_filter(filtersOut.get(i));
+				}
+
+
+				// apply request filter 
+				for(int i = 0; i < filtersIn.size(); i++)
+				{
+					filtersIn.get(i).exec(request);
+				}
+
+
+				// start thread
+				new Thread(new ThreadGroup("http"), http).start();
+
+
+				out.setText("");
+
+				in.setText(request.toString());
+			}
+			catch(Exception ex)
+			{
+				out.setText(ex.getMessage());
+			}
+		}
+	}
+
 	public class resetHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
@@ -333,77 +418,21 @@ public class Oat extends JFrame
 		}
 	}
 
+	public class digHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			Dig win = new Dig();
+			win.pack();
+			win.setVisible(true);
+		}
+	}
+
 	public class runHandler implements ActionListener
 	{
-		private boolean isActive = false;
-
 		public void actionPerformed(ActionEvent e)
 		{
-			if(!this.isActive)
-			{
-				this.isActive = true;
-
-				SwingUtilities.invokeLater(new Runnable(){
-					
-					public void run() 
-					{
-						toolbar.getRun().setEnabled(false);
-					}
-
-				});
-
-				try
-				{
-					Request request = new Request(url.getText(), in.getText());
-
-					Http http = new Http(url.getText(), request, new CallbackInterface(){
-
-						public void response(Object content) 
-						{
-							out.setText(content.toString());
-
-							isActive = false;
-							
-							SwingUtilities.invokeLater(new Runnable(){
-								
-								public void run() 
-								{
-									toolbar.getRun().setEnabled(true);
-								}
-
-							});
-						}
-
-					});
-
-
-					// add response filters
-					for(int i = 0; i < filtersOut.size(); i++)
-					{
-						http.add_response_filter(filtersOut.get(i));
-					}
-
-
-					// apply request filter 
-					for(int i = 0; i < filtersIn.size(); i++)
-					{
-						filtersIn.get(i).exec(request);
-					}
-
-
-					// start thread
-					new Thread(new ThreadGroup("http"), http).start();
-
-
-					out.setText("");
-
-					in.setText(request.toString());
-				}
-				catch(Exception ex)
-				{
-					out.setText(ex.getMessage());
-				}
-			}
+			run();
 		}
 	}
 	
@@ -428,7 +457,7 @@ public class Oat extends JFrame
 		{
 			out.setText("");
 			
-			out.append("Version: oat " + ver + "\n");
+			out.append("Version: oat " + VERSION + "\n");
 			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
 			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
 			out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");

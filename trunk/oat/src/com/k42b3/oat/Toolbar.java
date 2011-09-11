@@ -5,7 +5,7 @@
  * save a request for later use. The application uses the java nio library to 
  * make non-blocking requests so the requests should work fluently.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010,2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -41,6 +41,7 @@ public class Toolbar extends JPanel
 	private JButton btnRun;
 	private JButton btnSave;
 	private JButton btnReset;
+	private JButton btnDig;
 	private JButton btnAbout;
 	private JButton btnExit;
 	
@@ -51,12 +52,14 @@ public class Toolbar extends JPanel
 		this.btnRun   = new JButton("Run");
 		this.btnSave  = new JButton("Save");
 		this.btnReset = new JButton("Reset");
+		this.btnDig   = new JButton("Dig");
 		this.btnAbout = new JButton("About");
 		this.btnExit  = new JButton("Exit");
 		
 		this.btnRun.setMnemonic(java.awt.event.KeyEvent.VK_R);
 		this.btnSave.setMnemonic(java.awt.event.KeyEvent.VK_S);
 		this.btnReset.setMnemonic(java.awt.event.KeyEvent.VK_E);
+		this.btnDig.setMnemonic(java.awt.event.KeyEvent.VK_D);
 		this.btnAbout.setMnemonic(java.awt.event.KeyEvent.VK_A);
 		this.btnExit.setMnemonic(java.awt.event.KeyEvent.VK_Q);
 		
@@ -65,6 +68,7 @@ public class Toolbar extends JPanel
 		this.add(this.btnRun);
 		this.add(this.btnSave);
 		this.add(this.btnReset);
+		this.add(this.btnDig);
 		this.add(this.btnAbout);
 		this.add(this.btnExit);
 	}
@@ -83,7 +87,12 @@ public class Toolbar extends JPanel
 	{
 		return this.btnReset;
 	}
-	
+
+	public JButton getDig()
+	{
+		return this.btnDig;
+	}
+
 	public JButton getAbout()
 	{
 		return this.btnAbout;
