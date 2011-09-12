@@ -26,6 +26,8 @@ package com.k42b3.oat;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 
@@ -40,6 +42,7 @@ import javax.swing.JFrame;
 public class Form extends JFrame
 {
 	private CallbackInterface cb;
+	private HashMap<String, String> values = new HashMap<String, String>();
 
 	public Form()
 	{
@@ -53,6 +56,51 @@ public class Form extends JFrame
 	
 	public void parseHtml(String html)
 	{
+		boolean inForm = false;
+		boolean inInputTag = false;
+		boolean inTextareaTag = false;
+		boolean inSelectTag = false;
+
+		for(int i = 0; i < html.length(); i++)
+		{
+			if(inInputTag)
+			{
+				if(this.startsWith("<input", i, html))
+				{
+					inInputTag = true;
+				}
+			}
+
+			if(!inForm)
+			{
+				if(this.startsWith("<form", i, html))
+				{
+					inForm = true;
+				}
+			}
+			else
+			{
+				if(this.startsWith("<input", i, html))
+				{
+					inInputTag = true;
+				}
+
+				if(this.startsWith("<textarea", i, html))
+				{
+					inTextareaTag = true;
+				}
+
+				if(this.startsWith("<select", i, html))
+				{
+					inSelectTag = true;
+				}
+
+				if(this.startsWith("</form>", i, html))
+				{
+					inForm = false;
+				}
+			}
+		}
 	}
 
 	public void setCallback(CallbackInterface cb)
@@ -60,6 +108,19 @@ public class Form extends JFrame
 		this.cb = cb;
 	}
 	
+	private boolean startsWith(String phrase, int index, String content)
+	{
+		for(int i = 0; i < phrase.length(); i++)
+		{
+			if(Character.toLowerCase(content.charAt(index + i)) != Character.toLowerCase(phrase.charAt(i)))
+			{
+				return false;
+			}
+		}
+
+		return true;	
+	}
+
 	public class setHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 

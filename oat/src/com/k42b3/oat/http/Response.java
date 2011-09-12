@@ -39,18 +39,19 @@ public class Response extends Message
 	{
 		// get request line
 		this.setLine(this.parseResponseLine(header));
-		
-		
+
+
 		// parse header
 		this.setHeaders(Util.parseHeader(header, Http.newLine));
-		
-		
+
+
 		// set raw body
 		this.setRawBody(rawBody);
 
 
 		// set body in hex format
 		StringBuilder body = new StringBuilder();
+		StringBuilder bodyFormat = new StringBuilder();
 		String hex;
 		int i = 0;
 
@@ -58,25 +59,29 @@ public class Response extends Message
 
 		while(i < rawBody.remaining())
 		{
-			if(i > 0 && i % 16 == 0)
-			{
-				body.append("\n");
-			}
-			
-			
 			hex = (Integer.toHexString(rawBody.get(i))).toUpperCase();
-			
-			if(hex.length() == 1)
-			{
-				hex = "0" + hex;
-			}
-			
-			body.append(hex + " ");
-			
+
+			body.append(hex);
+
 			i++;
 		}
-		
-		this.setBody(body.toString());
+
+		for(int j = 0; j < body.length(); j++)
+		{
+			if(j > 0 && j % 32 == 0)
+			{
+				bodyFormat.append("\n");
+			}
+			else if (j > 0 && j % 2 == 0)
+			{
+				bodyFormat.append(" ");
+			}
+
+			bodyFormat.append(body.charAt(j));
+		}
+
+
+		this.setBody(bodyFormat.toString());
 	}
 
 	private String parseResponseLine(String rawResponse)
