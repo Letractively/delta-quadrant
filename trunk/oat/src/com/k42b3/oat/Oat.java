@@ -24,9 +24,6 @@
 package com.k42b3.oat;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,16 +39,18 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JViewport;
+import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Result;
@@ -79,11 +78,10 @@ import com.k42b3.oat.http.Request;
  */
 public class Oat extends JFrame
 {
-	public static String VERSION = "0.0.4 beta";
-	
+	public static String VERSION = "0.0.5 beta";
+
 	private JTextField url;
 	private JTabbedPane tp;
-	private Toolbar toolbar;
 	private JList list;
 
 	private ArrayList<RequestFilterInterface> filtersIn = new ArrayList<RequestFilterInterface>();
@@ -104,6 +102,10 @@ public class Oat extends JFrame
 		this.setSize(600, 500);
 		this.setMinimumSize(this.getSize());
 		this.setLayout(new BorderLayout());
+
+
+		// menu
+		this.setJMenuBar(this.buildMenuBar());
 
 
 		// url
@@ -143,93 +145,11 @@ public class Oat extends JFrame
 		this.add(this.tp, BorderLayout.CENTER);
 
 
-		// toolbar
-		this.toolbar = new Toolbar();
-		this.toolbar.getRun().addActionListener(new RunHandler());
-		this.toolbar.getNewTab().addActionListener(new NewTabHandler());
-		this.toolbar.getSave().addActionListener(new SaveHandler());
-		this.toolbar.getReset().addActionListener(new ResetHandler());
-		this.toolbar.getDig().addActionListener(new DigHandler());
-		this.toolbar.getForm().addActionListener(new FormHandler());
-		this.toolbar.getAbout().addActionListener(new AboutHandler());
-		this.toolbar.getExit().addActionListener(new ExitHandler());
-
-		this.add(this.toolbar, BorderLayout.SOUTH);
-
-
-		// list
-		this.list = new JList();
-		this.list.setModel(new FileList());
-		this.list.addListSelectionListener(new ListHandler());
-		this.list.setPreferredSize(new Dimension(128, 400));
-
-		JScrollPane scrList = new JScrollPane(this.list);
-		scrList.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-		scrList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		scrList.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
-		this.add(scrList, BorderLayout.EAST);
-
-
 		// add new tab
-		this.buildNewTab();
+		this.newTab();
 
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-
-	private void saveFile()
-	{
-		try
-		{
-			// build xml
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.newDocument();
-
-			Element root = doc.createElement("oat");
-
-			Element uri = doc.createElement("uri");
-			uri.setTextContent(this.url.getText());
-
-			Element request = doc.createElement("request");
-			request.setTextContent(this.getActiveIn().getText());
-
-			root.appendChild(uri);
-			root.appendChild(request);
-
-			doc.appendChild(root);
-
-
-			// write to file
-			Source source = new DOMSource(doc);
-
-			String rawUrl = this.url.getText();
-
-			if(!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"))
-			{
-				rawUrl = "http://" + rawUrl;
-			}
-
-			URL url = new URL(rawUrl);
-			String hash = DigestUtils.md5Hex(this.getActiveIn().getText()).substring(0, 8);
-			String fileName = url.getHost() + "_" + hash + ".xml";
-
-			File file = new File(fileName);
-
-			Result result = new StreamResult(file);
-
-			Transformer xformer = TransformerFactory.newInstance().newTransformer();
-			xformer.transform(source, result);
-
-
-			// reload list
-			((FileList) list.getModel()).load();
-		}
-		catch(Exception e)
-		{
-			getActiveOut().setText(e.getMessage());
-		}
 	}
 
 	private void run()
@@ -237,15 +157,6 @@ public class Oat extends JFrame
 		if(!this.isActive)
 		{
 			this.isActive = true;
-
-			SwingUtilities.invokeLater(new Runnable(){
-
-				public void run() 
-				{
-					toolbar.getRun().setEnabled(false);
-				}
-
-			});
 
 			try
 			{
@@ -258,15 +169,6 @@ public class Oat extends JFrame
 						getActiveOut().setText(content.toString());
 
 						isActive = false;
-
-						SwingUtilities.invokeLater(new Runnable(){
-
-							public void run() 
-							{
-								toolbar.getRun().setEnabled(true);
-							}
-
-						});
 					}
 
 				});
@@ -302,7 +204,24 @@ public class Oat extends JFrame
 		}
 	}
 
-	public void buildNewTab()
+	private void reset()
+	{
+		getActiveIn().setText("");
+		getActiveOut().setText("");
+
+		url.setText("");
+
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() 
+			{
+				url.requestFocusInWindow();
+			}
+
+		});
+	}
+
+	private void newTab()
 	{
 		// main panel
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -389,16 +308,161 @@ public class Oat extends JFrame
 		this.tp.addTab("Request #" + this.tp.getTabCount(), sp);
 		this.tp.setSelectedIndex(this.tp.getTabCount() - 1);
 
+
 		reset();
 	}
 
-	private void reset()
+	private void closeTab()
 	{
-		getActiveIn().setText("");
-		getActiveOut().setText("");
+		if(this.tp.getTabCount() > 1)
+		{
+			this.tp.remove(this.tp.getSelectedIndex());
+		}
+	}
 
-		url.setText("");
-		url.requestFocusInWindow();
+	private void save()
+	{
+		try
+		{
+			// build xml
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.newDocument();
+
+			Element root = doc.createElement("oat");
+
+			Element uri = doc.createElement("uri");
+			uri.setTextContent(this.url.getText());
+
+			Element request = doc.createElement("request");
+			request.setTextContent(this.getActiveIn().getText());
+
+			root.appendChild(uri);
+			root.appendChild(request);
+
+			doc.appendChild(root);
+
+
+			// write to file
+			Source source = new DOMSource(doc);
+
+			String rawUrl = this.url.getText();
+
+			if(!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"))
+			{
+				rawUrl = "http://" + rawUrl;
+			}
+
+			URL url = new URL(rawUrl);
+			String hash = DigestUtils.md5Hex(this.getActiveIn().getText()).substring(0, 8);
+			String fileName = url.getHost() + "_" + hash + ".xml";
+
+			File file = new File(fileName);
+
+			Result result = new StreamResult(file);
+
+			Transformer xformer = TransformerFactory.newInstance().newTransformer();
+			xformer.transform(source, result);
+
+
+			// reload list
+			((FileList) list.getModel()).load();
+		}
+		catch(Exception e)
+		{
+			getActiveOut().setText(e.getMessage());
+		}
+	}
+	
+	private void load()
+	{
+		try
+		{
+			File file = new File(list.getSelectedValue().toString());
+
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
+
+			Element rootElement = (Element) doc.getDocumentElement();
+
+			rootElement.normalize();
+			
+			
+			NodeList uriList = doc.getElementsByTagName("uri");
+			NodeList requestList = doc.getElementsByTagName("request");
+			
+			if(uriList.getLength() > 0 && requestList.getLength() > 0)
+			{
+				url.setText(uriList.item(0).getTextContent());
+				getActiveIn().setText(requestList.item(0).getTextContent());
+			}
+			else
+			{
+				throw new Exception("uri or request element not found");
+			}
+		}
+		catch(Exception ex)
+		{
+			getActiveOut().setText(ex.getMessage());
+		}
+	}
+
+	private void dig()
+	{
+		if(digWin == null)
+		{
+			digWin = new Dig();
+			digWin.pack();
+		}
+
+		if(!digWin.isVisible())
+		{
+			digWin.setVisible(true);
+		}
+
+		digWin.requestFocus();
+	}
+
+	private void form()
+	{
+		if(formWin == null)
+		{
+			formWin = new Form();
+			formWin.pack();
+		}
+
+		if(!formWin.isVisible())
+		{
+			formWin.setVisible(true);
+		}
+
+		formWin.parseHtml(getActiveOut().getText());
+		formWin.setCallback(new CallbackInterface() {
+
+			public void response(Object content) 
+			{
+				getActiveIn().setBody(content.toString());
+			}
+
+		});
+		formWin.requestFocus();
+	}
+
+	private void about()
+	{
+		Out out = getActiveOut();
+
+		out.setText("");
+		out.append("Version: oat " + VERSION + "\n");
+		out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
+		out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
+		out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
+		out.append("\n");
+		out.append("An application with that you can make raw HTTP requests to any URL. You can" + "\n");
+		out.append("save a request for later use. You can apply on the request and the response" + "\n");
+		out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
+		out.append("to make non-blocking requests so it should work fluently." + "\n");
 	}
 
 	private In getActiveIn()
@@ -423,159 +487,134 @@ public class Oat extends JFrame
 		return out;
 	}
 
+	private JMenuBar buildMenuBar()
+	{
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menuUrl = new JMenu("URL");
+		
+		JMenuItem itemRun = new JMenuItem("Run");
+		itemRun.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
+		itemRun.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				run();
+			}
+
+		});
+		menuUrl.add(itemRun);
+
+		JMenuItem itemReset = new JMenuItem("Reset");
+		itemReset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.ALT_MASK));
+		itemReset.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				reset();
+			}
+
+		});
+		menuUrl.add(itemReset);
+
+		JMenuItem itemNewTab = new JMenuItem("New Tab");
+		itemNewTab.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
+		itemNewTab.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				newTab();
+			}
+
+		});
+		menuUrl.add(itemNewTab);
+
+		JMenuItem itemCloseTab = new JMenuItem("Close Tab");
+		itemCloseTab.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
+		itemCloseTab.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				closeTab();
+			}
+
+		});
+		menuUrl.add(itemCloseTab);
+
+		JMenuItem itemSave = new JMenuItem("Save");
+		itemSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+		itemSave.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				save();
+			}
+
+		});
+		menuUrl.add(itemSave);
+
+		JMenuItem itemLoad = new JMenuItem("Load");
+		itemLoad.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
+		itemLoad.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				load();
+			}
+
+		});
+		menuUrl.add(itemLoad);
+
+		menuBar.add(menuUrl);
+
+		JMenu menuExtras = new JMenu("Extras");
+		
+		JMenuItem itemDig = new JMenuItem("Dig");
+		itemDig.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
+		itemDig.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				dig();
+			}
+
+		});
+		menuExtras.add(itemDig);
+		
+		JMenuItem itemForm = new JMenuItem("Form");
+		itemForm.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
+		itemForm.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				form();
+			}
+
+		});
+		menuExtras.add(itemForm);
+
+		menuBar.add(menuExtras);
+
+		JMenu menuHelp = new JMenu("Help");
+
+		JMenuItem itemAbout = new JMenuItem("About", KeyEvent.VK_A);
+		itemAbout.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				about();
+			}
+
+		});
+		menuHelp.add(itemAbout);
+
+		menuBar.add(menuHelp);
+
+		return menuBar;
+	}
+
 	public static void handleException(Exception e)
 	{
 		e.printStackTrace();
-	}
-
-	public class RunHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			run();
-		}
-	}
-
-	public class NewTabHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			buildNewTab();
-		}
-	}
-
-	public class ResetHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			reset();
-		}
-	}
-
-	public class DigHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			if(digWin == null)
-			{
-				digWin = new Dig();
-				digWin.pack();
-			}
-
-			if(!digWin.isVisible())
-			{
-				digWin.setVisible(true);
-			}
-
-			digWin.requestFocus();
-		}
-	}
-
-	public class FormHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			if(formWin == null)
-			{
-				formWin = new Form();
-				formWin.pack();
-			}
-
-			if(!formWin.isVisible())
-			{
-				formWin.setVisible(true);
-			}
-
-			formWin.parseHtml(getActiveOut().getText());
-			formWin.setCallback(new CallbackInterface() {
-
-				public void response(Object content) 
-				{
-					getActiveIn().setBody(content.toString());
-				}
-
-			});
-			formWin.requestFocus();
-		}
-	}
-
-	public class SaveHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e)
-		{
-			try
-			{
-				saveFile();
-			}
-			catch(Exception ex)
-			{
-				getActiveOut().setText(ex.getMessage());
-			}
-		}
-	}
-	
-	public class AboutHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			Out out = getActiveOut();
-
-			out.setText("");
-			out.append("Version: oat " + VERSION + "\n");
-			out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
-			out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
-			out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
-			out.append("\n");
-			out.append("An application with that you can make raw HTTP requests to any URL. You can" + "\n");
-			out.append("save a request for later use. You can apply on the request and the response" + "\n");
-			out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
-			out.append("to make non-blocking requests so it should work fluently." + "\n");
-		}
-	}
-	
-	public class ExitHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-			System.exit(0);
-		}
-	}
-	
-	public class ListHandler implements ListSelectionListener
-	{
-		public void valueChanged(ListSelectionEvent e) 
-		{
-			try
-			{
-				File file = new File(list.getSelectedValue().toString());
-
-				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-				DocumentBuilder db = dbf.newDocumentBuilder();
-				Document doc = db.parse(file);
-
-				Element rootElement = (Element) doc.getDocumentElement();
-
-				rootElement.normalize();
-				
-				
-				NodeList uriList = doc.getElementsByTagName("uri");
-				NodeList requestList = doc.getElementsByTagName("request");
-				
-				if(uriList.getLength() > 0 && requestList.getLength() > 0)
-				{
-					url.setText(uriList.item(0).getTextContent());
-					getActiveIn().setText(requestList.item(0).getTextContent());
-				}
-				else
-				{
-					throw new Exception("uri or request element not found");
-				}
-			}
-			catch(Exception ex)
-			{
-				getActiveOut().setText(ex.getMessage());
-			}
-		}
 	}
 
 	public class InFilterHandler implements ActionListener

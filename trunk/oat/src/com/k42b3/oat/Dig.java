@@ -110,7 +110,10 @@ public class Dig extends JFrame
 		// textfield
 		this.out = new Out();
 
-		this.add(new JScrollPane(this.out), BorderLayout.CENTER);
+		JScrollPane scp = new JScrollPane(this.out);
+		scp.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+
+		this.add(scp, BorderLayout.CENTER);
 
 
 		// buttons
