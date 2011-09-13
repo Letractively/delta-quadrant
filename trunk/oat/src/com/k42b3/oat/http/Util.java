@@ -23,6 +23,7 @@
 
 package com.k42b3.oat.http;
 
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -204,5 +205,17 @@ public class Util
 		}
 
 		return str.toString();
+	}
+	
+	public static String urlEncode(String content)
+	{
+		try
+		{
+			return URLEncoder.encode(content, "UTF-8");
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
 	}
 }
