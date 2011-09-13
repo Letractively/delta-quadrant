@@ -76,9 +76,9 @@ public class Message
 		this.body = body;
 	}
 
-	public void setRawBody(ByteBuffer raw_body)
+	public void setRawBody(ByteBuffer rawBody)
 	{
-		this.rawBody = raw_body;
+		this.rawBody = rawBody;
 	}
 	
 	public void setHeader(String key, String value)

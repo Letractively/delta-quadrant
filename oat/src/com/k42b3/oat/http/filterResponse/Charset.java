@@ -77,7 +77,7 @@ public class Charset implements ResponseFilterInterface
 
 		// decode
 		CharsetDecoder decoder = charset.newDecoder();
-		
+
 		CharBuffer body = decoder.decode(response.getRawBody());
 
 		response.setBody(body.toString());

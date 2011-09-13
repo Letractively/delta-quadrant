@@ -141,14 +141,14 @@ public class FilterOut extends JFrame
 		
 		JButton btnSave = new JButton("Save");
 		
-		btnSave.addActionListener(new handler_save());
+		btnSave.addActionListener(new HandlerSave());
 		
 		panelButtons.add(btnSave);
 		
 		
 		JButton btnCancel = new JButton("Cancel");
 		
-		btnCancel.addActionListener(new handler_cancel());
+		btnCancel.addActionListener(new HandlerCancel());
 		
 		panelButtons.add(btnCancel);
 		
@@ -163,7 +163,7 @@ public class FilterOut extends JFrame
 		FilterOut.active = false;
 	}
 	
-	class handler_save implements ActionListener
+	class HandlerSave implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -187,7 +187,7 @@ public class FilterOut extends JFrame
 		}
 	}
 	
-	class handler_cancel implements ActionListener
+	class HandlerCancel implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
