@@ -47,6 +47,7 @@ public class Entry
 		try
 		{
 			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+			//String lookAndFeel = UIManager.getCrossPlatformLookAndFeelClassName();
 
 			UIManager.setLookAndFeel(lookAndFeel);
 

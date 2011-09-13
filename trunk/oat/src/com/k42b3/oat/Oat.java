@@ -30,19 +30,20 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -52,8 +53,10 @@ import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileFilter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -61,7 +64,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -335,49 +337,50 @@ public class Oat extends JFrame
 	{
 		try
 		{
-			// build xml
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.newDocument();
+			// save file
+			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new XmlFilter());
 
-			Element root = doc.createElement("oat");
+			int returnVal = fc.showSaveDialog(Oat.this);
 
-			Element uri = doc.createElement("uri");
-			uri.setTextContent(this.url.getText());
-
-			Element request = doc.createElement("request");
-			request.setTextContent(this.getActiveIn().getText());
-
-			root.appendChild(uri);
-			root.appendChild(request);
-
-			doc.appendChild(root);
-
-
-			// write to file
-			Source source = new DOMSource(doc);
-
-			String rawUrl = this.url.getText();
-
-			if(!rawUrl.startsWith("http://") && !rawUrl.startsWith("https://"))
+			if(returnVal == JFileChooser.APPROVE_OPTION)
 			{
-				rawUrl = "http://" + rawUrl;
+				// get file
+				File file = fc.getSelectedFile();
+
+				if(!file.getName().endsWith(".xml"))
+				{
+					file = new File(file.getAbsolutePath() + ".xml");
+				}
+
+
+				// build xml
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				Document doc = db.newDocument();
+
+				Element root = doc.createElement("oat");
+
+				Element uri = doc.createElement("uri");
+				uri.setTextContent(this.url.getText());
+
+				Element request = doc.createElement("request");
+				request.setTextContent(this.getActiveIn().getText());
+
+				root.appendChild(uri);
+				root.appendChild(request);
+
+				doc.appendChild(root);
+
+
+				// write to file
+				Source source = new DOMSource(doc);
+				Result result = new StreamResult(file);
+
+				Transformer transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+				transformer.transform(source, result);
 			}
-
-			URL url = new URL(rawUrl);
-			String hash = DigestUtils.md5Hex(this.getActiveIn().getText()).substring(0, 8);
-			String fileName = url.getHost() + "_" + hash + ".xml";
-
-			File file = new File(fileName);
-
-			Result result = new StreamResult(file);
-
-			Transformer xformer = TransformerFactory.newInstance().newTransformer();
-			xformer.transform(source, result);
-
-
-			// reload list
-			((FileList) list.getModel()).load();
 		}
 		catch(Exception e)
 		{
@@ -389,28 +392,39 @@ public class Oat extends JFrame
 	{
 		try
 		{
-			File file = new File(list.getSelectedValue().toString());
+			// load file
+			JFileChooser fc = new JFileChooser();
+			fc.setFileFilter(new XmlFilter());
 
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-			DocumentBuilder db = dbf.newDocumentBuilder();
-			Document doc = db.parse(file);
+			int returnVal = fc.showOpenDialog(Oat.this);
 
-			Element rootElement = (Element) doc.getDocumentElement();
-
-			rootElement.normalize();
-			
-			
-			NodeList uriList = doc.getElementsByTagName("uri");
-			NodeList requestList = doc.getElementsByTagName("request");
-			
-			if(uriList.getLength() > 0 && requestList.getLength() > 0)
+			if(returnVal == JFileChooser.APPROVE_OPTION)
 			{
-				url.setText(uriList.item(0).getTextContent());
-				getActiveIn().setText(requestList.item(0).getTextContent());
-			}
-			else
-			{
-				throw new Exception("uri or request element not found");
+				// get file
+				File file = fc.getSelectedFile();
+
+
+				// read xml
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				Document doc = db.parse(file);
+
+				Element rootElement = (Element) doc.getDocumentElement();
+
+				rootElement.normalize();
+
+				NodeList uriList = doc.getElementsByTagName("uri");
+				NodeList requestList = doc.getElementsByTagName("request");
+				
+				if(uriList.getLength() > 0 && requestList.getLength() > 0)
+				{
+					url.setText(uriList.item(0).getTextContent());
+					getActiveIn().setText(requestList.item(0).getTextContent());
+				}
+				else
+				{
+					throw new Exception("Uri or request element not found");
+				}
 			}
 		}
 		catch(Exception ex)
@@ -473,9 +487,8 @@ public class Oat extends JFrame
 
 	private void about()
 	{
-		Out out = getActiveOut();
+		StringBuilder out = new StringBuilder();
 
-		out.setText("");
 		out.append("Version: oat " + VERSION + "\n");
 		out.append("Author: Christoph \"k42b3\" Kappestein" + "\n");
 		out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
@@ -485,6 +498,8 @@ public class Oat extends JFrame
 		out.append("save a request for later use. You can apply on the request and the response" + "\n");
 		out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
 		out.append("to make non-blocking requests so it should work fluently." + "\n");
+
+		JOptionPane.showMessageDialog(this, out, "About", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	private In getActiveIn()
@@ -702,6 +717,29 @@ public class Oat extends JFrame
 					
 				});
 			}
+		}
+	}
+
+	public class XmlFilter extends FileFilter
+	{
+		public boolean accept(File file)
+		{
+			if(file.isFile())
+			{
+				int pos = file.getName().lastIndexOf('.');
+
+				if(pos != -1 && file.getName().length() > pos + 1)
+				{
+					return file.getName().substring(pos + 1).toLowerCase().equals("xml");
+				}
+			}
+
+			return false;
+	    }
+
+		public String getDescription() 
+		{
+			return "XML File";
 		}
 	}
 }
