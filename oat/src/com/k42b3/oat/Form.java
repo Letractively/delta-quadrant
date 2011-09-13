@@ -37,11 +37,16 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import com.k42b3.oat.http.Util;
 
 /**
  * Form
@@ -55,7 +60,7 @@ public class Form extends JFrame
 {
 	private CallbackInterface cb;
 	private ArrayList<FormData> forms = new ArrayList<FormData>();
-
+	private ArrayList<HashMap<String, JTextField>> fields = new ArrayList<HashMap<String, JTextField>>();
 	private JTabbedPane tb;
 	
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
@@ -65,7 +70,7 @@ public class Form extends JFrame
 		// settings
 		this.setTitle("oat " + Oat.VERSION);
 		this.setLocation(100, 100);
-		this.setSize(300, 400);
+		this.setSize(360, 400);
 		this.setMinimumSize(this.getSize());
 		this.setLayout(new BorderLayout());
 
@@ -74,48 +79,128 @@ public class Form extends JFrame
 		tb = new JTabbedPane();
 
 		this.add(tb, BorderLayout.CENTER);
+		
+		
+		// buttons
+		JPanel panelButtons = new JPanel();
+
+		FlowLayout fl = new FlowLayout();
+		fl.setAlignment(FlowLayout.LEFT);
+
+		panelButtons.setLayout(fl);
+
+		JButton btnInsert = new JButton("Insert");
+		btnInsert.setMnemonic(java.awt.event.KeyEvent.VK_I);
+		btnInsert.addActionListener(new InsertHandler());
+
+		panelButtons.add(btnInsert);
+
+		this.add(panelButtons, BorderLayout.SOUTH);
 	}
 	
 	public void parseHtml(String html)
 	{
-		this.forms.clear();
+		this.reset();
 
 		this.parseForm(html);
 
 		this.buildElements();
 	}
 
+	private void reset()
+	{
+		for(int i = 0; i < this.tb.getTabCount(); i++)
+		{
+			this.tb.removeTabAt(i);
+		}
+
+		this.forms.clear();
+	}
+
+	private void insert()
+	{
+		StringBuilder response = new StringBuilder();
+		HashMap<String, JTextField> fields = this.fields.get(this.tb.getSelectedIndex());
+		Set<Entry<String, JTextField>> set = fields.entrySet();
+		Iterator<Entry<String, JTextField>> iter = set.iterator();
+
+		while(iter.hasNext())
+		{
+			Map.Entry<String, JTextField> item = (Map.Entry<String, JTextField>) iter.next();
+			String value = Util.urlEncode(item.getValue().getText());
+
+			if(value != null)
+			{
+				response.append(item.getKey() + "=" + value);
+
+				if(iter.hasNext())
+				{
+					response.append('&');
+				}
+			}
+		}
+
+		this.cb.response(response.toString());
+
+		this.setVisible(false);
+	}
+
 	private void buildElements()
 	{
-		for(int i = 0; i < forms.size(); i++)
+		if(forms.size() > 0)
 		{
-			Set<Entry<String, String>> set = forms.get(i).getValues().entrySet();
-			Iterator<Entry<String, String>> iter = set.iterator();
-
-			JPanel tabPanel = new JPanel();
-			tabPanel.setLayout(new GridLayout(0, 1));
-
-			tabPanel.add(new JLabel(forms.get(i).getMethod() + " " + forms.get(i).getUrl()));
-
-			while(iter.hasNext())
+			for(int i = 0; i < forms.size(); i++)
 			{
-				Map.Entry<String, String> item = (Map.Entry<String, String>) iter.next();
+				HashMap<String, JTextField> fields = new HashMap<String, JTextField>();
 
-				JPanel panel = new JPanel();
-				panel.setLayout(new FlowLayout());
+				Set<Entry<String, String>> set = forms.get(i).getValues().entrySet();
+				Iterator<Entry<String, String>> iter = set.iterator();
 
-				JLabel lblName = new JLabel(item.getKey());
-				lblName.setPreferredSize(new Dimension(100, 20));
-				JTextField txtValue = new JTextField(item.getValue());
-				txtValue.setPreferredSize(new Dimension(200, 20));
+				JPanel containerPanel = new JPanel();
+				containerPanel.setLayout(new FlowLayout());
+				containerPanel.setPreferredSize(new Dimension(320, 600));
 
-				panel.add(lblName);
-				panel.add(txtValue);
+				JPanel formPanel = new JPanel();
+				formPanel.setLayout(new GridLayout(0, 1));
 
-				tabPanel.add(panel);
+				JLabel lblForm = new JLabel(forms.get(i).getMethod() + " " + forms.get(i).getUrl());
+				lblForm.setBorder(new EmptyBorder(4, 4, 4, 4));
+
+				formPanel.add(lblForm);
+
+				while(iter.hasNext())
+				{
+					Map.Entry<String, String> item = (Map.Entry<String, String>) iter.next();
+
+					JPanel panel = new JPanel();
+					panel.setLayout(new FlowLayout());
+
+					JLabel lblName = new JLabel(item.getKey());
+					lblName.setPreferredSize(new Dimension(100, 20));
+					JTextField txtValue = new JTextField(item.getValue());
+					txtValue.setPreferredSize(new Dimension(200, 20));
+
+					fields.put(item.getKey(), txtValue);
+
+					panel.add(lblName);
+					panel.add(txtValue);
+
+					formPanel.add(panel);
+				}
+
+				containerPanel.add(formPanel);
+
+				JScrollPane scp = new JScrollPane(containerPanel);
+				scp.setBorder(new EmptyBorder(4, 4, 4, 4));
+
+				tb.addTab("Form #" + i, scp);
+
+				this.fields.add(fields);
 			}
-
-			tb.addTab("Form #" + i, tabPanel);
+		}
+		else
+		{
+			tb.addTab("Form #0", new JLabel("No elements found"));
 		}
 	}
 
@@ -268,14 +353,7 @@ public class Form extends JFrame
 		return true;	
 	}
 
-	public class setHandler implements ActionListener
-	{
-		public void actionPerformed(ActionEvent e) 
-		{
-		}
-	}
-	
-	class FormData
+	public class FormData
 	{
 		private String url;
 		private String method;
@@ -337,6 +415,14 @@ public class Form extends JFrame
 		public HashMap<String, String> getValues() 
 		{
 			return values;
+		}
+	}
+
+	public class InsertHandler implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e) 
+		{
+			insert();
 		}
 	}
 }

@@ -126,7 +126,7 @@ public class Dig extends JFrame
 
 		JButton btnLookup = new JButton("Lookup");
 		btnLookup.setMnemonic(java.awt.event.KeyEvent.VK_L);
-		btnLookup.addActionListener(new lookupHandler());
+		btnLookup.addActionListener(new LookupHandler());
 
 		lblStatus = new JLabel("-");
 
@@ -175,7 +175,7 @@ public class Dig extends JFrame
 			{
 				int key = keys.next();
 
-				service.submit(new requestWorker(key, types.get(key)));
+				service.submit(new RequestWorker(key, types.get(key)));
 			}
 
 			service.shutdown();
@@ -186,12 +186,12 @@ public class Dig extends JFrame
 		}
 	}
 
-	class requestWorker implements Runnable
+	class RequestWorker implements Runnable
 	{
 		private int type;
 		private String desc;
 
-		public requestWorker(int type, String desc)
+		public RequestWorker(int type, String desc)
 		{
 			this.type = type;
 			this.desc = desc;
@@ -240,7 +240,7 @@ public class Dig extends JFrame
 		}
 	}
 
-	public class lookupHandler implements ActionListener
+	public class LookupHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
