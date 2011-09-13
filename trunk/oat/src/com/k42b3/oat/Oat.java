@@ -32,6 +32,7 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -67,6 +68,7 @@ import org.w3c.dom.NodeList;
 
 import com.k42b3.oat.http.Http;
 import com.k42b3.oat.http.Request;
+import com.k42b3.oat.http.filterResponse.Charset;
 
 /**
  * Oat
@@ -88,14 +90,13 @@ public class Oat extends JFrame
 	private ArrayList<ResponseFilterInterface> filtersOut = new ArrayList<ResponseFilterInterface>();
 	private boolean isActive = false;
 
-	private Logger logger;
 	private Dig digWin;
 	private Form formWin;
 
+	private Logger logger = Logger.getLogger("com.k42b3.oat");
+	
 	public Oat()
 	{
-		logger = Logger.getLogger("com.k42b3.oat");
-
 		// settings
 		this.setTitle("oat " + VERSION);
 		this.setLocation(100, 100);
@@ -147,6 +148,16 @@ public class Oat extends JFrame
 
 		// add new tab
 		this.newTab();
+
+
+		// add default filter
+		Properties config = new Properties();
+		config.setProperty("charset", "UTF-8");
+
+		Charset filterCharset = new Charset();
+		filterCharset.setConfig(config);
+
+		filtersOut.add(filterCharset);
 
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -410,43 +421,54 @@ public class Oat extends JFrame
 
 	private void dig()
 	{
-		if(digWin == null)
-		{
-			digWin = new Dig();
-			digWin.pack();
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			public void run()
+			{
+				if(digWin == null)
+				{
+					digWin = new Dig();
+					digWin.pack();
+				}
 
-		if(!digWin.isVisible())
-		{
-			digWin.setVisible(true);
-		}
+				if(!digWin.isVisible())
+				{
+					digWin.setVisible(true);
+				}
 
-		digWin.requestFocus();
+				digWin.requestFocus();
+			}
+
+		});
 	}
 
 	private void form()
 	{
-		if(formWin == null)
-		{
-			formWin = new Form();
-			formWin.pack();
-		}
+		SwingUtilities.invokeLater(new Runnable() {
 
-		if(!formWin.isVisible())
-		{
-			formWin.setVisible(true);
-		}
-
-		formWin.parseHtml(getActiveOut().getText());
-		formWin.setCallback(new CallbackInterface() {
-
-			public void response(Object content) 
+			public void run()
 			{
-				getActiveIn().setBody(content.toString());
+				if(formWin != null)
+				{
+					formWin.setVisible(false);
+				}
+
+				formWin = new Form();
+				formWin.pack();
+				formWin.setVisible(true);
+				
+				formWin.parseHtml(getActiveOut().getText());
+				formWin.setCallback(new CallbackInterface() {
+
+					public void response(Object content) 
+					{
+						getActiveIn().setBody(content.toString());
+					}
+
+				});
 			}
 
 		});
-		formWin.requestFocus();
 	}
 
 	private void about()

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import com.k42b3.oat.CallbackInterface;
 import com.k42b3.oat.Oat;
@@ -142,6 +143,8 @@ public class Http implements Runnable
 
 	private ArrayList<ResponseFilterInterface> responseFilter = new ArrayList<ResponseFilterInterface>();
 
+	private Logger logger = Logger.getLogger("com.k42b3.oat");
+
 	public Http(String rawUrl, Request request, CallbackInterface callback) throws Exception
 	{
 		// get host and port from url
@@ -197,6 +200,8 @@ public class Http implements Runnable
 			channel.configureBlocking(false);
 			channel.connect(socketAddress);
 
+			logger.info("Open socket for address " + socketAddress.getAddress().getHostAddress());
+
 			selector = Selector.open();
 
 			channel.register(selector, SelectionKey.OP_CONNECT);
@@ -209,7 +214,7 @@ public class Http implements Runnable
 				while(readyIterator.hasNext())
 				{
 					SelectionKey key = (SelectionKey) readyIterator.next();
-					
+
 					readyIterator.remove();
 
 					SocketChannel keyChannel = (SocketChannel) key.channel();
@@ -291,6 +296,9 @@ public class Http implements Runnable
 								charBufferHeader.flip();
 
 
+								logger.info("Found header end after " + this.read + " bytes");
+
+
 								// reset read count
 								this.read = 0;
 								
@@ -305,10 +313,14 @@ public class Http implements Runnable
 								if(header.containsKey("Content-Length"))
 								{
 									this.contentLength = Integer.parseInt(header.get("Content-Length"));
+
+									logger.info("Found content length " + this.contentLength);
 								}
 								else if(header.containsKey("Transfer-Encoding") && header.get("Transfer-Encoding").equals("chunked"))
 								{
 									this.chunked = true;
+
+									logger.info("Set transfer encoding to chunked");
 								}
 								else
 								{
@@ -378,7 +390,11 @@ public class Http implements Runnable
 					}
 					else if(key.isWritable())
 					{
-						keyChannel.write(defaultEncoder.encode(CharBuffer.wrap(request.getHttpMessage())));
+						CharBuffer buf = CharBuffer.wrap(request.getHttpMessage());
+
+						logger.info("Write " + buf.length() + " bytes to socket");
+
+						keyChannel.write(defaultEncoder.encode(buf));
 
 						channel.register(selector, SelectionKey.OP_READ);
 					}
@@ -387,7 +403,7 @@ public class Http implements Runnable
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			Oat.handleException(e);
 		}
 		finally
 		{
@@ -402,6 +418,9 @@ public class Http implements Runnable
 					Oat.handleException(e);
 				}
 			}
+
+
+			logger.info("Read complete " + this.read + " bytes");
 
 
 			// build body ByteBuffer from buffer_list
@@ -434,12 +453,12 @@ public class Http implements Runnable
 	{
 		return this.request;
 	}
-	
+
 	public Response getResponse()
 	{
 		return this.response;
 	}
-	
+
 	private ByteBuffer mergeBuffer(ArrayList<ByteBuffer> list, int capacity)
 	{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
@@ -460,7 +479,7 @@ public class Http implements Runnable
 		}
 
 		buffer.flip();
-		
+
 		return buffer;
 	}
 }
