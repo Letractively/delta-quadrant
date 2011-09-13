@@ -50,7 +50,7 @@ public class In extends JTextArea
 
 		this.setForeground(new Color(0, 0, 0));
 	}
-	
+
 	public void setBody(String body)
 	{
 		// split header body

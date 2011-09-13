@@ -72,6 +72,7 @@ public class Form extends JFrame
 		this.setLocation(100, 100);
 		this.setSize(360, 400);
 		this.setMinimumSize(this.getSize());
+		this.setResizable(false);
 		this.setLayout(new BorderLayout());
 
 
@@ -163,16 +164,19 @@ public class Form extends JFrame
 				JPanel formPanel = new JPanel();
 				formPanel.setLayout(new GridLayout(0, 1));
 
-				JLabel lblForm = new JLabel(forms.get(i).getMethod() + " " + forms.get(i).getUrl());
-				lblForm.setBorder(new EmptyBorder(4, 4, 4, 4));
+				JPanel panel = new JPanel();
+				panel.setLayout(new FlowLayout());
+				JTextField txtForm = new JTextField(forms.get(i).getMethod() + " " + forms.get(i).getUrl());
+				txtForm.setPreferredSize(new Dimension(305, 20));
+				panel.add(txtForm);
 
-				formPanel.add(lblForm);
+				formPanel.add(panel);
 
 				while(iter.hasNext())
 				{
 					Map.Entry<String, String> item = (Map.Entry<String, String>) iter.next();
 
-					JPanel panel = new JPanel();
+					panel = new JPanel();
 					panel.setLayout(new FlowLayout());
 
 					JLabel lblName = new JLabel(item.getKey());
@@ -200,7 +204,11 @@ public class Form extends JFrame
 		}
 		else
 		{
-			tb.addTab("Form #0", new JLabel("No elements found"));
+			JPanel containerPanel = new JPanel();
+			containerPanel.setLayout(new FlowLayout());
+			containerPanel.add(new JLabel("No elements found"));
+
+			tb.addTab("Form #0", containerPanel);
 		}
 	}
 
@@ -296,8 +304,6 @@ public class Form extends JFrame
 				if(this.startsWith(name + "=", i, content))
 				{
 					sPos = i + name.length();
-
-					logger.info(name + " | " + sPos + " | " + content);
 
 					if(content.charAt(sPos + 1) != '"' && content.charAt(sPos + 1) != '\'')
 					{
