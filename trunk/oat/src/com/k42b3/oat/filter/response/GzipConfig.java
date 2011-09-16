@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -21,7 +21,7 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filterRequest;
+package com.k42b3.oat.filter.response;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -32,23 +32,23 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.k42b3.oat.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilter;
 
 /**
- * contentlength_config
+ * GzipConfig
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class ContentLengthConfig extends ConfigFilter
+public class GzipConfig extends ConfigFilter
 {
-	private JCheckBox ckbActive;
+	private JCheckBox ckb_active;
 	
 	public String getName()
 	{
-		return "Content length";
+		return "GZip";
 	}
 	
 	public Properties onSave() 
@@ -58,32 +58,41 @@ public class ContentLengthConfig extends ConfigFilter
 	
 	public boolean isActive()
 	{
-		return this.ckbActive.isSelected();
+		return this.ckb_active.isSelected();
 	}
-
-	public ContentLengthConfig()
+	
+	public GzipConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-
+		
 		JPanel panel = new JPanel();
+		
 		panel.setLayout(new GridLayout(0, 1));
 		
 		
 		// active
-		JPanel panelActive = new JPanel();
-		panelActive.setLayout(new FlowLayout());
+		JPanel panel_active = new JPanel();
 
-		JLabel lblActive = new JLabel("Active:");
-		lblActive.setPreferredSize(new Dimension(100, 24));
-		panelActive.add(lblActive);
-
-		this.ckbActive = new JCheckBox();
-		this.ckbActive.setPreferredSize(new Dimension(200, 24));
-		panelActive.add(this.ckbActive);
-
-		panel.add(panelActive);
+		panel_active.setLayout(new FlowLayout());
 
 
+		JLabel lbl_active = new JLabel("Active:");
+
+		lbl_active.setPreferredSize(new Dimension(100, 24));
+
+		panel_active.add(lbl_active);
+
+
+		this.ckb_active = new JCheckBox();
+		
+		this.ckb_active.setPreferredSize(new Dimension(200, 24));
+		
+		panel_active.add(this.ckb_active);
+		
+		
+		panel.add(panel_active);
+		
+		
 		this.add(panel);
 	}
 }

@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -26,7 +26,7 @@ package com.k42b3.oat.http;
 import java.nio.ByteBuffer;
 
 /**
- * response
+ * Response
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -35,7 +35,7 @@ import java.nio.ByteBuffer;
  */
 public class Response extends Message
 {
-	public Response(String header, ByteBuffer rawBody)
+	public Response(String header, Buffer bufferBody)
 	{
 		// get request line
 		this.setLine(this.parseResponseLine(header));
@@ -46,7 +46,7 @@ public class Response extends Message
 
 
 		// set raw body
-		this.setRawBody(rawBody);
+		this.setRawBody(bufferBody);
 
 
 		// set body in hex format
@@ -55,6 +55,7 @@ public class Response extends Message
 		String hex;
 		int i = 0;
 
+		ByteBuffer rawBody = bufferBody.getByteBuffer();
 		rawBody.rewind();
 
 		while(i < rawBody.remaining())

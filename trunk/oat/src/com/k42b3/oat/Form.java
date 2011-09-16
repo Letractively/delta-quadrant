@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -46,6 +46,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import com.k42b3.oat.filter.CallbackInterface;
 import com.k42b3.oat.http.Util;
 
 /**
@@ -120,28 +121,31 @@ public class Form extends JFrame
 
 	private void insert()
 	{
-		StringBuilder response = new StringBuilder();
-		HashMap<String, JTextField> fields = this.fields.get(this.tb.getSelectedIndex());
-		Set<Entry<String, JTextField>> set = fields.entrySet();
-		Iterator<Entry<String, JTextField>> iter = set.iterator();
-
-		while(iter.hasNext())
+		if(this.fields.size() > 0)
 		{
-			Map.Entry<String, JTextField> item = (Map.Entry<String, JTextField>) iter.next();
-			String value = Util.urlEncode(item.getValue().getText());
+			StringBuilder response = new StringBuilder();
+			HashMap<String, JTextField> fields = this.fields.get(this.tb.getSelectedIndex());
+			Set<Entry<String, JTextField>> set = fields.entrySet();
+			Iterator<Entry<String, JTextField>> iter = set.iterator();
 
-			if(value != null)
+			while(iter.hasNext())
 			{
-				response.append(item.getKey() + "=" + value);
+				Map.Entry<String, JTextField> item = (Map.Entry<String, JTextField>) iter.next();
+				String value = Util.urlEncode(item.getValue().getText());
 
-				if(iter.hasNext())
+				if(value != null)
 				{
-					response.append('&');
+					response.append(item.getKey() + "=" + value);
+
+					if(iter.hasNext())
+					{
+						response.append('&');
+					}
 				}
 			}
-		}
 
-		this.cb.response(response.toString());
+			this.cb.response(response.toString());
+		}
 
 		this.setVisible(false);
 	}

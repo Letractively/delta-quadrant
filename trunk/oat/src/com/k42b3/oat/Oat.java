@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -32,6 +32,11 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
@@ -68,9 +73,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.k42b3.oat.filter.CallbackInterface;
+import com.k42b3.oat.filter.FilterIn;
+import com.k42b3.oat.filter.FilterOut;
+import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.filter.ResponseFilterInterface;
+import com.k42b3.oat.filter.response.Charset;
+import com.k42b3.oat.formatter.Formatter;
+import com.k42b3.oat.formatter.FormatterInterface;
 import com.k42b3.oat.http.Http;
 import com.k42b3.oat.http.Request;
-import com.k42b3.oat.http.filterResponse.Charset;
 
 /**
  * Oat
@@ -92,8 +104,11 @@ public class Oat extends JFrame
 	private ArrayList<ResponseFilterInterface> filtersOut = new ArrayList<ResponseFilterInterface>();
 	private boolean isActive = false;
 
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
+
 	private Dig digWin;
 	private Form formWin;
+	private Log logWin;
 
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
 	
@@ -105,6 +120,28 @@ public class Oat extends JFrame
 		this.setSize(600, 500);
 		this.setMinimumSize(this.getSize());
 		this.setLayout(new BorderLayout());
+
+
+		// logging handler
+		logger.addHandler(new Handler(){
+
+			public void close() throws SecurityException 
+			{
+			}
+
+			public void flush() 
+			{
+			}
+
+			public void publish(LogRecord rec)
+			{
+				logWin.append(rec);
+			}
+
+		});
+
+		logWin = new Log();
+		logWin.pack();
 
 
 		// menu
@@ -202,8 +239,7 @@ public class Oat extends JFrame
 
 
 				// start thread
-				Thread thread = new Thread(http);
-				thread.start();
+				executor.execute(http);
 
 
 				getActiveOut().setText("");
@@ -388,7 +424,7 @@ public class Oat extends JFrame
 		}
 	}
 	
-	private void load()
+	private void open()
 	{
 		try
 		{
@@ -485,6 +521,37 @@ public class Oat extends JFrame
 		});
 	}
 
+	private void format(int type)
+	{
+		try
+		{
+			FormatterInterface formatter = Formatter.factory(type);
+
+			getActiveOut().setBody(formatter.format(getActiveOut().getBody()));
+		}
+		catch(Exception e)
+		{
+			getActiveOut().setBody(e.getMessage());
+		}
+	}
+
+	private void log()
+	{
+		SwingUtilities.invokeLater(new Runnable() {
+			
+			public void run()
+			{
+				if(!logWin.isVisible())
+				{
+					logWin.setVisible(true);
+				}
+
+				logWin.requestFocus();
+			}
+
+		});
+	}
+
 	private void about()
 	{
 		StringBuilder out = new StringBuilder();
@@ -527,8 +594,11 @@ public class Oat extends JFrame
 	private JMenuBar buildMenuBar()
 	{
 		JMenuBar menuBar = new JMenuBar();
+
+
+		// url
 		JMenu menuUrl = new JMenu("URL");
-		
+
 		JMenuItem itemRun = new JMenuItem("Run");
 		itemRun.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
 		itemRun.addActionListener(new ActionListener() {
@@ -589,13 +659,13 @@ public class Oat extends JFrame
 		});
 		menuUrl.add(itemSave);
 
-		JMenuItem itemLoad = new JMenuItem("Load");
-		itemLoad.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
+		JMenuItem itemLoad = new JMenuItem("Open");
+		itemLoad.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
 		itemLoad.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				load();
+				open();
 			}
 
 		});
@@ -603,6 +673,8 @@ public class Oat extends JFrame
 
 		menuBar.add(menuUrl);
 
+		
+		// extras
 		JMenu menuExtras = new JMenu("Extras");
 		
 		JMenuItem itemDig = new JMenuItem("Dig");
@@ -631,9 +703,53 @@ public class Oat extends JFrame
 
 		menuBar.add(menuExtras);
 
+
+		// format
+		JMenu menuFormat = new JMenu("Format");
+
+		JMenuItem itemXml = new JMenuItem("XML");
+		itemXml.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
+		itemXml.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				format(Formatter.XML);
+			}
+
+		});
+		menuFormat.add(itemXml);
+		
+		JMenuItem itemJson = new JMenuItem("JSON");
+		itemJson.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.ALT_MASK));
+		itemJson.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				format(Formatter.JSON);
+			}
+
+		});
+		menuFormat.add(itemJson);
+
+		menuBar.add(menuFormat);
+
+
+		// help
 		JMenu menuHelp = new JMenu("Help");
 
-		JMenuItem itemAbout = new JMenuItem("About", KeyEvent.VK_A);
+		JMenuItem itemLog = new JMenuItem("Log");
+		itemLog.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
+		itemLog.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e) 
+			{
+				log();
+			}
+
+		});
+		menuHelp.add(itemLog);
+
+		JMenuItem itemAbout = new JMenuItem("About");
 		itemAbout.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) 
@@ -651,6 +767,8 @@ public class Oat extends JFrame
 
 	public static void handleException(Exception e)
 	{
+		Logger.getLogger("com.k42b3.oat").log(Level.WARNING, e.getMessage());
+
 		e.printStackTrace();
 	}
 

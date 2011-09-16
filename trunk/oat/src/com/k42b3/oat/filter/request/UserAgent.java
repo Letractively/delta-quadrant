@@ -21,24 +21,34 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
+package com.k42b3.oat.filter.request;
 
-import java.awt.Font;
+import java.util.Properties;
 
-import javax.swing.JTextField;
+import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.http.Request;
 
 /**
- * Url
+ * UserAgent
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Url extends JTextField
+public class UserAgent implements RequestFilterInterface
 {
-	public Url()
+	private Properties config = new Properties();
+
+	public void exec(Request request) 
 	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 12));
+		String agent = this.config.getProperty("agent");
+
+		request.setHeader("User-Agent", agent);
+	}
+
+	public void setConfig(Properties config)
+	{
+		this.config = config;
 	}
 }
