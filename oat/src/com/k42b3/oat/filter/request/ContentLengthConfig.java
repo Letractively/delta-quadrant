@@ -21,52 +21,69 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
+package com.k42b3.oat.filter.request;
 
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.util.Properties;
 
-import javax.swing.JTextArea;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.k42b3.oat.filter.ConfigFilter;
 
 /**
- * In
+ * ContentLengthConfig
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class In extends JTextArea
+public class ContentLengthConfig extends ConfigFilter
 {
-	public In()
+	private JCheckBox ckbActive;
+	
+	public String getName()
 	{
-		super(10, 20);
-
-		this.setFont(new Font("Courier New", Font.PLAIN, 12));
-
-		this.setEditable(true);
-
-		this.setBackground(new Color(255, 255, 255));
-
-		this.setForeground(new Color(0, 0, 0));
+		return "Content length";
+	}
+	
+	public Properties onSave() 
+	{
+		return null;
+	}
+	
+	public boolean isActive()
+	{
+		return this.ckbActive.isSelected();
 	}
 
-	public void setBody(String body)
+	public ContentLengthConfig()
 	{
-		// split header body
-		String header = "";
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-		int pos = this.getText().indexOf("\n\n");
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(0, 1));
+		
+		
+		// active
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
 
-		if(pos == -1)
-		{
-			header = this.getText();
-		}
-		else
-		{
-			header = this.getText().substring(0, pos).trim();
-		}
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
 
-		this.setText(header + "\n\n" + body);
+		this.ckbActive = new JCheckBox();
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
+
+
+		this.add(panel);
 	}
 }

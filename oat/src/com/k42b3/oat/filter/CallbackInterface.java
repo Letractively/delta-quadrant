@@ -21,24 +21,17 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
-
-import java.awt.Font;
-
-import javax.swing.JTextField;
+package com.k42b3.oat.filter;
 
 /**
- * Url
+ * CallbackInterface
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Url extends JTextField
+public interface CallbackInterface 
 {
-	public Url()
-	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 12));
-	}
+	public void response(Object content);
 }

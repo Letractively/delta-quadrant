@@ -23,22 +23,48 @@
 
 package com.k42b3.oat;
 
-import java.awt.Font;
+import java.awt.BorderLayout;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
-import javax.swing.JTextField;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
- * Url
+ * Log
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Url extends JTextField
+public class Log extends JFrame
 {
-	public Url()
+	private JTextArea txtLog;
+
+	private Logger logger = Logger.getLogger("com.k42b3.oat");
+
+	public Log()
 	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 12));
+		// settings
+		this.setTitle("oat " + Oat.VERSION);
+		this.setLocation(100, 100);
+		this.setSize(360, 400);
+		this.setMinimumSize(this.getSize());
+		this.setResizable(false);
+		this.setLayout(new BorderLayout());
+
+
+		// tab panel
+		txtLog = new Out();
+		txtLog.setEditable(false);
+
+		this.add(new JScrollPane(txtLog), BorderLayout.CENTER);
+	}
+	
+	public void append(LogRecord rec)
+	{
+		txtLog.append(rec.getLevel() + ": " + rec.getMessage() + "\n");
 	}
 }

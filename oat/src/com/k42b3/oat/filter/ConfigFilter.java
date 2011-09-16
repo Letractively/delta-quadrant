@@ -21,24 +21,23 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
+package com.k42b3.oat.filter;
 
-import java.awt.Font;
+import java.util.Properties;
 
-import javax.swing.JTextField;
+import javax.swing.JPanel;
 
 /**
- * Url
+ * ConfigFilter
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Url extends JTextField
+public abstract class ConfigFilter extends JPanel
 {
-	public Url()
-	{
-		this.setFont(new Font("Courier New", Font.PLAIN, 12));
-	}
+	abstract public String getName();
+	abstract public Properties onSave();
+	abstract public boolean isActive();
 }

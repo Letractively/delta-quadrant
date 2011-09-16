@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -39,46 +39,20 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.k42b3.oat.CallbackInterface;
 import com.k42b3.oat.Oat;
-import com.k42b3.oat.ResponseFilterInterface;
+import com.k42b3.oat.filter.CallbackInterface;
+import com.k42b3.oat.filter.ResponseFilterInterface;
 
 /**
- * http
+ * Http
  *
  * This is the main class wich handles all http requests. The class uses the NIO
  * library to make non-blocking requests. We write the http request to the
  * socket and start reading the response. We first try to find the end of the
  * header response so we search for the byte sequence "0xD 0xA 0xD 0xA" wich 
- * means \r\n\r\n. We split the byte buffer into the header (everything before) 
- * and body (everything after). We encode the header in UTF-8 and look for the 
- * content-lenght header field. If no content length header is set we look 
- * whether transfer-encoding is equal to chunked else we throw an exception.
- *
- * This works all fine but there are a few problems with this implementation in
- * some cases. The problem is that the byte sequence "0xD 0xA 0xD 0xA" can be
- * always between two buffers so we dont find the header. In example:
- * 
- * first buffer
- * +--------------
- * | 1    = [data]
- * | .    = [data]
- * | 1023 = 0xD = \r
- * | 1024 = 0xA = \n
- * +----------
- * 
- * second buffer
- * +--------
- * | 1    = 0xD = \r
- * | 2    = 0xA = \n
- * | .    = [data]
- * | 1024 = [data]
- * +--------
- *
- * In this case we dont find the byte sequence "0xD 0xA 0xD 0xA" not in the 
- * first buffer nor in the second. In most cases the header should not be 
- * between two buffers but if you have problems change the buffer size to 
- * another value. 
+ * means \r\n\r\n. We encode the header in UTF-8 and look for the content-lenght 
+ * header field. If no content length header is set we look whether 
+ * transfer-encoding is equal to chunked else we throw an exception.
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -96,21 +70,14 @@ public class Http implements Runnable
 	private SocketChannel channel = null;
 
 	/**
-	 * The buffer size. Increase the size if you expect header greater then 1024
-	 * bytes to avoid the problesm described in the comment
+	 * The buffer size.
 	 */
 	private int bufferSize = 1024;
 
 	/**
-	 * The response header as string
+	 * Contains the UTF-8 decoded header
 	 */
-	private String header = "";
-
-	/**
-	 * Holds the complete body in binary format the byte buffer is build from
-	 * the buffer_list
-	 */
-	private ByteBuffer body;
+	private String header;
 
 	/**
 	 * The found content length of the body
@@ -127,11 +94,20 @@ public class Http implements Runnable
 	 */
 	private boolean chunked = false;
 
-	private ArrayList<ByteBuffer> bufferHeaderList = new ArrayList<ByteBuffer>();
-	private ArrayList<ByteBuffer> bufferBodyList = new ArrayList<ByteBuffer>();
+	/**
+	 * If transfer encoding is chunked this contains the size of the current
+	 * chunk
+	 */
+	private int chunkSize = 0;
 
-	private int read = 0;
+	/**
+	 * How often we can receive an 0 bytes buffer before we close the connection
+	 */
+	private int maxZeroRounds = 8;
 
+	/**
+	 * Default encoder for reading the header
+	 */
 	private CharsetDecoder defaultDecoder;
 	private CharsetEncoder defaultEncoder;
 
@@ -142,7 +118,6 @@ public class Http implements Runnable
 	private CallbackInterface callback;
 
 	private ArrayList<ResponseFilterInterface> responseFilter = new ArrayList<ResponseFilterInterface>();
-
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
 
 	public Http(String rawUrl, Request request, CallbackInterface callback) throws Exception
@@ -166,6 +141,13 @@ public class Http implements Runnable
 		// set params
 		this.request = request;
 		this.callback = callback;
+
+
+		// charset
+		Charset defaultCharset = Charset.forName("UTF-8");
+
+		this.defaultDecoder = defaultCharset.newDecoder();
+		this.defaultEncoder = defaultCharset.newEncoder();
 	}
 
 	public void addResponseFilter(ResponseFilterInterface filter)
@@ -178,21 +160,17 @@ public class Http implements Runnable
 		try
 		{
 			SocketChannel channel = null;
-
-
 			InetSocketAddress socketAddress = new InetSocketAddress(this.host, this.port);
 
 
-			// charset
-			Charset defaultCharset = Charset.forName("UTF-8");
+			// buffers
+			ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+			Buffer bufferHeader = new Buffer(bufferSize);
+			Buffer bufferBody = new Buffer(bufferSize);
 
-			this.defaultDecoder = defaultCharset.newDecoder();
-			this.defaultEncoder = defaultCharset.newEncoder();
 
-
-			// allocate buffer
-			ByteBuffer bufferTemp;
-			ByteBuffer buffer = ByteBuffer.allocateDirect(this.bufferSize);
+			// counts zero rounds
+			int zeroRounds = 0;
 
 
 			// connect
@@ -232,8 +210,9 @@ public class Http implements Runnable
 					{
 						keyChannel.read(buffer);
 
-						buffer.flip();
+						logger.info("Received " + buffer.remaining() + " bytes");
 
+						buffer.flip();
 
 						if(!this.foundHeader)
 						{
@@ -242,12 +221,9 @@ public class Http implements Runnable
 							// to the body buffer
 							for(int i = 0; i < buffer.remaining(); i++)
 							{
-								// look whether we are at \r\n\r\n
-								if(i > 3 &&
-								buffer.get(i - 3) == 0xD && 
-								buffer.get(i - 2) == 0xA && 
-								buffer.get(i - 1) == 0xD && 
-								buffer.get(i)     == 0xA)
+								bufferHeader.add(buffer.get(i));
+
+								if(buffer.get(i) == 0xA && bufferHeader.containsRNRN())
 								{
 									this.foundHeader = true;
 
@@ -257,57 +233,22 @@ public class Http implements Runnable
 								}
 							}
 
-
-							// if we dont find the header in the first buffer
-							// add the buffer to the list
-							if(!this.foundHeader)
+							if(this.foundHeader)
 							{
-								this.read+= buffer.limit();
-
-								bufferTemp = ByteBuffer.allocateDirect(buffer.limit());
-
-								bufferTemp.put(buffer);
-
-								this.bufferHeaderList.add(bufferTemp);
-							}
-							else
-							{
-								this.read+= buffer.position();
-
-								bufferTemp = ByteBuffer.allocateDirect(buffer.position());
-
-								for(int i = 0; i < buffer.position(); i++)
-								{
-									bufferTemp.put(buffer.get(i));
-								}
-
-								this.bufferHeaderList.add(bufferTemp);
-
-
-								// get complete header
-								ByteBuffer bufferHeader = this.mergeBuffer(this.bufferHeaderList, this.read);
+								logger.info("Read header " + bufferHeader.getSize() + " bytes");
 
 
 								// decode header as UTF-8
-								CharBuffer charBufferHeader = CharBuffer.allocate(this.read);
+								CharBuffer charBufferHeader = CharBuffer.allocate(bufferHeader.getSize());
 
-								this.defaultDecoder.decode(bufferHeader, charBufferHeader, false);
+								this.defaultDecoder.decode(bufferHeader.getByteBuffer(), charBufferHeader, false);
 
 								charBufferHeader.flip();
 
 
-								logger.info("Found header end after " + this.read + " bytes");
-
-
-								// reset read count
-								this.read = 0;
-								
-								
-								// parse header
+								// search for Content-Length or Transfer-Encoding
 								this.header = charBufferHeader.toString();
 
-
-								// search for content-length or transfer-encoding
 								Map<String, String> header = Util.parseHeader(this.header, Http.newLine);
 
 								if(header.containsKey("Content-Length"))
@@ -332,55 +273,80 @@ public class Http implements Runnable
 								charBufferHeader.clear();
 
 
-								// add read
-								this.read+= buffer.limit() - buffer.position();
+								// read remaning bytes from buffer
+								for(int i = buffer.position(); i < buffer.limit(); i++)
+								{
+									bufferBody.add(buffer.get(i));
 
+									if(this.chunked)
+									{
+										if(this.chunkSize == 0 && buffer.get(i) == 0xA && bufferBody.containsRN())
+										{
+											this.chunkSize = bufferBody.getChunkedSize() + 2;
 
-								// add buffer to list
-								bufferTemp = ByteBuffer.allocateDirect(buffer.slice().limit());
-
-								bufferTemp.put(buffer);
-
-								this.bufferBodyList.add(bufferTemp);
+											logger.info("Found next chunk size " + this.chunkSize);
+										}
+										else if(this.chunkSize > 0)
+										{
+											this.chunkSize--;
+										}
+									}
+								}
 							}
 						}
 						else
 						{
 							// add read
-							this.read+= buffer.limit();
-
-
-							// add buffer to list
-							bufferTemp = ByteBuffer.allocateDirect(buffer.limit());
-
-							bufferTemp.put(buffer);
-
-							this.bufferBodyList.add(bufferTemp);
-
-
-							// close channel if ready
-							if(this.chunked)
+							for(int i = 0; i < buffer.limit(); i++)
 							{
-								// check for 0\r\n\r\n
-								int i = buffer.limit();
+								bufferBody.add(buffer.get(i));
 
-								if(i > 4 &&
-								buffer.get(i - 4) == 0x30 && 
-								buffer.get(i - 3) == 0xD  && 
-								buffer.get(i - 2) == 0xA  && 
-								buffer.get(i - 1) == 0xD  &&
-								buffer.get(i)     == 0xA)
+								if(this.chunked)
 								{
-									channel.close();
+									if(this.chunkSize == 0 && buffer.get(i) == 0xA && bufferBody.containsRN())
+									{
+										this.chunkSize = bufferBody.getChunkedSize() + 2;
+
+										logger.info("Found next chunk size " + this.chunkSize);
+									}
+									else if(this.chunkSize > 0)
+									{
+										this.chunkSize--;
+									}
 								}
+							}
+						}
+
+
+						// close channel if ready
+						if(this.chunked && this.chunkSize == 0)
+						{
+							logger.info("Close channel because chunk size is 0");
+
+							channel.close();
+						}
+						else if(!this.chunked && bufferBody.getSize() >= this.contentLength)
+						{
+							logger.info("Close channel because Content-Length reached");
+
+							channel.close();
+						}
+						else
+						{
+							if(buffer.remaining() == 0)
+							{
+								zeroRounds++;
 							}
 							else
 							{
-								// check content length
-								if(this.read >= this.contentLength)
-								{
-									channel.close();
-								}
+								zeroRounds = 0;
+							}
+
+							if(zeroRounds >= this.maxZeroRounds)
+							{
+								logger.info("Close connection because of " + zeroRounds + " zero rounds");
+
+								channel.close();
 							}
 						}
 
@@ -400,6 +366,30 @@ public class Http implements Runnable
 					}
 				}
 			}
+
+
+			logger.info("Read body " + bufferBody.getSize() + " bytes");
+
+
+			// create response
+			this.response = new Response(this.header, bufferBody);
+
+
+			// apply response filter 
+			for(int i = 0; i < this.responseFilter.size(); i++)
+			{
+				try
+				{
+					this.responseFilter.get(i).exec(this.response);
+				}
+				catch(Exception e)
+				{
+					Oat.handleException(e);
+				}
+			}
+
+
+			callback.response(this.response.toString());
 		}
 		catch(Exception e)
 		{
@@ -418,34 +408,6 @@ public class Http implements Runnable
 					Oat.handleException(e);
 				}
 			}
-
-
-			logger.info("Read complete " + this.read + " bytes");
-
-
-			// build body ByteBuffer from buffer_list
-			this.body = this.mergeBuffer(this.bufferBodyList, this.read);
-
-
-			// create response
-			this.response = new Response(this.header, this.body);
-
-
-			// apply response filter 
-			for(int i = 0; i < this.responseFilter.size(); i++)
-			{
-				try
-				{
-					this.responseFilter.get(i).exec(this.response);
-				}
-				catch(Exception e)
-				{
-					Oat.handleException(e);
-				}
-			}
-
-
-			callback.response(this.response.toString());
 		}
 	}
 

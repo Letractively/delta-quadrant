@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -21,22 +21,17 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat.http.filterRequest.oauthSignature;
+package com.k42b3.oat.formatter;
 
 /**
- * PLAINTEXT
+ * FormatterInterface
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class PLAINTEXT implements SignatureInterface
+public interface FormatterInterface 
 {
-	public String build(String baseString, String consumerSecret, String tokenSecret)
-	{
-		String key = Util.urlEncode(consumerSecret) + "&" + Util.urlEncode(tokenSecret);
-
-		return key;
-	}
+	public String format(String content) throws Exception;
 }

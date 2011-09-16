@@ -1,11 +1,11 @@
 /**
  * oat
  * 
- * An application with that you can make raw http requests to any url. You can 
- * save a request for later use. The application uses the java nio library to 
- * make non-blocking requests so the requests should work fluently.
+ * An application to send raw http requests to any host. It is designed to
+ * debug and test web applications. You can apply filters to the request and
+ * response wich can modify the content.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
@@ -21,23 +21,36 @@
  * along with oat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.oat;
-
-import java.util.Properties;
-
-import javax.swing.JPanel;
+package com.k42b3.oat.formatter;
 
 /**
- * ConfigFilter
+ * Formatter
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public abstract class ConfigFilter extends JPanel
+public class Formatter
 {
-	abstract public String getName();
-	abstract public Properties onSave();
-	abstract public boolean isActive();
+	public final static int XML = 0x1;
+	public final static int JSON = 0x2;
+
+	public static FormatterInterface factory(int type) throws Exception
+	{
+		switch(type)
+		{
+			case XML:
+
+				return new Xml();
+
+			case JSON:
+
+				return new Json();
+
+			default:
+
+				throw new Exception("Invalid format type");
+		}
+	}
 }
