@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oat>
+	<filters>
+		<in>
+			<filter name="com.k42b3.oat.filter.request.ContentLength" />
+			<filter name="com.k42b3.oat.filter.request.UserAgent">
+				<property name="agent">Lynx 2.8.7</property>
+			</filter>
+		</in>
+		<out>
+			<filter name="com.k42b3.oat.filter.response.Charset">
+				<property name="charset">UTF-8</property>
+			</filter>
+		</out>
+	</filters>
+</oat>
