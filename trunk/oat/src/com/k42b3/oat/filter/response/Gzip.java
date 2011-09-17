@@ -26,7 +26,6 @@ package com.k42b3.oat.filter.response;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 
 import com.k42b3.oat.filter.ResponseFilterAbstract;

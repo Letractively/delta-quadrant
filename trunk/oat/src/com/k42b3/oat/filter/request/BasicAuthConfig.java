@@ -34,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.k42b3.oat.filter.ConfigFilterAbstract;
-import com.k42b3.oat.filter.FilterAbstract;
 
 /**
  * BasicAuthConfig
