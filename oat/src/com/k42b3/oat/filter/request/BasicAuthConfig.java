@@ -33,7 +33,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
+import com.k42b3.oat.filter.FilterAbstract;
 
 /**
  * BasicAuthConfig
@@ -43,31 +44,11 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class BasicAuthConfig extends ConfigFilter
+public class BasicAuthConfig extends ConfigFilterAbstract
 {
 	private JCheckBox ckbActive;
 	private JTextField txtUser;
 	private JTextField txtPw;
-	
-	public String getName()
-	{
-		return "Basic authentication";
-	}
-	
-	public Properties onSave() 
-	{
-		Properties props = new Properties();
-		
-		props.setProperty("user", this.txtUser.getText());
-		props.setProperty("pw", this.txtPw.getText());
-
-		return props;
-	}
-	
-	public boolean isActive()
-	{
-		return this.ckbActive.isSelected();
-	}
 
 	public BasicAuthConfig()
 	{
@@ -123,5 +104,33 @@ public class BasicAuthConfig extends ConfigFilter
 
 
 		this.add(panel);
+	}
+
+	public String getName()
+	{
+		return "Basic authentication";
+	}
+
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+
+		this.txtUser.setText(config.getProperty("user"));
+		this.txtPw.setText(config.getProperty("pw"));
+	}
+
+	public Properties onSave() 
+	{
+		Properties config = new Properties();
+		
+		config.setProperty("user", this.txtUser.getText());
+		config.setProperty("pw", this.txtPw.getText());
+
+		return config;
+	}
+	
+	public boolean isActive()
+	{
+		return this.ckbActive.isSelected();
 	}
 }

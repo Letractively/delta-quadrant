@@ -33,7 +33,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
 
 /**
  * CharsetConfig
@@ -43,93 +43,81 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class CharsetConfig extends ConfigFilter
+public class CharsetConfig extends ConfigFilterAbstract
 {
-	private JCheckBox ckb_active;
-	private JComboBox cbo_charset;
-	
+	private JCheckBox ckbActive;
+	private JComboBox cboCharset;
+
+	public CharsetConfig()
+	{
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		JPanel panel = new JPanel();		
+		panel.setLayout(new GridLayout(0, 1));
+
+
+		// active
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
+
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();		
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
+
+
+		// charset
+		JPanel panelCharset = new JPanel();
+		panelCharset.setLayout(new FlowLayout());
+
+		JLabel lblCharset = new JLabel("Fallback charset:");
+		lblCharset.setPreferredSize(new Dimension(100, 24));
+		panelCharset.add(lblCharset);
+
+		String[] charsets = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"};
+		this.cboCharset = new JComboBox(charsets);
+		this.cboCharset.setPreferredSize(new Dimension(200, 24));
+		panelCharset.add(this.cboCharset);
+
+		panel.add(panelCharset);
+
+
+		this.add(panel);
+	}
+
 	public String getName()
 	{
 		return "Charset";
 	}
 	
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+
+		this.cboCharset.setSelectedItem(config.getProperty("charset"));
+	}
+
 	public Properties onSave() 
 	{
-		Properties props = new Properties();
+		Properties config = new Properties();
 		
-		Object item = this.cbo_charset.getSelectedItem();
+		Object item = this.cboCharset.getSelectedItem();
 		
 		if(item != null)
 		{
-			props.setProperty("charset", item.toString());
+			config.setProperty("charset", item.toString());
 		}
 
-		return props;
+		return config;
 	}
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
-	}
-	
-	public CharsetConfig()
-	{
-		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
-		JPanel panel = new JPanel();
-		
-		panel.setLayout(new GridLayout(0, 1));
-		
-		
-		// active
-		JPanel panel_active = new JPanel();
-
-		panel_active.setLayout(new FlowLayout());
-
-
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-		
-		
-		// charset
-		JPanel panel_charset = new JPanel();
-
-		panel_charset.setLayout(new FlowLayout());
-
-
-		JLabel lbl_charset = new JLabel("Fallback charset:");
-
-		lbl_charset.setPreferredSize(new Dimension(100, 24));
-
-		panel_charset.add(lbl_charset);
-
-
-		String[] charsets = {"US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"};
-
-		this.cbo_charset = new JComboBox(charsets);
-		
-		this.cbo_charset.setPreferredSize(new Dimension(200, 24));
-
-		panel_charset.add(this.cbo_charset);
-
-
-		panel.add(panel_charset);
-		
-		
-		this.add(panel);
+		return this.ckbActive.isSelected();
 	}
 }

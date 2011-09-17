@@ -36,7 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ListDataListener;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
 
 /**
  * UserAgentConfig
@@ -46,34 +46,10 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class UserAgentConfig extends ConfigFilter
+public class UserAgentConfig extends ConfigFilterAbstract
 {
 	private JCheckBox ckbActive;
 	private JComboBox cboAgent;
-
-	public String getName()
-	{
-		return "User agent";
-	}
-	
-	public Properties onSave() 
-	{
-		Properties props = new Properties();
-
-		Object item = this.cboAgent.getSelectedItem();
-		
-		if(item != null)
-		{
-			props.setProperty("agent", ((AgentEntry) item).getValue());
-		}
-
-		return props;
-	}
-	
-	public boolean isActive()
-	{
-		return this.ckbActive.isSelected();
-	}
 
 	public UserAgentConfig()
 	{
@@ -134,6 +110,37 @@ public class UserAgentConfig extends ConfigFilter
 		this.cboAgent.setModel(new AgentModel(agents));
 	}
 
+	public String getName()
+	{
+		return "User agent";
+	}
+
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+
+		this.cboAgent.setSelectedItem(new AgentEntry(config.getProperty("agent")));
+	}
+
+	public Properties onSave() 
+	{
+		Properties config = new Properties();
+
+		Object item = this.cboAgent.getSelectedItem();
+		
+		if(item != null)
+		{
+			config.setProperty("agent", ((AgentEntry) item).getKey());
+		}
+
+		return config;
+	}
+	
+	public boolean isActive()
+	{
+		return this.ckbActive.isSelected();
+	}
+
 	class AgentModel implements ComboBoxModel
 	{
 		ArrayList<AgentEntry> agents = new ArrayList<AgentEntry>();
@@ -186,26 +193,45 @@ public class UserAgentConfig extends ConfigFilter
 	{
 		private String key;
 		private String value;
-		
+
 		public AgentEntry(String key, String value)
 		{
 			this.key = key;
 			this.value = value;
 		}
-		
+
+		public AgentEntry(String key)
+		{
+			this(key, null);
+		}
+
 		public String getKey()
 		{
 			return this.key;
 		}
-		
+
 		public String getValue()
 		{
 			return this.value;
 		}
-		
+
 		public String toString()
 		{
 			return this.getKey();
+		}
+
+		public boolean equals(Object obj)
+		{
+			if(obj instanceof AgentEntry)
+			{
+				AgentEntry entry = (AgentEntry) obj;
+
+				return this.getKey().equals(entry.getKey());
+			}
+			else
+			{
+				return super.equals(obj);
+			}
 		}
 	}
 }

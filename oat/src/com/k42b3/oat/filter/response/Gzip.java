@@ -27,10 +27,9 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-import java.util.Properties;
 import java.util.zip.GZIPInputStream;
 
-import com.k42b3.oat.filter.ResponseFilterInterface;
+import com.k42b3.oat.filter.ResponseFilterAbstract;
 import com.k42b3.oat.http.Response;
 
 /**
@@ -41,10 +40,8 @@ import com.k42b3.oat.http.Response;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Gzip implements ResponseFilterInterface
+public class Gzip extends ResponseFilterAbstract
 {
-	private Properties config = new Properties();
-	
 	public void exec(Response response) throws Exception
 	{
 		if(response.getHeader().containsKey("Content-Encoding"))
@@ -53,16 +50,7 @@ public class Gzip implements ResponseFilterInterface
 
 			if(encoding.indexOf("gzip") != -1)
 			{
-				ByteBuffer rawBody = response.getRawBody().getByteBuffer();
-
-				rawBody.rewind();
-
-				byte[] bytes = new byte[rawBody.capacity()];
-
-				rawBody.get(bytes, 0, bytes.length);
-
-
-				GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes));
+				GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(response.getRawBody().getArray()));
 
 				BufferedReader br = new BufferedReader(new InputStreamReader(gis));
 
@@ -81,10 +69,5 @@ public class Gzip implements ResponseFilterInterface
 				response.setBody(buffer.toString());
 			}
 		}
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
 	}
 }

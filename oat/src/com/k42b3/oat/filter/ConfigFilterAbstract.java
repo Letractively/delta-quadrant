@@ -25,18 +25,20 @@ package com.k42b3.oat.filter;
 
 import java.util.Properties;
 
-import com.k42b3.oat.http.Response;
+import javax.swing.JPanel;
 
 /**
- * ResponseFilterInterface
+ * ConfigFilter
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 171 $
  */
-public interface ResponseFilterInterface 
+public abstract class ConfigFilterAbstract extends JPanel
 {
-	public void exec(Response response) throws Exception;
-	public void setConfig(Properties config);
+	abstract public String getName();
+	abstract public void onLoad(Properties config);
+	abstract public Properties onSave();
+	abstract public boolean isActive();
 }

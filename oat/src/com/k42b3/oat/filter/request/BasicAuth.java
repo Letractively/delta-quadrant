@@ -23,11 +23,9 @@
 
 package com.k42b3.oat.filter.request;
 
-import java.util.Properties;
-
 import sun.misc.BASE64Encoder;
 
-import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.filter.RequestFilterAbstract;
 import com.k42b3.oat.http.Request;
 
 /**
@@ -38,10 +36,8 @@ import com.k42b3.oat.http.Request;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class BasicAuth implements RequestFilterInterface
+public class BasicAuth extends RequestFilterAbstract
 {
-	private Properties config = new Properties();
-
 	public void exec(Request request)
 	{
 		String user = this.config.getProperty("user");
@@ -50,10 +46,5 @@ public class BasicAuth implements RequestFilterInterface
 		String auth = new BASE64Encoder().encode((user + ":" + pw).getBytes());
 
 		request.setHeader("Authorization", "Basic " + auth);
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
 	}
 }

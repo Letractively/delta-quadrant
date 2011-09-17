@@ -34,7 +34,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
 
 /**
  * OauthConfig
@@ -44,7 +44,7 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class OauthConfig extends ConfigFilter
+public class OauthConfig extends ConfigFilterAbstract
 {
 	private JCheckBox ckbActive;
 	private JTextField txtConsumerKey;
@@ -53,29 +53,6 @@ public class OauthConfig extends ConfigFilter
 	private JTextField txtTokenSecret;
 	private JComboBox cboMethod;
 
-	public String getName()
-	{
-		return "OAuth";
-	}
-
-	public Properties onSave()
-	{
-		Properties props = new Properties();
-
-		props.setProperty("consumer_key", this.txtConsumerKey.getText());
-		props.setProperty("consumer_secret", this.txtConsumerSecret.getText());
-		props.setProperty("token", this.txtToken.getText());
-		props.setProperty("token_secret", this.txtTokenSecret.getText());
-		props.setProperty("method", this.cboMethod.getSelectedItem().toString());
-
-		return props;
-	}
-	
-	public boolean isActive()
-	{
-		return this.ckbActive.isSelected();
-	}
-	
 	public OauthConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -176,5 +153,39 @@ public class OauthConfig extends ConfigFilter
 
 
 		this.add(panel);
+	}
+
+	public String getName()
+	{
+		return "OAuth";
+	}
+
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+
+		this.txtConsumerKey.setText(config.getProperty("consumer_key"));
+		this.txtConsumerSecret.setText(config.getProperty("consumer_secret"));
+		this.txtToken.setText(config.getProperty("token"));
+		this.txtTokenSecret.setText(config.getProperty("token_secret"));
+		this.cboMethod.setSelectedItem(config.getProperty("method"));
+	}
+
+	public Properties onSave()
+	{
+		Properties config = new Properties();
+
+		config.setProperty("consumer_key", this.txtConsumerKey.getText());
+		config.setProperty("consumer_secret", this.txtConsumerSecret.getText());
+		config.setProperty("token", this.txtToken.getText());
+		config.setProperty("token_secret", this.txtTokenSecret.getText());
+		config.setProperty("method", this.cboMethod.getSelectedItem().toString());
+
+		return config;
+	}
+	
+	public boolean isActive()
+	{
+		return this.ckbActive.isSelected();
 	}
 }

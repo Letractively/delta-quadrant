@@ -23,9 +23,7 @@
 
 package com.k42b3.oat.filter.request;
 
-import java.util.Properties;
-
-import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.filter.RequestFilterAbstract;
 import com.k42b3.oat.http.Request;
 
 /**
@@ -36,19 +34,12 @@ import com.k42b3.oat.http.Request;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class UserAgent implements RequestFilterInterface
+public class UserAgent extends RequestFilterAbstract
 {
-	private Properties config = new Properties();
-
 	public void exec(Request request) 
 	{
 		String agent = this.config.getProperty("agent");
 
 		request.setHeader("User-Agent", agent);
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
 	}
 }

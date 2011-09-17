@@ -23,8 +23,6 @@
 
 package com.k42b3.oat.filter;
 
-import java.util.Properties;
-
 import com.k42b3.oat.http.Request;
 
 /**
@@ -33,10 +31,9 @@ import com.k42b3.oat.http.Request;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 171 $
  */
-public interface RequestFilterInterface 
+abstract public class RequestFilterAbstract extends FilterAbstract
 {
-	public void exec(Request request) throws Exception;
-	public void setConfig(Properties config);
+	abstract public void exec(Request request) throws Exception;
 }

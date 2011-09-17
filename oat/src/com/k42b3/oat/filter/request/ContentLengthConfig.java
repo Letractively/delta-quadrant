@@ -32,7 +32,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
 
 /**
  * ContentLengthConfig
@@ -42,25 +42,10 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class ContentLengthConfig extends ConfigFilter
+public class ContentLengthConfig extends ConfigFilterAbstract
 {
 	private JCheckBox ckbActive;
 	
-	public String getName()
-	{
-		return "Content length";
-	}
-	
-	public Properties onSave() 
-	{
-		return null;
-	}
-	
-	public boolean isActive()
-	{
-		return this.ckbActive.isSelected();
-	}
-
 	public ContentLengthConfig()
 	{
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -85,5 +70,25 @@ public class ContentLengthConfig extends ConfigFilter
 
 
 		this.add(panel);
+	}
+
+	public String getName()
+	{
+		return "Content length";
+	}
+
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+	}
+
+	public Properties onSave() 
+	{
+		return null;
+	}
+
+	public boolean isActive()
+	{
+		return this.ckbActive.isSelected();
 	}
 }

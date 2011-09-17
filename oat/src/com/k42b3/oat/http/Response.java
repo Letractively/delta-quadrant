@@ -90,7 +90,7 @@ public class Response extends Message
 		// get response line
 		String rawLine;
 		int pos = rawResponse.indexOf(Http.newLine);
-		
+
 		if(pos == -1)
 		{
 			rawLine = rawResponse.trim();
