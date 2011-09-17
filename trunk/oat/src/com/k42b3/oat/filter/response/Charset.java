@@ -41,7 +41,7 @@ import com.k42b3.oat.http.Response;
 public class Charset extends ResponseFilterAbstract
 {
 	private Properties config = new Properties();
-	
+
 	public void exec(Response response) throws Exception
 	{
 		// default charset

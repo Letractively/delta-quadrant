@@ -48,7 +48,7 @@ public class Log extends JFrame
 	public Log()
 	{
 		// settings
-		this.setTitle("oat " + Oat.VERSION);
+		this.setTitle("Log");
 		this.setLocation(100, 100);
 		this.setSize(360, 400);
 		this.setMinimumSize(this.getSize());

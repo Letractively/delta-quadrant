@@ -75,6 +75,12 @@ public class Http implements Runnable
 	private int bufferSize = 1024;
 
 	/**
+	 * The buffer size to read the next chunks size if transfer encoding is
+	 * chunked
+	 */
+	private int bufferSizeSmall = 64;
+
+	/**
 	 * Contains the UTF-8 decoded header
 	 */
 	private String header;
@@ -82,23 +88,26 @@ public class Http implements Runnable
 	/**
 	 * The found content length of the body
 	 */
-	private int contentLength = -1;
-
-	/**
-	 * Indicates whether we have found the header
-	 */
-	private boolean foundHeader = false;
-
-	/**
-	 * Indicates whether the transfer encoding is chunked
-	 */
-	private boolean chunked = false;
+	private int contentLength = 0;
 
 	/**
 	 * If transfer encoding is chunked this contains the size of the current
 	 * chunk
 	 */
-	private int chunkSize = 0;
+	private int chunkLength = 0;
+
+	/**
+	 * Indicates whether we have found the header
+	 */
+	private boolean foundHeader = false;
+	private boolean readChunkLength = false;
+	private boolean chunkEnd = false;
+
+	/**
+	 * Indicates whether the transfer encoding is chunked
+	 */
+	private boolean isContentLength = false;
+	private boolean isChunked = false;
 
 	/**
 	 * How often we can receive an 0 bytes buffer before we close the connection
@@ -163,10 +172,15 @@ public class Http implements Runnable
 			InetSocketAddress socketAddress = new InetSocketAddress(this.host, this.port);
 
 
+			this.isContentLength = false;
+			this.isChunked = false;
+
+
 			// buffers
 			ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
 			Buffer bufferHeader = new Buffer(bufferSize);
 			Buffer bufferBody = new Buffer(bufferSize);
+			Buffer bufferChunked = new Buffer(bufferSize);
 
 
 			// counts zero rounds
@@ -186,8 +200,8 @@ public class Http implements Runnable
 
 			while(selector.select(500) > 0) 
 			{
-				Set readyKeys = selector.selectedKeys();
-				Iterator readyIterator = readyKeys.iterator();
+				Set<SelectionKey> readyKeys = selector.selectedKeys();
+				Iterator<SelectionKey> readyIterator = readyKeys.iterator();
 
 				while(readyIterator.hasNext())
 				{
@@ -208,11 +222,31 @@ public class Http implements Runnable
 					}
 					else if(key.isReadable())
 					{
+						if(this.readChunkLength)
+						{
+							buffer = ByteBuffer.allocate(this.bufferSizeSmall);
+						}
+						// if we have a content length allocate the size to
+						// the buffer
+						else if(this.contentLength > 0)
+						{
+							buffer = ByteBuffer.allocate(this.contentLength);
+						}
+						// if we have a chunk length allocate this size to the
+						// buffer
+						else if(this.chunkLength > 0)
+						{
+							buffer = ByteBuffer.allocate(this.chunkLength);
+						}
+
+
 						keyChannel.read(buffer);
+
+						buffer.flip();
+
 
 						logger.info("Received " + buffer.remaining() + " bytes");
 
-						buffer.flip();
 
 						if(!this.foundHeader)
 						{
@@ -253,19 +287,23 @@ public class Http implements Runnable
 
 								if(header.containsKey("Content-Length"))
 								{
+									this.isContentLength = true;
 									this.contentLength = Integer.parseInt(header.get("Content-Length"));
 
 									logger.info("Found content length " + this.contentLength);
 								}
 								else if(header.containsKey("Transfer-Encoding") && header.get("Transfer-Encoding").equals("chunked"))
 								{
-									this.chunked = true;
+									this.isChunked = true;
+									this.chunkLength = 0;
 
 									logger.info("Set transfer encoding to chunked");
 								}
 								else
 								{
-									throw new Exception("Couldnt find Content-Length or Transfer-Encoding header in response");
+									logger.warning("Couldnt find Content-Length or Transfer-Encoding header in response");
+
+									break;
 								}
 
 
@@ -273,25 +311,91 @@ public class Http implements Runnable
 								charBufferHeader.clear();
 
 
+								// if transfer encoding is chunked and chunk
+								// size is 0 try to read the next chunk size
+								if(this.isChunked && this.chunkLength == 0)
+								{
+									int chunkLength = 0;
+
+									for(int i = buffer.position(); i < buffer.limit(); i++)
+									{
+										bufferChunked.add(buffer.get(i));
+
+										if(buffer.get(i) == 0xA && bufferChunked.containsRN())
+										{
+											chunkLength = bufferChunked.getChunkSize();
+
+											this.chunkLength = chunkLength + 2;
+
+											logger.info("Found next chunk size " + this.chunkLength);
+
+											buffer.position(i + 1);
+
+											break;
+										}
+									}
+								}
+
+
 								// read remaning bytes from buffer
 								for(int i = buffer.position(); i < buffer.limit(); i++)
 								{
 									bufferBody.add(buffer.get(i));
 
-									if(this.chunked)
+									if(this.isContentLength && this.contentLength > 0)
 									{
-										if(this.chunkSize == 0 && buffer.get(i) == 0xA && bufferBody.containsRN())
-										{
-											this.chunkSize = bufferBody.getChunkedSize() + 2;
-
-											logger.info("Found next chunk size " + this.chunkSize);
-										}
-										else if(this.chunkSize > 0)
-										{
-											this.chunkSize--;
-										}
+										this.contentLength--;
+									}
+									else if(this.isChunked && this.chunkLength > 0)
+									{
+										this.chunkLength--;
 									}
 								}
+
+								logger.info("Read remaning " + buffer.remaining() + " bytes");
+							}
+						}
+						else if(this.readChunkLength)
+						{
+							logger.info("Try to read next chunk size received " + buffer.limit() + " bytes");
+
+							int chunkLength = 0;
+
+							for(int i = 0; i < buffer.limit(); i++)
+							{
+								bufferChunked.add(buffer.get(i));
+
+								if(buffer.get(i) == 0xA && bufferChunked.containsRN())
+								{
+									chunkLength = bufferChunked.getChunkSize();
+
+									this.chunkLength = chunkLength + 2;
+									this.readChunkLength = false;
+
+									buffer.position(i + 1);
+
+									logger.info("Found next chunk size " + this.chunkLength);
+
+									break;
+								}
+							}
+
+
+							// read remaning bytes from buffer
+							if(chunkLength > 0)
+							{
+								for(int i = buffer.position(); i < buffer.limit() && this.chunkLength > 0; i++)
+								{
+									bufferBody.add(buffer.get(i));
+
+									this.chunkLength--;
+								}
+
+								logger.info("Read remaning " + buffer.remaining() + " bytes");
+							}
+							else
+							{
+								this.chunkEnd = true;
 							}
 						}
 						else
@@ -301,33 +405,39 @@ public class Http implements Runnable
 							{
 								bufferBody.add(buffer.get(i));
 
-								if(this.chunked)
+								if(this.isContentLength && this.contentLength > 0)
 								{
-									if(this.chunkSize == 0 && buffer.get(i) == 0xA && bufferBody.containsRN())
-									{
-										this.chunkSize = bufferBody.getChunkedSize() + 2;
-
-										logger.info("Found next chunk size " + this.chunkSize);
-									}
-									else if(this.chunkSize > 0)
-									{
-										this.chunkSize--;
-									}
+									this.contentLength--;
+								}
+								else if(this.isChunked && this.chunkLength > 0)
+								{
+									this.chunkLength--;
 								}
 							}
 						}
 
 
-						// close channel if ready
-						if(this.chunked && this.chunkSize == 0)
+						if(this.isChunked)
 						{
-							logger.info("Close channel because chunk size is 0");
+							if(this.chunkLength == 0 && this.readChunkLength == false)
+							{
+								this.readChunkLength = true;
+							}
+
+							logger.info("Current chunk size is " + this.chunkLength + " bytes");
+						}
+
+
+						// close channel
+						if(this.isContentLength && this.contentLength == 0)
+						{
+							logger.info("Close channel because Content-Length was reached");
 
 							channel.close();
 						}
-						else if(!this.chunked && this.contentLength > 0 && bufferBody.getSize() >= this.contentLength)
+						else if(this.isChunked && this.chunkEnd)
 						{
-							logger.info("Close channel because Content-Length reached");
+							logger.info("Close channel because chunk length was reached");
 
 							channel.close();
 						}

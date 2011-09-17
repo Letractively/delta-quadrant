@@ -124,6 +124,12 @@ public class Oat extends JFrame
 		this.setSize(600, 500);
 		this.setMinimumSize(this.getSize());
 		this.setLayout(new BorderLayout());
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
+		// filter
+		filtersIn = new HashMap<Integer, ArrayList<RequestFilterAbstract>>();
+		filtersOut = new HashMap<Integer, ArrayList<ResponseFilterAbstract>>();
 
 
 		// logging handler
@@ -168,7 +174,7 @@ public class Oat extends JFrame
 			{
 				if(e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					run();
+					run(url.getText());
 				}
 			}
 
@@ -191,28 +197,9 @@ public class Oat extends JFrame
 
 		// add new tab
 		this.newTab();
-
-
-		// filter
-		filtersIn = new HashMap<Integer, ArrayList<RequestFilterAbstract>>();
-		filtersOut = new HashMap<Integer, ArrayList<ResponseFilterAbstract>>();
-
-
-		/*
-		Properties config = new Properties();
-		config.setProperty("charset", "UTF-8");
-
-		Charset filterCharset = new Charset();
-		filterCharset.setConfig(config);
-
-		filtersOut.add(filterCharset);
-		*/
-
-
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
-	private void run()
+	public void run(String url)
 	{
 		if(!this.isActive)
 		{
@@ -220,9 +207,9 @@ public class Oat extends JFrame
 
 			try
 			{
-				Request request = new Request(url.getText(), getActiveIn().getText());
+				Request request = new Request(url, getActiveIn().getText());
 
-				Http http = new Http(url.getText(), request, new CallbackInterface(){
+				Http http = new Http(url, request, new CallbackInterface() {
 
 					public void response(Object content) 
 					{
@@ -273,7 +260,7 @@ public class Oat extends JFrame
 		}
 	}
 
-	private void reset()
+	public void reset()
 	{
 		getActiveIn().setText("");
 		getActiveOut().setText("");
@@ -290,7 +277,7 @@ public class Oat extends JFrame
 		});
 	}
 
-	private void newTab()
+	public void newTab()
 	{
 		// main panel
 		JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -378,10 +365,14 @@ public class Oat extends JFrame
 		this.tp.setSelectedIndex(this.tp.getTabCount() - 1);
 
 
+		// load default filters
+		loadDefaultFilters();
+
+
 		reset();
 	}
 
-	private void closeTab()
+	public void closeTab()
 	{
 		if(this.tp.getTabCount() > 1)
 		{
@@ -389,139 +380,128 @@ public class Oat extends JFrame
 		}
 	}
 
-	private void save()
+	public void save(File file)
 	{
 		try
 		{
-			// save file
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new XmlFilter());
-
-			int returnVal = fc.showSaveDialog(Oat.this);
-
-			if(returnVal == JFileChooser.APPROVE_OPTION)
+			// check file extension
+			if(!file.getName().endsWith(".xml"))
 			{
-				// get file
-				File file = fc.getSelectedFile();
-
-				if(!file.getName().endsWith(".xml"))
-				{
-					file = new File(file.getAbsolutePath() + ".xml");
-				}
-
-
-				// build xml
-				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-				DocumentBuilder db = dbf.newDocumentBuilder();
-				Document doc = db.newDocument();
-
-				doc.normalizeDocument();
-				
-				Element root = doc.createElement("oat");
-
-				Element uri = doc.createElement("uri");
-				uri.setTextContent(this.url.getText());
-
-				Element request = doc.createElement("request");
-				request.appendChild(doc.createCDATASection(this.getActiveIn().getText()));
-
-				Element filters = doc.createElement("filters");
-
-
-				// in filters
-				if(this.filtersIn.containsKey(this.getSelectedIndex()))
-				{
-					Element in = doc.createElement("in");
-
-					ArrayList<RequestFilterAbstract> filtersIn = this.filtersIn.get(this.getSelectedIndex());
-					
-					for(int i = 0; i < filtersIn.size(); i++)
-					{
-						Element filter = doc.createElement("filter");
-						filter.setAttribute("name", filtersIn.get(i).getName());
-
-						Properties config = filtersIn.get(i).getConfig();
-
-						if(config != null)
-						{
-							Set set = config.entrySet();
-							Iterator iter = set.iterator();
-
-							while(iter.hasNext())
-							{
-								Map.Entry me = (Map.Entry) iter.next();
-
-								Element property = doc.createElement("property");
-								property.setAttribute("name", me.getKey().toString());
-								property.setTextContent(me.getValue().toString());
-
-								filter.appendChild(property);
-							}
-						}
-
-						in.appendChild(filter);
-					}
-
-					filters.appendChild(in);
-				}
-
-
-				// out filters
-				if(this.filtersOut.containsKey(this.getSelectedIndex()))
-				{
-					Element out = doc.createElement("out");
-
-					ArrayList<ResponseFilterAbstract> filtersIn = this.filtersOut.get(this.getSelectedIndex());
-
-					for(int i = 0; i < filtersIn.size(); i++)
-					{
-						Element filter = doc.createElement("filter");
-						filter.setAttribute("name", filtersIn.get(i).getName());
-
-						Properties config = filtersIn.get(i).getConfig();
-
-						if(config != null)
-						{
-							Set set = config.entrySet();
-							Iterator iter = set.iterator();
-
-							while(iter.hasNext())
-							{
-								Map.Entry me = (Map.Entry) iter.next();
-
-								Element property = doc.createElement("property");
-								property.setAttribute("name", me.getKey().toString());
-								property.setTextContent(me.getValue().toString());
-
-								filter.appendChild(property);
-							}
-						}
-
-						out.appendChild(filter);
-					}
-
-					filters.appendChild(out);
-				}
-
-
-				root.appendChild(uri);
-				root.appendChild(request);
-				root.appendChild(filters);
-
-				doc.appendChild(root);
-
-
-				// write to file
-				Source source = new DOMSource(doc);
-				Result result = new StreamResult(file);
-
-				Transformer transformer = TransformerFactory.newInstance().newTransformer();
-				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-				transformer.transform(source, result);
-
-
-				logger.info("Saved successful to " + file.getAbsolutePath());
+				file = new File(file.getAbsolutePath() + ".xml");
 			}
+
+
+			// build xml
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.newDocument();
+
+			doc.normalizeDocument();
+			
+			Element root = doc.createElement("oat");
+
+			Element uri = doc.createElement("uri");
+			uri.setTextContent(this.url.getText());
+
+			Element request = doc.createElement("request");
+			request.appendChild(doc.createCDATASection(this.getActiveIn().getText()));
+
+			Element filters = doc.createElement("filters");
+
+
+			// in filters
+			if(this.filtersIn.containsKey(this.getSelectedIndex()))
+			{
+				Element in = doc.createElement("in");
+
+				ArrayList<RequestFilterAbstract> filtersIn = this.filtersIn.get(this.getSelectedIndex());
+				
+				for(int i = 0; i < filtersIn.size(); i++)
+				{
+					Element filter = doc.createElement("filter");
+					filter.setAttribute("name", filtersIn.get(i).getName());
+
+					Properties config = filtersIn.get(i).getConfig();
+
+					if(config != null)
+					{
+						Set set = config.entrySet();
+						Iterator iter = set.iterator();
+
+						while(iter.hasNext())
+						{
+							Map.Entry me = (Map.Entry) iter.next();
+
+							Element property = doc.createElement("property");
+							property.setAttribute("name", me.getKey().toString());
+							property.setTextContent(me.getValue().toString());
+
+							filter.appendChild(property);
+						}
+					}
+
+					in.appendChild(filter);
+				}
+
+				filters.appendChild(in);
+			}
+
+
+			// out filters
+			if(this.filtersOut.containsKey(this.getSelectedIndex()))
+			{
+				Element out = doc.createElement("out");
+
+				ArrayList<ResponseFilterAbstract> filtersIn = this.filtersOut.get(this.getSelectedIndex());
+
+				for(int i = 0; i < filtersIn.size(); i++)
+				{
+					Element filter = doc.createElement("filter");
+					filter.setAttribute("name", filtersIn.get(i).getName());
+
+					Properties config = filtersIn.get(i).getConfig();
+
+					if(config != null)
+					{
+						Set set = config.entrySet();
+						Iterator iter = set.iterator();
+
+						while(iter.hasNext())
+						{
+							Map.Entry me = (Map.Entry) iter.next();
+
+							Element property = doc.createElement("property");
+							property.setAttribute("name", me.getKey().toString());
+							property.setTextContent(me.getValue().toString());
+
+							filter.appendChild(property);
+						}
+					}
+
+					out.appendChild(filter);
+				}
+
+				filters.appendChild(out);
+			}
+
+
+			root.appendChild(uri);
+			root.appendChild(request);
+			root.appendChild(filters);
+
+			doc.appendChild(root);
+
+
+			// write to file
+			Source source = new DOMSource(doc);
+			Result result = new StreamResult(file);
+
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.transform(source, result);
+
+
+			logger.info("Saved successful to " + file.getAbsolutePath());
 		}
 		catch(Exception e)
 		{
@@ -529,125 +509,41 @@ public class Oat extends JFrame
 		}
 	}
 	
-	private void open()
+	public void open(File file)
 	{
 		try
 		{
-			// load file
-			JFileChooser fc = new JFileChooser();
-			fc.setFileFilter(new XmlFilter());
+			// read xml
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(file);
 
-			int returnVal = fc.showOpenDialog(Oat.this);
+			Element rootElement = (Element) doc.getDocumentElement();
 
-			if(returnVal == JFileChooser.APPROVE_OPTION)
+			rootElement.normalize();
+
+			NodeList uriList = doc.getElementsByTagName("uri");
+			NodeList requestList = doc.getElementsByTagName("request");
+
+
+			if(uriList.getLength() > 0 && requestList.getLength() > 0)
 			{
-				// get file
-				File file = fc.getSelectedFile();
-
-
-				// read xml
-				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-				DocumentBuilder db = dbf.newDocumentBuilder();
-				Document doc = db.parse(file);
-
-				Element rootElement = (Element) doc.getDocumentElement();
-
-				rootElement.normalize();
-
-				NodeList uriList = doc.getElementsByTagName("uri");
-				NodeList requestList = doc.getElementsByTagName("request");
-
-
-				// filter
-				NodeList filtersList = doc.getElementsByTagName("filter");
-
-				ArrayList<RequestFilterAbstract> filtersIn = new ArrayList<RequestFilterAbstract>();
-				ArrayList<ResponseFilterAbstract> filtersOut = new ArrayList<ResponseFilterAbstract>();
-
-				for(int i = 0; i < filtersList.getLength(); i++)
-				{
-					try
-					{
-						Element filterElement = (Element) filtersList.item(i);
-						
-						// in
-						if(filterElement.getParentNode().getNodeName().equals("in"))
-						{
-							String cls = filterElement.getAttribute("name");
-							Properties config = new Properties();
-
-							NodeList propertyList = filterElement.getElementsByTagName("property");
-
-							for(int j = 0; j < propertyList.getLength(); j++)
-							{
-								Element property = (Element) propertyList.item(j);
-
-								config.put(property.getAttribute("name"), property.getTextContent());
-							}
-
-							Class c = Class.forName(cls);
-
-							RequestFilterAbstract filter = (RequestFilterAbstract) c.newInstance();
-							filter.setConfig(config);
-
-							filtersIn.add(filter);
-						}
-						// out
-						else if(filterElement.getParentNode().getNodeName().equals("out"))
-						{
-							String cls = filterElement.getAttribute("name");
-							Properties config = new Properties();
-
-							NodeList propertyList = filterElement.getElementsByTagName("property");
-
-							for(int j = 0; j < propertyList.getLength(); j++)
-							{
-								Element property = (Element) propertyList.item(j);
-
-								config.put(property.getAttribute("name"), property.getTextContent());
-							}
-
-							Class c = Class.forName(cls);
-
-							ResponseFilterAbstract filter = (ResponseFilterAbstract) c.newInstance();
-							filter.setConfig(config);
-
-							filtersOut.add(filter);
-						}
-					}
-					catch(Exception e)
-					{
-						Oat.handleException(e);
-					}
-				}
-
-				if(filtersIn.size() > 0)
-				{
-					logger.info("Loaded " + filtersIn.size() + " request filter");
-
-					this.filtersIn.put(getSelectedIndex(), filtersIn);
-				}
-
-				if(filtersOut.size() > 0)
-				{
-					logger.info("Loaded " + filtersOut.size() + " response filter");
-
-					this.filtersOut.put(getSelectedIndex(), filtersOut);
-				}
-
-				if(uriList.getLength() > 0 && requestList.getLength() > 0)
-				{
-					url.setText(uriList.item(0).getTextContent());
-					getActiveIn().setText(requestList.item(0).getTextContent());
-				}
-				else
-				{
-					throw new Exception("Uri or request element not found");
-				}
-
-
-				logger.info("Loaded successful from " + file.getAbsolutePath());
+				url.setText(uriList.item(0).getTextContent());
+				getActiveIn().setText(requestList.item(0).getTextContent());
 			}
+			else
+			{
+				throw new Exception("Uri or request element not found");
+			}
+
+
+			// filter
+			NodeList filtersList = doc.getElementsByTagName("filter");
+
+			parseFilters(filtersList);
+
+
+			logger.info("Loaded successful from " + file.getAbsolutePath());
 		}
 		catch(Exception e)
 		{
@@ -655,7 +551,7 @@ public class Oat extends JFrame
 		}
 	}
 
-	private void dig()
+	public void dig()
 	{
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -678,7 +574,7 @@ public class Oat extends JFrame
 		});
 	}
 
-	private void form()
+	public void form()
 	{
 		SwingUtilities.invokeLater(new Runnable() {
 
@@ -707,7 +603,7 @@ public class Oat extends JFrame
 		});
 	}
 
-	private void format(int type)
+	public void format(int type)
 	{
 		try
 		{
@@ -721,7 +617,7 @@ public class Oat extends JFrame
 		}
 	}
 
-	private void log()
+	public void log()
 	{
 		SwingUtilities.invokeLater(new Runnable() {
 			
@@ -738,7 +634,7 @@ public class Oat extends JFrame
 		});
 	}
 
-	private void about()
+	public void about()
 	{
 		StringBuilder out = new StringBuilder();
 
@@ -754,12 +650,7 @@ public class Oat extends JFrame
 		JOptionPane.showMessageDialog(this, out, "About", JOptionPane.INFORMATION_MESSAGE);
 	}
 
-	private int getSelectedIndex()
-	{
-		return this.tp.getSelectedIndex();
-	}
-
-	private In getActiveIn()
+	public In getActiveIn()
 	{
 		JSplitPane sp = (JSplitPane) this.tp.getSelectedComponent();
 		JPanel pa = (JPanel) sp.getComponent(1);
@@ -770,7 +661,7 @@ public class Oat extends JFrame
 		return in;
 	}
 
-	private Out getActiveOut()
+	public Out getActiveOut()
 	{
 		JSplitPane sp = (JSplitPane) this.tp.getSelectedComponent();
 		JPanel pa = (JPanel) sp.getComponent(2);
@@ -779,6 +670,120 @@ public class Oat extends JFrame
 		Out out = (Out) vp.getComponent(0);
 
 		return out;
+	}
+
+	private int getSelectedIndex()
+	{
+		return this.tp.getSelectedIndex();
+	}
+
+	private Oat getSelf()
+	{
+		return this;
+	}
+
+	private void loadDefaultFilters()
+	{
+		try
+		{
+			// read xml
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(Oat.getConfig());
+
+			Element rootElement = (Element) doc.getDocumentElement();
+
+			rootElement.normalize();
+
+
+			// filter
+			NodeList filtersList = doc.getElementsByTagName("filter");
+
+			parseFilters(filtersList);
+		}
+		catch(Exception e)
+		{
+			Oat.handleException(e);
+		}
+	}
+
+	private void parseFilters(NodeList filtersList)
+	{
+		ArrayList<RequestFilterAbstract> filtersIn = new ArrayList<RequestFilterAbstract>();
+		ArrayList<ResponseFilterAbstract> filtersOut = new ArrayList<ResponseFilterAbstract>();
+
+		for(int i = 0; i < filtersList.getLength(); i++)
+		{
+			try
+			{
+				Element filterElement = (Element) filtersList.item(i);
+				
+				// in
+				if(filterElement.getParentNode().getNodeName().equals("in"))
+				{
+					String cls = filterElement.getAttribute("name");
+					Properties config = new Properties();
+
+					NodeList propertyList = filterElement.getElementsByTagName("property");
+
+					for(int j = 0; j < propertyList.getLength(); j++)
+					{
+						Element property = (Element) propertyList.item(j);
+
+						config.put(property.getAttribute("name"), property.getTextContent());
+					}
+
+					Class c = Class.forName(cls);
+
+					RequestFilterAbstract filter = (RequestFilterAbstract) c.newInstance();
+					filter.setConfig(config);
+					filter.setInstance(this);
+
+					filtersIn.add(filter);
+				}
+				// out
+				else if(filterElement.getParentNode().getNodeName().equals("out"))
+				{
+					String cls = filterElement.getAttribute("name");
+					Properties config = new Properties();
+
+					NodeList propertyList = filterElement.getElementsByTagName("property");
+
+					for(int j = 0; j < propertyList.getLength(); j++)
+					{
+						Element property = (Element) propertyList.item(j);
+
+						config.put(property.getAttribute("name"), property.getTextContent());
+					}
+
+					Class c = Class.forName(cls);
+
+					ResponseFilterAbstract filter = (ResponseFilterAbstract) c.newInstance();
+					filter.setConfig(config);
+					filter.setInstance(this);
+
+					filtersOut.add(filter);
+				}
+			}
+			catch(Exception e)
+			{
+				Oat.handleException(e);
+			}
+		}
+
+		if(filtersIn.size() > 0)
+		{
+			logger.info("Loaded " + filtersIn.size() + " request filter");
+
+			this.filtersIn.put(getSelectedIndex(), filtersIn);
+		}
+
+		if(filtersOut.size() > 0)
+		{
+			logger.info("Loaded " + filtersOut.size() + " response filter");
+
+			this.filtersOut.put(getSelectedIndex(), filtersOut);
+		}
 	}
 
 	private JMenuBar buildMenuBar()
@@ -795,7 +800,7 @@ public class Oat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				run();
+				run(url.getText());
 			}
 
 		});
@@ -841,9 +846,18 @@ public class Oat extends JFrame
 		itemSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
 		itemSave.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent e) 
+			public void actionPerformed(ActionEvent e)
 			{
-				save();
+				// save file
+				JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new XmlFilter());
+
+				int returnVal = fc.showSaveDialog(Oat.this);
+
+				if(returnVal == JFileChooser.APPROVE_OPTION)
+				{
+					save(fc.getSelectedFile());
+				}
 			}
 
 		});
@@ -855,7 +869,16 @@ public class Oat extends JFrame
 
 			public void actionPerformed(ActionEvent e) 
 			{
-				open();
+				// load file
+				JFileChooser fc = new JFileChooser();
+				fc.setFileFilter(new XmlFilter());
+
+				int returnVal = fc.showOpenDialog(Oat.this);
+
+				if(returnVal == JFileChooser.APPROVE_OPTION)
+				{
+					open(fc.getSelectedFile());
+				}
 			}
 
 		});
@@ -962,6 +985,11 @@ public class Oat extends JFrame
 		e.printStackTrace();
 	}
 
+	public static File getConfig()
+	{
+		return new File("oat.conf.xml");
+	}
+
 	public class InFilterHandler implements ActionListener
 	{
 		private FilterIn filterWin;
@@ -979,7 +1007,7 @@ public class Oat extends JFrame
 							filtersIn.put(getSelectedIndex(), new ArrayList<RequestFilterAbstract>());
 						}
 
-						filterWin = new FilterIn(filtersIn.get(getSelectedIndex()));
+						filterWin = new FilterIn(filtersIn.get(getSelectedIndex()), getSelf());
 					}
 
 					filterWin.pack();
@@ -997,7 +1025,7 @@ public class Oat extends JFrame
 		public void actionPerformed(ActionEvent e) 
 		{
 			SwingUtilities.invokeLater(new Runnable(){
-				
+
 				public void run() 
 				{
 					if(filterWin == null)
@@ -1007,7 +1035,7 @@ public class Oat extends JFrame
 							filtersOut.put(getSelectedIndex(), new ArrayList<ResponseFilterAbstract>());
 						}
 
-						filterWin = new FilterOut(filtersOut.get(getSelectedIndex()));
+						filterWin = new FilterOut(filtersOut.get(getSelectedIndex()), getSelf());
 					}
 
 					filterWin.pack();

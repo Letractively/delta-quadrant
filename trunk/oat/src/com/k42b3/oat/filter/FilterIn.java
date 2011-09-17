@@ -52,11 +52,13 @@ public class FilterIn extends JFrame
 {
 	private ArrayList<ConfigFilterAbstract> filtersConfig = new ArrayList<ConfigFilterAbstract>();
 	private ArrayList<RequestFilterAbstract> filters = new ArrayList<RequestFilterAbstract>();
+
+	private Oat oat;
 	private ArrayList<RequestFilterAbstract> activeFilters;
 
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
 
-	public FilterIn(ArrayList<RequestFilterAbstract> activeFilters)
+	public FilterIn(ArrayList<RequestFilterAbstract> activeFilters, Oat oat)
 	{
 		this.activeFilters = activeFilters;
 
@@ -97,6 +99,7 @@ public class FilterIn extends JFrame
 
 				ConfigFilterAbstract filterConfig = (ConfigFilterAbstract) cConfig.newInstance();
 				RequestFilterAbstract filter = (RequestFilterAbstract) c.newInstance();
+				filter.setInstance(oat);
 
 				// load config
 				for(int j = 0; j < activeFilters.size(); j++)
@@ -141,12 +144,12 @@ public class FilterIn extends JFrame
 		this.add(panelButtons, BorderLayout.SOUTH);
 	}
 
-	private void close()
+	public void close()
 	{
 		this.setVisible(false);
 	}
 
-	class HandlerSave implements ActionListener
+	private class HandlerSave implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -166,7 +169,7 @@ public class FilterIn extends JFrame
 		}
 	}
 	
-	class HandlerCancel implements ActionListener
+	private class HandlerCancel implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
