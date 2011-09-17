@@ -31,12 +31,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.filter.RequestFilterAbstract;
 import com.k42b3.oat.filter.request.oauthSignature.SignatureInterface;
 import com.k42b3.oat.filter.request.oauthSignature.Util;
 import com.k42b3.oat.http.Request;
@@ -49,10 +48,8 @@ import com.k42b3.oat.http.Request;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Oauth implements RequestFilterInterface
+public class Oauth extends RequestFilterAbstract
 {
-	private Properties config = new Properties();
-
 	public void exec(Request request) throws Exception
 	{
 		// get config
@@ -254,10 +251,5 @@ public class Oauth implements RequestFilterInterface
 		{
 			throw new Exception("Invalid signature method");
 		}
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
 	}
 }

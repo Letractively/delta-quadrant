@@ -31,7 +31,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
@@ -76,9 +80,8 @@ import org.w3c.dom.NodeList;
 import com.k42b3.oat.filter.CallbackInterface;
 import com.k42b3.oat.filter.FilterIn;
 import com.k42b3.oat.filter.FilterOut;
-import com.k42b3.oat.filter.RequestFilterInterface;
-import com.k42b3.oat.filter.ResponseFilterInterface;
-import com.k42b3.oat.filter.response.Charset;
+import com.k42b3.oat.filter.RequestFilterAbstract;
+import com.k42b3.oat.filter.ResponseFilterAbstract;
 import com.k42b3.oat.formatter.Formatter;
 import com.k42b3.oat.formatter.FormatterInterface;
 import com.k42b3.oat.http.Http;
@@ -100,8 +103,9 @@ public class Oat extends JFrame
 	private JTabbedPane tp;
 	private JList list;
 
-	private ArrayList<RequestFilterInterface> filtersIn = new ArrayList<RequestFilterInterface>();
-	private ArrayList<ResponseFilterInterface> filtersOut = new ArrayList<ResponseFilterInterface>();
+	private HashMap<Integer, ArrayList<RequestFilterAbstract>> filtersIn;
+	private HashMap<Integer, ArrayList<ResponseFilterAbstract>> filtersOut;
+
 	private boolean isActive = false;
 
 	private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -189,7 +193,12 @@ public class Oat extends JFrame
 		this.newTab();
 
 
-		// add default filter
+		// filter
+		filtersIn = new HashMap<Integer, ArrayList<RequestFilterAbstract>>();
+		filtersOut = new HashMap<Integer, ArrayList<ResponseFilterAbstract>>();
+
+
+		/*
 		Properties config = new Properties();
 		config.setProperty("charset", "UTF-8");
 
@@ -197,6 +206,7 @@ public class Oat extends JFrame
 		filterCharset.setConfig(config);
 
 		filtersOut.add(filterCharset);
+		*/
 
 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -225,16 +235,26 @@ public class Oat extends JFrame
 
 
 				// add response filters
-				for(int i = 0; i < filtersOut.size(); i++)
+				if(this.filtersOut.containsKey(this.getSelectedIndex()))
 				{
-					http.addResponseFilter(filtersOut.get(i));
+					ArrayList<ResponseFilterAbstract> filtersOut = this.filtersOut.get(this.getSelectedIndex());
+
+					for(int i = 0; i < filtersOut.size(); i++)
+					{
+						http.addResponseFilter(filtersOut.get(i));
+					}
 				}
 
 
 				// apply request filter 
-				for(int i = 0; i < filtersIn.size(); i++)
+				if(this.filtersIn.containsKey(this.getSelectedIndex()))
 				{
-					filtersIn.get(i).exec(request);
+					ArrayList<RequestFilterAbstract> filtersIn = this.filtersIn.get(this.getSelectedIndex());
+
+					for(int i = 0; i < filtersIn.size(); i++)
+					{
+						filtersIn.get(i).exec(request);
+					}
 				}
 
 
@@ -246,9 +266,9 @@ public class Oat extends JFrame
 
 				getActiveIn().setText(request.toString());
 			}
-			catch(Exception ex)
+			catch(Exception e)
 			{
-				getActiveOut().setText(ex.getMessage());
+				Oat.handleException(e);
 			}
 		}
 	}
@@ -395,16 +415,98 @@ public class Oat extends JFrame
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				Document doc = db.newDocument();
 
+				doc.normalizeDocument();
+				
 				Element root = doc.createElement("oat");
 
 				Element uri = doc.createElement("uri");
 				uri.setTextContent(this.url.getText());
 
 				Element request = doc.createElement("request");
-				request.setTextContent(this.getActiveIn().getText());
+				request.appendChild(doc.createCDATASection(this.getActiveIn().getText()));
+
+				Element filters = doc.createElement("filters");
+
+
+				// in filters
+				if(this.filtersIn.containsKey(this.getSelectedIndex()))
+				{
+					Element in = doc.createElement("in");
+
+					ArrayList<RequestFilterAbstract> filtersIn = this.filtersIn.get(this.getSelectedIndex());
+					
+					for(int i = 0; i < filtersIn.size(); i++)
+					{
+						Element filter = doc.createElement("filter");
+						filter.setAttribute("name", filtersIn.get(i).getName());
+
+						Properties config = filtersIn.get(i).getConfig();
+
+						if(config != null)
+						{
+							Set set = config.entrySet();
+							Iterator iter = set.iterator();
+
+							while(iter.hasNext())
+							{
+								Map.Entry me = (Map.Entry) iter.next();
+
+								Element property = doc.createElement("property");
+								property.setAttribute("name", me.getKey().toString());
+								property.setTextContent(me.getValue().toString());
+
+								filter.appendChild(property);
+							}
+						}
+
+						in.appendChild(filter);
+					}
+
+					filters.appendChild(in);
+				}
+
+
+				// out filters
+				if(this.filtersOut.containsKey(this.getSelectedIndex()))
+				{
+					Element out = doc.createElement("out");
+
+					ArrayList<ResponseFilterAbstract> filtersIn = this.filtersOut.get(this.getSelectedIndex());
+
+					for(int i = 0; i < filtersIn.size(); i++)
+					{
+						Element filter = doc.createElement("filter");
+						filter.setAttribute("name", filtersIn.get(i).getName());
+
+						Properties config = filtersIn.get(i).getConfig();
+
+						if(config != null)
+						{
+							Set set = config.entrySet();
+							Iterator iter = set.iterator();
+
+							while(iter.hasNext())
+							{
+								Map.Entry me = (Map.Entry) iter.next();
+
+								Element property = doc.createElement("property");
+								property.setAttribute("name", me.getKey().toString());
+								property.setTextContent(me.getValue().toString());
+
+								filter.appendChild(property);
+							}
+						}
+
+						out.appendChild(filter);
+					}
+
+					filters.appendChild(out);
+				}
+
 
 				root.appendChild(uri);
 				root.appendChild(request);
+				root.appendChild(filters);
 
 				doc.appendChild(root);
 
@@ -416,11 +518,14 @@ public class Oat extends JFrame
 				Transformer transformer = TransformerFactory.newInstance().newTransformer();
 				transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 				transformer.transform(source, result);
+
+
+				logger.info("Saved successful to " + file.getAbsolutePath());
 			}
 		}
 		catch(Exception e)
 		{
-			getActiveOut().setText(e.getMessage());
+			Oat.handleException(e);
 		}
 	}
 	
@@ -451,7 +556,85 @@ public class Oat extends JFrame
 
 				NodeList uriList = doc.getElementsByTagName("uri");
 				NodeList requestList = doc.getElementsByTagName("request");
-				
+
+
+				// filter
+				NodeList filtersList = doc.getElementsByTagName("filter");
+
+				ArrayList<RequestFilterAbstract> filtersIn = new ArrayList<RequestFilterAbstract>();
+				ArrayList<ResponseFilterAbstract> filtersOut = new ArrayList<ResponseFilterAbstract>();
+
+				for(int i = 0; i < filtersList.getLength(); i++)
+				{
+					try
+					{
+						Element filterElement = (Element) filtersList.item(i);
+						
+						// in
+						if(filterElement.getParentNode().getNodeName().equals("in"))
+						{
+							String cls = filterElement.getAttribute("name");
+							Properties config = new Properties();
+
+							NodeList propertyList = filterElement.getElementsByTagName("property");
+
+							for(int j = 0; j < propertyList.getLength(); j++)
+							{
+								Element property = (Element) propertyList.item(j);
+
+								config.put(property.getAttribute("name"), property.getTextContent());
+							}
+
+							Class c = Class.forName(cls);
+
+							RequestFilterAbstract filter = (RequestFilterAbstract) c.newInstance();
+							filter.setConfig(config);
+
+							filtersIn.add(filter);
+						}
+						// out
+						else if(filterElement.getParentNode().getNodeName().equals("out"))
+						{
+							String cls = filterElement.getAttribute("name");
+							Properties config = new Properties();
+
+							NodeList propertyList = filterElement.getElementsByTagName("property");
+
+							for(int j = 0; j < propertyList.getLength(); j++)
+							{
+								Element property = (Element) propertyList.item(j);
+
+								config.put(property.getAttribute("name"), property.getTextContent());
+							}
+
+							Class c = Class.forName(cls);
+
+							ResponseFilterAbstract filter = (ResponseFilterAbstract) c.newInstance();
+							filter.setConfig(config);
+
+							filtersOut.add(filter);
+						}
+					}
+					catch(Exception e)
+					{
+						Oat.handleException(e);
+					}
+				}
+
+				if(filtersIn.size() > 0)
+				{
+					logger.info("Loaded " + filtersIn.size() + " request filter");
+
+					this.filtersIn.put(getSelectedIndex(), filtersIn);
+				}
+
+				if(filtersOut.size() > 0)
+				{
+					logger.info("Loaded " + filtersOut.size() + " response filter");
+
+					this.filtersOut.put(getSelectedIndex(), filtersOut);
+				}
+
 				if(uriList.getLength() > 0 && requestList.getLength() > 0)
 				{
 					url.setText(uriList.item(0).getTextContent());
@@ -461,11 +644,14 @@ public class Oat extends JFrame
 				{
 					throw new Exception("Uri or request element not found");
 				}
+
+
+				logger.info("Loaded successful from " + file.getAbsolutePath());
 			}
 		}
-		catch(Exception ex)
+		catch(Exception e)
 		{
-			getActiveOut().setText(ex.getMessage());
+			Oat.handleException(e);
 		}
 	}
 
@@ -531,7 +717,7 @@ public class Oat extends JFrame
 		}
 		catch(Exception e)
 		{
-			getActiveOut().setBody(e.getMessage());
+			Oat.handleException(e);
 		}
 	}
 
@@ -561,12 +747,16 @@ public class Oat extends JFrame
 		out.append("Website: http://code.google.com/p/delta-quadrant" + "\n");
 		out.append("License: GPLv3 <http://www.gnu.org/licenses/gpl-3.0.html>" + "\n");
 		out.append("\n");
-		out.append("An application with that you can make raw HTTP requests to any URL. You can" + "\n");
-		out.append("save a request for later use. You can apply on the request and the response" + "\n");
-		out.append("filters wich can modify the content. The application uses the java nio library" + "\n");
-		out.append("to make non-blocking requests so it should work fluently." + "\n");
+		out.append("An application to send raw http requests to any host. It is designed to" + "\n");
+		out.append("debug and test web applications. You can apply filters to the request and" + "\n");
+		out.append("response wich can modify the content." + "\n");
 
 		JOptionPane.showMessageDialog(this, out, "About", JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	private int getSelectedIndex()
+	{
+		return this.tp.getSelectedIndex();
 	}
 
 	private In getActiveIn()
@@ -774,67 +964,57 @@ public class Oat extends JFrame
 
 	public class InFilterHandler implements ActionListener
 	{
-		private FilterIn win;
-		
+		private FilterIn filterWin;
+
 		public void actionPerformed(ActionEvent e) 
 		{
-			if(!FilterIn.active)
-			{
-				SwingUtilities.invokeLater(new Runnable(){
-					
-					public void run() 
+			SwingUtilities.invokeLater(new Runnable(){
+
+				public void run() 
+				{
+					if(filterWin == null)
 					{
-						if(win == null)
+						if(!filtersIn.containsKey(getSelectedIndex()))
 						{
-							win = new FilterIn(new CallbackInterface(){
-
-								public void response(Object content) 
-								{
-									filtersIn = (ArrayList<RequestFilterInterface>) content;
-								}
-
-							});
+							filtersIn.put(getSelectedIndex(), new ArrayList<RequestFilterAbstract>());
 						}
 
-						win.pack();
-						win.setVisible(true);		
+						filterWin = new FilterIn(filtersIn.get(getSelectedIndex()));
 					}
-					
-				});
-			}
+
+					filterWin.pack();
+					filterWin.setVisible(true);		
+				}
+
+			});
 		}
 	}
-	
+
 	public class OutFilterHandler implements ActionListener
 	{
-		private FilterOut win;
+		private FilterOut filterWin;
 		
 		public void actionPerformed(ActionEvent e) 
 		{
-			if(!FilterOut.active)
-			{
-				SwingUtilities.invokeLater(new Runnable(){
-					
-					public void run() 
+			SwingUtilities.invokeLater(new Runnable(){
+				
+				public void run() 
+				{
+					if(filterWin == null)
 					{
-						if(win == null)
+						if(!filtersOut.containsKey(getSelectedIndex()))
 						{
-							win = new FilterOut(new CallbackInterface(){
-
-								public void response(Object content) 
-								{
-									filtersOut = (ArrayList<ResponseFilterInterface>) content;
-								}
-
-							});
+							filtersOut.put(getSelectedIndex(), new ArrayList<ResponseFilterAbstract>());
 						}
 
-						win.pack();
-						win.setVisible(true);			
+						filterWin = new FilterOut(filtersOut.get(getSelectedIndex()));
 					}
-					
-				});
-			}
+
+					filterWin.pack();
+					filterWin.setVisible(true);			
+				}
+
+			});
 		}
 	}
 

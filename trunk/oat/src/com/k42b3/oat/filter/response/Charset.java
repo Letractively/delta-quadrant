@@ -27,7 +27,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.util.Properties;
 
-import com.k42b3.oat.filter.ResponseFilterInterface;
+import com.k42b3.oat.filter.ResponseFilterAbstract;
 import com.k42b3.oat.http.Response;
 
 /**
@@ -38,7 +38,7 @@ import com.k42b3.oat.http.Response;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Charset implements ResponseFilterInterface
+public class Charset extends ResponseFilterAbstract
 {
 	private Properties config = new Properties();
 	
@@ -58,6 +58,8 @@ public class Charset implements ResponseFilterInterface
 			if(pos != -1)
 			{
 				charsetName = contentType.substring(pos + 8).trim();
+
+				logger.info("Found charset " + charsetName + " in header");
 			}
 		}
 
@@ -81,10 +83,5 @@ public class Charset implements ResponseFilterInterface
 		CharBuffer body = decoder.decode(response.getRawBody().getByteBuffer());
 
 		response.setBody(body.toString());
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
 	}
 }

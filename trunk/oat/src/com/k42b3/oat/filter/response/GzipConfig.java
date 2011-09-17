@@ -32,7 +32,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import com.k42b3.oat.filter.ConfigFilter;
+import com.k42b3.oat.filter.ConfigFilterAbstract;
 
 /**
  * GzipConfig
@@ -42,15 +42,46 @@ import com.k42b3.oat.filter.ConfigFilter;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class GzipConfig extends ConfigFilter
+public class GzipConfig extends ConfigFilterAbstract
 {
-	private JCheckBox ckb_active;
-	
+	private JCheckBox ckbActive;
+
+	public GzipConfig()
+	{
+		this.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridLayout(0, 1));
+
+
+		// active
+		JPanel panelActive = new JPanel();
+		panelActive.setLayout(new FlowLayout());
+
+		JLabel lblActive = new JLabel("Active:");
+		lblActive.setPreferredSize(new Dimension(100, 24));
+		panelActive.add(lblActive);
+
+		this.ckbActive = new JCheckBox();		
+		this.ckbActive.setPreferredSize(new Dimension(200, 24));
+		panelActive.add(this.ckbActive);
+
+		panel.add(panelActive);
+
+
+		this.add(panel);
+	}
+
 	public String getName()
 	{
 		return "GZip";
 	}
-	
+
+	public void onLoad(Properties config) 
+	{
+		this.ckbActive.setSelected(true);
+	}
+
 	public Properties onSave() 
 	{
 		return null;
@@ -58,41 +89,6 @@ public class GzipConfig extends ConfigFilter
 	
 	public boolean isActive()
 	{
-		return this.ckb_active.isSelected();
-	}
-	
-	public GzipConfig()
-	{
-		this.setLayout(new FlowLayout(FlowLayout.LEFT));
-		
-		JPanel panel = new JPanel();
-		
-		panel.setLayout(new GridLayout(0, 1));
-		
-		
-		// active
-		JPanel panel_active = new JPanel();
-
-		panel_active.setLayout(new FlowLayout());
-
-
-		JLabel lbl_active = new JLabel("Active:");
-
-		lbl_active.setPreferredSize(new Dimension(100, 24));
-
-		panel_active.add(lbl_active);
-
-
-		this.ckb_active = new JCheckBox();
-		
-		this.ckb_active.setPreferredSize(new Dimension(200, 24));
-		
-		panel_active.add(this.ckb_active);
-		
-		
-		panel.add(panel_active);
-		
-		
-		this.add(panel);
+		return this.ckbActive.isSelected();
 	}
 }

@@ -23,9 +23,7 @@
 
 package com.k42b3.oat.filter.request;
 
-import java.util.Properties;
-
-import com.k42b3.oat.filter.RequestFilterInterface;
+import com.k42b3.oat.filter.RequestFilterAbstract;
 import com.k42b3.oat.http.Request;
 
 /**
@@ -36,17 +34,13 @@ import com.k42b3.oat.http.Request;
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class ContentLength implements RequestFilterInterface
+public class ContentLength extends RequestFilterAbstract
 {
-	private Properties config = new Properties();
-
 	public void exec(Request request) 
 	{
-		request.setHeader("Content-Length", "" + request.getBody().length());
-	}
-
-	public void setConfig(Properties config)
-	{
-		this.config = config;
+		if(request.getBody().length() > 0)
+		{
+			request.setHeader("Content-Length", "" + request.getBody().length());
+		}
 	}
 }

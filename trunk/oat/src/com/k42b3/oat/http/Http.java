@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 
 import com.k42b3.oat.Oat;
 import com.k42b3.oat.filter.CallbackInterface;
-import com.k42b3.oat.filter.ResponseFilterInterface;
+import com.k42b3.oat.filter.ResponseFilterAbstract;
 
 /**
  * Http
@@ -117,7 +117,7 @@ public class Http implements Runnable
 	private Response response;
 	private CallbackInterface callback;
 
-	private ArrayList<ResponseFilterInterface> responseFilter = new ArrayList<ResponseFilterInterface>();
+	private ArrayList<ResponseFilterAbstract> responseFilter = new ArrayList<ResponseFilterAbstract>();
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
 
 	public Http(String rawUrl, Request request, CallbackInterface callback) throws Exception
@@ -150,7 +150,7 @@ public class Http implements Runnable
 		this.defaultEncoder = defaultCharset.newEncoder();
 	}
 
-	public void addResponseFilter(ResponseFilterInterface filter)
+	public void addResponseFilter(ResponseFilterAbstract filter)
 	{
 		this.responseFilter.add(filter);
 	}
@@ -325,7 +325,7 @@ public class Http implements Runnable
 
 							channel.close();
 						}
-						else if(!this.chunked && bufferBody.getSize() >= this.contentLength)
+						else if(!this.chunked && this.contentLength > 0 && bufferBody.getSize() >= this.contentLength)
 						{
 							logger.info("Close channel because Content-Length reached");
 
@@ -419,29 +419,5 @@ public class Http implements Runnable
 	public Response getResponse()
 	{
 		return this.response;
-	}
-
-	private ByteBuffer mergeBuffer(ArrayList<ByteBuffer> list, int capacity)
-	{
-		ByteBuffer buffer = ByteBuffer.allocateDirect(capacity);
-
-		for(int i = 0; i < list.size(); i++)
-		{
-			ByteBuffer buf = list.get(i);
-
-			buf.rewind();
-
-			for(int j = 0; j < buf.remaining(); j++)
-			{
-				if(buffer.hasRemaining())
-				{
-					buffer.put(buf.get(j));
-				}
-			}
-		}
-
-		buffer.flip();
-
-		return buffer;
 	}
 }
