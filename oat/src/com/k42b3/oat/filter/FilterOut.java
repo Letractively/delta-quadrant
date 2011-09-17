@@ -52,11 +52,13 @@ public class FilterOut extends JFrame
 {
 	private ArrayList<ConfigFilterAbstract> filtersConfig = new ArrayList<ConfigFilterAbstract>();
 	private ArrayList<ResponseFilterAbstract> filters = new ArrayList<ResponseFilterAbstract>();
+	
+	private Oat oat;
 	private ArrayList<ResponseFilterAbstract> activeFilters;
 
 	private Logger logger = Logger.getLogger("com.k42b3.oat");
 
-	public FilterOut(ArrayList<ResponseFilterAbstract> activeFilters)
+	public FilterOut(ArrayList<ResponseFilterAbstract> activeFilters, Oat oat)
 	{
 		this.activeFilters = activeFilters;
 
@@ -95,6 +97,7 @@ public class FilterOut extends JFrame
 
 				ConfigFilterAbstract filterConfig = (ConfigFilterAbstract) cConfig.newInstance();
 				ResponseFilterAbstract filter = (ResponseFilterAbstract) c.newInstance();
+				filter.setInstance(oat);
 
 				// load config
 				for(int j = 0; j < activeFilters.size(); j++)
@@ -139,12 +142,12 @@ public class FilterOut extends JFrame
 		this.add(panelButtons, BorderLayout.SOUTH);
 	}
 
-	private void close()
+	public void close()
 	{
 		this.setVisible(false);
 	}
 
-	class HandlerSave implements ActionListener
+	private class HandlerSave implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -164,7 +167,7 @@ public class FilterOut extends JFrame
 		}
 	}
 	
-	class HandlerCancel implements ActionListener
+	private class HandlerCancel implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{

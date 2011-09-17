@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -65,10 +66,12 @@ public class Dig extends JFrame
 	private HashMap<Integer, String> types;
 	private JLabel lblStatus;
 
+	private Logger logger = Logger.getLogger("com.k42b3.oat");
+
 	public Dig()
 	{
 		// settings
-		this.setTitle("oat " + Oat.VERSION);
+		this.setTitle("Dig");
 		this.setLocation(100, 100);
 		this.setSize(500, 400);
 		this.setMinimumSize(this.getSize());
@@ -91,7 +94,7 @@ public class Dig extends JFrame
 			{
 				if(e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
-					lookup();
+					lookup(url.getText());
 				}
 			}
 
@@ -160,7 +163,7 @@ public class Dig extends JFrame
 		types.put(Type.LOC, "LOC (Location)");
 	}
 
-	private void lookup()
+	public void lookup(String url)
 	{
 		out.setText("");
 		lblStatus.setText("-");
@@ -175,7 +178,7 @@ public class Dig extends JFrame
 			{
 				int key = keys.next();
 
-				service.submit(new RequestWorker(key, types.get(key)));
+				service.submit(new RequestWorker(url, key, types.get(key)));
 			}
 
 			service.shutdown();
@@ -186,13 +189,15 @@ public class Dig extends JFrame
 		}
 	}
 
-	class RequestWorker implements Runnable
+	private class RequestWorker implements Runnable
 	{
+		private String url;
 		private int type;
 		private String desc;
 
-		public RequestWorker(int type, String desc)
+		public RequestWorker(String url, int type, String desc)
 		{
+			this.url = url;
 			this.type = type;
 			this.desc = desc;
 		}
@@ -209,7 +214,7 @@ public class Dig extends JFrame
 			{
 				SimpleResolver res = new SimpleResolver();
 
-				Name name = Name.fromString(url.getText(), Name.root);
+				Name name = Name.fromString(url, Name.root);
 				Record rec = Record.newRecord(name, type, DClass.IN);
 
 				Message query = Message.newQuery(rec);
@@ -233,18 +238,18 @@ public class Dig extends JFrame
 			}
 			catch(Exception e)
 			{
-				result.append(e.getMessage() + "\n");
+				Oat.handleException(e);
 			}
 
 			out.append(result.toString());
 		}
 	}
 
-	public class LookupHandler implements ActionListener
+	private class LookupHandler implements ActionListener
 	{
-		public void actionPerformed(ActionEvent e) 
+		public void actionPerformed(ActionEvent e)
 		{
-			lookup();
+			lookup(url.getText());
 		}
 	}
 }

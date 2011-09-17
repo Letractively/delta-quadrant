@@ -70,6 +70,12 @@ public class Buffer
 		}
 	}
 
+	public void clear()
+	{
+		buffer = new byte[buffer.length];
+		pos = 0;
+	}
+
 	public byte[] getArray()
 	{
 		byte[] tmpBuffer = new byte[pos + 1];
@@ -104,7 +110,7 @@ public class Buffer
 	 * 
 	 * @return integer
 	 */
-	public int getChunkedSize()
+	public int getChunkSize()
 	{
 		if(this.containsRN())
 		{
@@ -132,14 +138,13 @@ public class Buffer
 
 			// decode string
 			String raw = new String(tmpBuffer, Charset.forName("UTF-8"));
-			int len = Integer.decode("0x" + raw.trim());
 
+			if(!raw.trim().isEmpty())
+			{
+				int len = Integer.decode("0x" + raw.trim());
 
-			// remove chunked size from buffer
-			// @todo remove chunked size from buffer
-
-
-			return len;
+				return len;
+			}
 		}
 
 		return 0;

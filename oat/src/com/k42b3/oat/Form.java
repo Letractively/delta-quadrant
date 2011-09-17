@@ -69,7 +69,7 @@ public class Form extends JFrame
 	public Form()
 	{
 		// settings
-		this.setTitle("oat " + Oat.VERSION);
+		this.setTitle("Form");
 		this.setLocation(100, 100);
 		this.setSize(360, 400);
 		this.setMinimumSize(this.getSize());
@@ -107,6 +107,11 @@ public class Form extends JFrame
 		this.parseForm(html);
 
 		this.buildElements();
+	}
+
+	public void setCallback(CallbackInterface cb)
+	{
+		this.cb = cb;
 	}
 
 	private void reset()
@@ -344,11 +349,6 @@ public class Form extends JFrame
 
 		return null;
 	}
-
-	public void setCallback(CallbackInterface cb)
-	{
-		this.cb = cb;
-	}
 	
 	private boolean startsWith(String phrase, int index, String content)
 	{
@@ -363,7 +363,7 @@ public class Form extends JFrame
 		return true;	
 	}
 
-	public class FormData
+	private class FormData
 	{
 		private String url;
 		private String method;
@@ -428,7 +428,7 @@ public class Form extends JFrame
 		}
 	}
 
-	public class InsertHandler implements ActionListener
+	private class InsertHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
