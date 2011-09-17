@@ -24,10 +24,15 @@
 package com.k42b3.oat;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
@@ -61,6 +66,30 @@ public class Log extends JFrame
 		txtLog.setEditable(false);
 
 		this.add(new JScrollPane(txtLog), BorderLayout.CENTER);
+
+
+		// buttons
+		JPanel panelButtons = new JPanel();
+
+		FlowLayout fl = new FlowLayout();
+		fl.setAlignment(FlowLayout.LEFT);
+
+		panelButtons.setLayout(fl);
+
+		JButton btnReset = new JButton("Reset");
+		btnReset.setMnemonic(java.awt.event.KeyEvent.VK_R);
+		btnReset.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent e)
+			{
+				txtLog.setText("");
+			}
+
+		});
+
+		panelButtons.add(btnReset);
+
+		this.add(panelButtons, BorderLayout.SOUTH);
 	}
 	
 	public void append(LogRecord rec)
