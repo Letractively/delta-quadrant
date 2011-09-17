@@ -23,9 +23,6 @@
 
 package com.k42b3.oat.formatter;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 /**
  * Json
  *
@@ -38,8 +35,6 @@ public class Json implements FormatterInterface
 {
 	public String format(String content) throws Exception
 	{
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		return gson.toJson(gson.fromJson(content, Object.class));
+		throw new Exception("Not implemented yet");
 	}
 }
