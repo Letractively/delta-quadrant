@@ -1,3 +1,0 @@
-= Introduction =
-
-An application with that you can make raw http requests to any url. You can save a request for later use. You can apply on the request and the response filters wich can modify the content. The application uses the java nio library to make non-blocking requests so it should work fluently. It was mainly developed to debug and make security tests for the amun (http://code.google.com/p/amun/) API. Because of the OAuth filter you can easy debug OAuth protected endpoints and you can modify every byte of the request wich is great to make security tests.
