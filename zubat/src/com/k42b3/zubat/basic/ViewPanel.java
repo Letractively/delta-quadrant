@@ -89,7 +89,7 @@ public class ViewPanel extends JPanel
 		// table
 		tm = new ViewTableModel(service.getUri(), http);
 
-		if(fields == null)
+		if(fields == null || fields.size() == 0)
 		{
 			tm.loadData(tm.getSupportedFields());
 		}
