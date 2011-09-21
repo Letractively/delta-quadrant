@@ -51,7 +51,7 @@ import com.k42b3.neodym.oauth.OauthProvider;
  */
 public class Zubat extends JFrame
 {
-	public static String version = "0.0.5 beta";
+	public static String version = "0.0.6 beta";
 
 	private Configuration config;
 	private Oauth oauth;
