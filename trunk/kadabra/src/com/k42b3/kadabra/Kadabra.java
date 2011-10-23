@@ -30,7 +30,6 @@ import java.io.File;
 import java.io.ObjectOutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -47,7 +46,7 @@ import com.almworks.sqlite4java.SQLiteStatement;
  */
 public class Kadabra
 {
-	public static String version = "0.0.3 beta";
+	public static String version = "0.0.4 beta";
 
 	private Console console;
 	private Logger logger;
