@@ -153,7 +153,7 @@ public class Entry
 		}
 		catch(Exception e)
 		{
-			System.out.println(e.getMessage());
+			Kadabra.handleException(e);
 		}
 	}
 }

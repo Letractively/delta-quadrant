@@ -24,6 +24,9 @@
 
 package com.k42b3.kadabra;
 
+import java.io.Console;
+import java.util.logging.Logger;
+
 /**
  * HandlerAbstract
  *
@@ -34,17 +37,23 @@ package com.k42b3.kadabra;
  */
 public abstract class HandlerAbstract
 {
+	protected Console console;
+	protected Logger logger;
+
 	protected Resource resource;
 	protected String basePath;
 
 	public HandlerAbstract(Resource resource, String basePath)
 	{
+		this.console = System.console();
+		this.logger = Logger.getLogger("com.k42b3.kadabra");
+
 		this.resource = resource;
 		this.basePath = basePath;
 	}
 
 	abstract public Item[] getFiles(String path) throws Exception;
-	abstract public void makeDirecoty(String path) throws Exception;
+	abstract public void makeDirectory(String path) throws Exception;
 	abstract public byte[] getContent(String path) throws Exception;
 	abstract public void uploadFile(String path, byte[] content) throws Exception;
 	abstract public void close() throws Exception;
