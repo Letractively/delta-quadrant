@@ -52,6 +52,8 @@ public class System extends HandlerAbstract
 
 	public byte[] getContent(String path) throws Exception
 	{
+		logger.info(basePath + "/" + path);
+		
 		InputStream fis = new FileInputStream(basePath + "/" + path);
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -75,6 +77,8 @@ public class System extends HandlerAbstract
 
 	public Item[] getFiles(String path) throws Exception
 	{
+		logger.info(basePath + "/" + path);
+
 		File list = new File(basePath + "/" + path);
 
 		if(!list.isDirectory())
@@ -93,16 +97,22 @@ public class System extends HandlerAbstract
 			items[i] = new Item(itemName, itemIype);
 		}
 
+		logger.info("Found " + items.length + " files");
+
 		return items;
 	}
 
-	public void makeDirecoty(String path)
+	public void makeDirectory(String path)
 	{
+		logger.info(basePath + "/" + path);
+		
 		new File(basePath + "/" + path).mkdir();
 	}
 
 	public void uploadFile(String path, byte[] content) throws Exception
 	{
+		logger.info(basePath + "/" + path);
+
 		FileOutputStream fos = new FileOutputStream(basePath + "/" + path);
 
 		if(fos != null)

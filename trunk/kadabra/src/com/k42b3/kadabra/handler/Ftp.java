@@ -54,22 +54,19 @@ public class Ftp extends HandlerAbstract
 	public Ftp(Resource resource, String basePath) throws Exception
 	{
 		super(resource, basePath);
-		
+
 		client = new FTPClient();
-
 		client.addProtocolCommandListener(new CommandLogger());
-
 		client.connect(resource.getString("host"), Integer.parseInt(resource.getString("port")));
-
 		client.login(resource.getString("user"), resource.getString("pw"));
-
-		client.enterLocalPassiveMode();
-
 		client.setFileType(FTPClient.BINARY_FILE_TYPE);
+		client.enterLocalPassiveMode();
 	}
 
 	public byte[] getContent(String path) throws Exception
 	{
+		logger.info(basePath + "/" + path);
+
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
 		client.retrieveFile(basePath + "/" + path, baos);
@@ -82,11 +79,15 @@ public class Ftp extends HandlerAbstract
 
 	public Item[] getFiles(String path) throws Exception
 	{
+		path = path.isEmpty() ? "." : path;
+
+		logger.info(basePath + "/" + path);
+
 		FTPFile[] files = client.listFiles(basePath + "/" + path);
 
 		if(client.getReplyCode() != FTPReply.CODE_226)
 		{
-			throw new Exception(path + " ist not a directory");
+			throw new Exception(basePath + "/" + path + " ist not a directory");
 		}
 
 		Item[] items = new Item[files.length];
@@ -99,17 +100,23 @@ public class Ftp extends HandlerAbstract
 			items[i] = new Item(itemName, itemIype);
 		}
 
+		logger.info("Found " + items.length + " files");
+
 		return items;
 	}
 
-	public void makeDirecoty(String path) throws Exception
+	public void makeDirectory(String path) throws Exception
 	{
+		logger.info(basePath + "/" + path);
+
 		client.makeDirectory(basePath + "/" + path);
 	}
 
 	public void uploadFile(String path, byte[] content) throws Exception
 	{
-		OutputStream os = client.storeFileStream(basePath + "/" + path);
+		logger.info(basePath + "/" + path);
+
+		OutputStream os = client.storeFileStream(path);
 
 		if(os != null)
 		{
@@ -150,12 +157,12 @@ public class Ftp extends HandlerAbstract
 
 		public void protocolCommandSent(ProtocolCommandEvent e) 
 		{
-			logger.fine(e.getMessage());
+			logger.info(e.getMessage().trim());
 		}
 
 		public void protocolReplyReceived(ProtocolCommandEvent e) 
 		{
-			logger.fine(e.getMessage());
+			logger.info(e.getMessage().trim());
 		}
 	}
 }

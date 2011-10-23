@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
 import java.io.ObjectOutputStream;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -80,9 +81,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -102,9 +101,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -152,9 +149,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -187,9 +182,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 	
@@ -222,9 +215,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -238,6 +229,15 @@ public class Kadabra
 			Resource leftResource = new Resource(db, leftResourceId);
 			Resource rightResource = new Resource(db, rightResourceId);
 
+			// test settings
+			HandlerAbstract handlerLeft = HandlerFactory.factory(leftResource, leftPath);
+			HandlerAbstract handlerRight = HandlerFactory.factory(rightResource, rightPath);
+
+			handlerLeft.getFiles("");
+			handlerRight.getFiles("");
+
+
+			// insert project
 			String sql = "INSERT INTO projects (" +
 				"name, " +
 				"leftPath, " +
@@ -268,9 +268,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -311,9 +309,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -348,9 +344,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -393,9 +387,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -416,9 +408,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -439,9 +429,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -527,9 +515,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -570,9 +556,7 @@ public class Kadabra
 		}
 		catch(Exception e)
 		{
-			console.printf(e.getMessage() + "%n");
-
-			logger.warning(e.getMessage());
+			handleException(e);
 		}
 	}
 
@@ -654,7 +638,7 @@ public class Kadabra
 
 					if(!testRun)
 					{
-						project.getRightHandler().makeDirecoty(path + "/" + leftItem.getName());
+						project.getRightHandler().makeDirectory(path + "/" + leftItem.getName());
 					}
 
 					this.uploadDir(project, testRun, path + "/" + leftItem.getName());
@@ -669,12 +653,12 @@ public class Kadabra
 					byte[] leftContent = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
 					byte[] rightContent = project.getRightHandler().getContent(path + "/" + leftItem.getName());
 
-					if(!Arrays.equals(leftContent, rightContent))
-					{
-						int leftLen = leftContent.length;
-						int rightLen = rightContent.length;
+					String leftStrContent = normalizeContent(leftContent);
+					String rightStrContent = normalizeContent(rightContent);
 
-						console.printf("U " + path + "/" + leftItem.getName() + " (" + leftLen + "/" + rightLen + ")%n");
+					if(!leftStrContent.equals(rightStrContent))
+					{
+						console.printf("U " + path + "/" + leftItem.getName() + " (" + leftStrContent.length() + "/" + rightStrContent.length() + ")%n");
 
 						if(!testRun)
 						{
@@ -757,7 +741,7 @@ public class Kadabra
 
 				if(!testRun)
 				{
-					project.getRightHandler().makeDirecoty(path + "/" + leftItem.getName());
+					project.getRightHandler().makeDirectory(path + "/" + leftItem.getName());
 				}
 
 				this.uploadDir(project, testRun, path + "/" + leftItem.getName());
@@ -776,7 +760,7 @@ public class Kadabra
 			}
 		}
 	}
-	
+
 	private String trimString(String str, int length)
 	{
 		if(str.length() > length)
@@ -799,5 +783,30 @@ public class Kadabra
 		}
 
 		return path;
+	}
+
+	private String normalizeContent(byte[] content)
+	{
+		String str = new String(content, Charset.forName("UTF-8"));
+		StringBuilder result = new StringBuilder();
+
+		for(int i = 0; i < str.length(); i++)
+		{
+			if(!Character.isWhitespace(str.charAt(i)))
+			{
+				result.append(str.charAt(i));
+			}
+		}
+
+		return result.toString();
+	}
+
+	public static void handleException(Exception e)
+	{
+		System.console().printf(e.getMessage() + "%n");
+
+		e.printStackTrace();
+
+		//Logger.getLogger("com.k42b3.kadabra").warning(e.getMessage());
 	}
 }
