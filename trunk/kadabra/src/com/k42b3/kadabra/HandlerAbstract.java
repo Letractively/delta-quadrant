@@ -25,6 +25,7 @@
 package com.k42b3.kadabra;
 
 import java.io.Console;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -40,6 +41,7 @@ public abstract class HandlerAbstract
 	protected Console console;
 	protected Logger logger;
 
+	protected FileMap map;
 	protected Resource resource;
 	protected String basePath;
 
@@ -50,6 +52,32 @@ public abstract class HandlerAbstract
 
 		this.resource = resource;
 		this.basePath = basePath;
+	}
+
+	public boolean isFile(String path) throws Exception
+	{
+		logger.info(basePath + "/" + path);
+
+		try
+		{
+			this.getContent(path);
+
+			return true;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+	}
+
+	public void loadMap() throws Exception
+	{
+		this.map = new FileMap(this);
+	}
+
+	public FileMap getMap() throws Exception
+	{
+		return map;
 	}
 
 	abstract public Item[] getFiles(String path) throws Exception;

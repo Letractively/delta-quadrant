@@ -39,11 +39,18 @@ public class Item
 
 	private String name;
 	private int type;
+	private String md5;
 
-	public Item(String name, int type)
+	public Item(String name, int type, String md5)
 	{
 		this.setName(name);
 		this.setType(type);
+		this.setMd5(md5);
+	}
+
+	public Item(String name, int type)
+	{
+		this(name, type, null);
 	}
 
 	public String getName() 
@@ -64,6 +71,16 @@ public class Item
 	public void setType(int type)
 	{
 		this.type = type;
+	}
+
+	public String getMd5() 
+	{
+		return md5;
+	}
+
+	public void setMd5(String md5)
+	{
+		this.md5 = md5;
 	}
 
 	public boolean isFile()

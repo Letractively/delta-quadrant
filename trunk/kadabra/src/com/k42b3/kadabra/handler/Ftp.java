@@ -25,10 +25,12 @@
 package com.k42b3.kadabra.handler;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 import org.apache.commons.net.ftp.FTPClient;
@@ -37,6 +39,7 @@ import org.apache.commons.net.ftp.FTPReply;
 
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
+import com.k42b3.kadabra.Kadabra;
 import com.k42b3.kadabra.Resource;
 
 /**
@@ -94,10 +97,18 @@ public class Ftp extends HandlerAbstract
 
 		for(int i = 0; i < files.length; i++)
 		{
-			String itemName = files[i].getName();
-			int itemIype = files[i].isDirectory() ? Item.DIRECTORY : Item.FILE;
+			if(files[i].isDirectory())
+			{
+				items[i] = new Item(files[i].getName(), Item.DIRECTORY);
+			}
 
-			items[i] = new Item(itemName, itemIype);
+			if(files[i].isFile())
+			{
+				byte[] content = this.getContent(path + "/" + files[i].getName());
+				String md5 = DigestUtils.md5Hex(Kadabra.normalizeContent(content));
+
+				items[i] = new Item(files[i].getName(), Item.FILE, md5);
+			}
 		}
 
 		logger.info("Found " + items.length + " files");

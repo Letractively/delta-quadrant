@@ -74,6 +74,8 @@ public class Kadabra
 		{
 			Project project = new Project(db, projectId);
 
+			project.getRightHandler().loadMap();
+
 			this.mirrorFolder(project, true, "");
 
 			project.close();
@@ -89,6 +91,8 @@ public class Kadabra
 		try
 		{
 			Project project = new Project(db, projectId);
+
+			project.getRightHandler().loadMap();
 
 			this.mirrorFolder(project, false, "");
 
@@ -228,12 +232,11 @@ public class Kadabra
 			Resource leftResource = new Resource(db, leftResourceId);
 			Resource rightResource = new Resource(db, rightResourceId);
 
-			// test settings
+			// build map for both sides
 			HandlerAbstract handlerLeft = HandlerFactory.factory(leftResource, leftPath);
 			HandlerAbstract handlerRight = HandlerFactory.factory(rightResource, rightPath);
 
-			handlerLeft.getFiles("");
-			handlerRight.getFiles("");
+			this.buildMap(handlerRight);
 
 
 			// insert project
@@ -600,7 +603,7 @@ public class Kadabra
 	{
 		// get files
 		Item[] leftFiles = project.getLeftHandler().getFiles(path);
-		Item[] rightFiles = project.getRightHandler().getFiles(path);
+		Item[] rightFiles = project.getRightHandler().getMap().getFiles(path);
 
 		// compare
 		for(int i = 0; i < leftFiles.length; i++)
@@ -627,7 +630,9 @@ public class Kadabra
 			// is directory
 			if(leftItem.isDirectory())
 			{
-				if(this.hasFolder(leftItem, rightFiles))
+				Item rightItem = this.getFolder(leftItem, rightFiles);
+
+				if(rightItem != null)
 				{
 					this.mirrorFolder(project, testRun, path + "/" + leftItem.getName());
 				}
@@ -646,21 +651,19 @@ public class Kadabra
 
 			if(leftItem.isFile())
 			{
-				if(this.hasFile(leftItem, rightFiles))
+				Item rightItem = this.getFile(leftItem, rightFiles);
+
+				if(rightItem != null)
 				{
 					// compare content
-					byte[] leftContent = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
-					byte[] rightContent = project.getRightHandler().getContent(path + "/" + leftItem.getName());
-
-					String leftStrContent = normalizeContent(leftContent);
-					String rightStrContent = normalizeContent(rightContent);
-
-					if(!leftStrContent.equals(rightStrContent))
+					if(!leftItem.getMd5().equals(rightItem.getMd5()))
 					{
-						console.printf("U " + path + "/" + leftItem.getName() + " (" + leftStrContent.length() + "/" + rightStrContent.length() + ")%n");
+						console.printf("U " + path + "/" + leftItem.getName() + "%n");
 
 						if(!testRun)
 						{
+							byte[] leftContent = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
+
 							project.getRightHandler().uploadFile(path + "/" + leftItem.getName(), leftContent);
 						}
 					}
@@ -680,30 +683,36 @@ public class Kadabra
 		}
 	}
 
-	private boolean hasFolder(Item file, Item[] files)
+	private Item getFolder(Item file, Item[] files)
 	{
-		for(int i = 0; i < files.length; i++)
+		if(files != null)
 		{
-			if(files[i].isDirectory() && files[i].getName().equals(file.getName()))
+			for(int i = 0; i < files.length; i++)
 			{
-				return true;
+				if(files[i].isDirectory() && files[i].getName().equals(file.getName()))
+				{
+					return files[i];
+				}
 			}
 		}
 
-		return false;
+		return null;
 	}
 
-	private boolean hasFile(Item file, Item[] files)
+	private Item getFile(Item file, Item[] files)
 	{
-		for(int i = 0; i < files.length; i++)
+		if(files != null)
 		{
-			if(files[i].isFile() && files[i].getName().equals(file.getName()))
+			for(int i = 0; i < files.length; i++)
 			{
-				return true;
+				if(files[i].isFile() && files[i].getName().equals(file.getName()))
+				{
+					return files[i];
+				}
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 	private void uploadDir(Project project, boolean testRun, String path) throws Exception
@@ -784,7 +793,26 @@ public class Kadabra
 		return path;
 	}
 
-	private String normalizeContent(byte[] content)
+	private void buildMap(HandlerAbstract handler) throws Exception
+	{
+		if(!handler.isFile(FileMap.getFileName()))
+		{
+			 FileMap.generate(handler);
+		}
+		else
+		{
+			throw new Exception("Map already exists");
+		}
+	}
+
+	/**
+	 * Converts content to an UTF-8 string and removes all whispace for correct 
+	 * comparsion of files
+	 * 
+	 * @param byte[] content
+	 * @return String
+	 */
+	public static String normalizeContent(byte[] content)
 	{
 		String str = new String(content, Charset.forName("UTF-8"));
 		StringBuilder result = new StringBuilder();
