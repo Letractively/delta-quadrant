@@ -31,12 +31,15 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
+import com.k42b3.kadabra.Kadabra;
 import com.k42b3.kadabra.Resource;
 
 /**
@@ -68,6 +71,11 @@ public class Ssh extends HandlerAbstract
 
 		channel = (ChannelSftp) session.openChannel("sftp");
 		channel.connect();
+	}
+
+	public boolean isFile(String path)
+	{
+		return false;
 	}
 
 	public byte[] getContent(String path) throws Exception 
@@ -106,10 +114,17 @@ public class Ssh extends HandlerAbstract
 		{
 			LsEntry entry = (LsEntry) list.get(i);
 
-			String itemName = entry.getFilename();
-			int itemIype = entry.getAttrs().isDir() ? Item.DIRECTORY : Item.FILE;
+			if(entry.getAttrs().isDir())
+			{
+				items[i] = new Item(entry.getFilename(), Item.DIRECTORY);
+			}
+			else
+			{
+				byte[] content = this.getContent(path + "/" + entry.getFilename());
+				String md5 = DigestUtils.md5Hex(Kadabra.normalizeContent(content));
 
-			items[i] = new Item(itemName, itemIype);
+				items[i] = new Item(entry.getFilename(), Item.FILE, md5);
+			}
 		}
 
 		return items;

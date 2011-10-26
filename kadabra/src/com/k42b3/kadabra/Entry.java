@@ -46,7 +46,7 @@ public class Entry
 		{
 			// disable logging
 			Logger.getLogger("com.almworks.sqlite4java").setLevel(Level.OFF);
-			Logger.getLogger("com.k42b3.kadabra").setLevel(Level.OFF);
+			Logger.getLogger("com.k42b3.kadabra").setLevel(Level.ALL);
 
 
 			// start kadabra

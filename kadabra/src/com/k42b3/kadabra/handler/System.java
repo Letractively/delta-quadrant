@@ -27,12 +27,16 @@ package com.k42b3.kadabra.handler;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
+import com.k42b3.kadabra.Kadabra;
 import com.k42b3.kadabra.Resource;
 
 /**
@@ -45,7 +49,7 @@ import com.k42b3.kadabra.Resource;
  */
 public class System extends HandlerAbstract
 {
-	public System(Resource resource, String basePath) 
+	public System(Resource resource, String basePath) throws Exception
 	{
 		super(resource, basePath);
 	}
@@ -91,10 +95,18 @@ public class System extends HandlerAbstract
 
 		for(int i = 0; i < files.length; i++)
 		{
-			String itemName = files[i].getName();
-			int itemIype = files[i].isDirectory() ? Item.DIRECTORY : Item.FILE;
+			if(files[i].isDirectory())
+			{
+				items[i] = new Item(files[i].getName(), Item.DIRECTORY);
+			}
 
-			items[i] = new Item(itemName, itemIype);
+			if(files[i].isFile())
+			{
+				byte[] content = this.getContent(path + "/" + files[i].getName());
+				String md5 = DigestUtils.md5Hex(Kadabra.normalizeContent(content));
+
+				items[i] = new Item(files[i].getName(), Item.FILE, md5);
+			}
 		}
 
 		logger.info("Found " + items.length + " files");
