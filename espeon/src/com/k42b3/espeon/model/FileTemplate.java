@@ -33,12 +33,12 @@ import javax.swing.table.TableModel;
 import com.k42b3.espeon.Espeon;
 
 /**
- * template
+ * FileTemplate
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 83 $
+ * @version    $Revision$
  */
 public class FileTemplate implements TableModel
 {

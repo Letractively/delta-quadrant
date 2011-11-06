@@ -40,12 +40,12 @@ import javax.swing.JTextField;
 import com.k42b3.espeon.ConnectCallback;
 
 /**
- * connect
+ * ConnectPanel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 83 $
+ * @version    $Revision$
  */
 public class ConnectPanel extends JFrame
 {

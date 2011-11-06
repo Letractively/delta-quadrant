@@ -30,7 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 /**
- * toolbar
+ * Toolbar
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
