@@ -220,44 +220,6 @@ public class GeneratePanel extends JFrame
 		GeneratePanel.isActive = false;
 	}
 
-	public static String convertTableToClass(String table)
-	{
-		String[] parts = table.split("_");
-		String className = "";
-		int length = parts.length;
-
-		for(int i = 0; i < parts.length; i++)
-		{
-			className+= Character.toUpperCase(parts[i].charAt(0)) + parts[i].substring(1);
-
-			if(i < length - 1)
-			{
-				className+= "_";
-			}
-		}
-
-		return className;
-	}
-
-	public static String convertTableToPath(String table)
-	{
-		String[] parts = table.split("_");
-		String className = "";
-		int length = parts.length;
-
-		for(int i = 0; i < parts.length; i++)
-		{
-			className+= Character.toUpperCase(parts[i].charAt(0)) + parts[i].substring(1);
-
-			if(i < length - 1)
-			{
-				className+= "/";
-			}
-		}
-
-		return className;
-	}
-
 	public class generateHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
