@@ -86,23 +86,30 @@ public class Espeon
 		con = DriverManager.getConnection("jdbc:mysql://" + host + "/" + db + "?user=" + user + "&amp;password=" + pw);
 	}
 
-	public void generate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables) throws Exception
+	public void generate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables)
 	{
 		for(int j = 0; j < templates.size(); j++)
 		{
-			Iterator<Entry<String, HashMap<String, Object>>> it = tables.entrySet().iterator();
-
-			while(it.hasNext())
+			try
 			{
-				Entry<String, HashMap<String, Object>> entry = it.next();
+				Iterator<Entry<String, HashMap<String, Object>>> it = tables.entrySet().iterator();
 
-				Template temp = cfg.getTemplate(templates.get(j));
+				while(it.hasNext())
+				{
+					Entry<String, HashMap<String, Object>> entry = it.next();
 
-				Writer out = new FileWriter(entry.getKey() + "-" + templates.get(j));
+					Template temp = cfg.getTemplate(templates.get(j));
 
-				temp.process(entry.getValue(), out);
+					Writer out = new FileWriter(entry.getKey() + "-" + templates.get(j));
 
-				out.flush();
+					temp.process(entry.getValue(), out);
+
+					out.flush();
+				}
+			}
+			catch(Exception e)
+			{
+				Espeon.handleException(e);
 			}
 		}
 	}
@@ -121,8 +128,6 @@ public class Espeon
 	{
 		HashMap<String, Object> params = new HashMap<String, Object>();
 		Object[][] rows = this.getTableStructure(table);
-
-		params.put("table", table);
 
 		Object firstColumn = "";
 		Object lastColumn = "";
@@ -184,6 +189,11 @@ public class Espeon
 			columns.add(c);
 		}
 
+		int pos = table.lastIndexOf('_');
+
+		params.put("table", table);
+		params.put("name", Espeon.convertTableToClass(table.substring(pos + 1)));
+		params.put("ns", Espeon.convertTableToClass(table.substring(0, pos)));
 		params.put("firstColumn", firstColumn);
 		params.put("lastColumn", lastColumn);
 		params.put("primaryKey", primaryKey);
@@ -283,6 +293,30 @@ public class Espeon
 		out.append("purpose you like." + "\n");
 
 		return out.toString();
+	}
+
+	public static String convertTableToClass(String table)
+	{
+		String[] parts = table.split("_");
+		String className = "";
+		int length = parts.length;
+
+		for(int i = 0; i < parts.length; i++)
+		{
+			className+= Character.toUpperCase(parts[i].charAt(0)) + parts[i].substring(1);
+
+			if(i < length - 1)
+			{
+				className+= "_";
+			}
+		}
+
+		return className;
+	}
+
+	public static String convertTableToPath(String table)
+	{
+		return Espeon.convertTableToClass(table).replace('_', '/');
 	}
 
 	public static void handleException(Exception e)
