@@ -38,16 +38,16 @@ import com.k42b3.espeon.Espeon;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 83 $
  */
-public class Template implements TableModel
+public class FileTemplate implements TableModel
 {
 	private ArrayList<TableModelListener> listener;
 	
 	private String[] columns = {"Active", "Template"};
 	private Object[][] rows;
 
-	public Template()
+	public FileTemplate()
 	{
 		this.listener = new ArrayList<TableModelListener>();
 

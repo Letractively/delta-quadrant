@@ -35,56 +35,49 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.TableModel;
 
+import com.k42b3.espeon.Espeon;
+
 /**
  * table
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 83 $
  */
-public class Table implements TableModel
+public class SqlTable implements TableModel
 {
 	private ArrayList<TableModelListener> listener;
 	
 	private String[] columns = {"Active", "Field", "Type", "Null", "Key", "Default", "Extra"};
 	private Object[][] rows;
+	private Espeon inst;
 
-	public Table()
+	public SqlTable(Espeon inst)
 	{
-		this.listener = new ArrayList<TableModelListener>();
-
 		this.rows = new Object[0][0];
+		this.inst = inst;
+		
+		this.listener = new ArrayList<TableModelListener>();
 	}
-	
-	public void loadTable(Connection con, String table)
+
+	public void loadTable(String table)
 	{
 		try
 		{
 			// get table structure
-			PreparedStatement ps = con.prepareStatement("DESCRIBE " + table);
+			Object[][] params = inst.getTableStructure(table);
+			this.rows = new Object[params.length][this.columns.length];
 
-			ps.execute();
-
-			ResultSet result = ps.getResultSet();
-
-			result.last();
-
-			this.rows = new Object[result.getRow()][this.columns.length];
-
-			result.beforeFirst();
-
-			while(result.next())
+			for(int i = 0; i < params.length; i++)
 			{
-				int row = result.getRow() - 1;
-
-				this.rows[row][0] = Boolean.TRUE;
-				this.rows[row][1] = result.getString("Field");
-				this.rows[row][2] = result.getString("Type");
-				this.rows[row][3] = result.getString("Null");
-				this.rows[row][4] = result.getString("Key");
-				this.rows[row][5] = result.getString("Default");
-				this.rows[row][6] = result.getString("Extra");
+				this.rows[i][0] = Boolean.TRUE;
+				this.rows[i][1] = params[i][0];
+				this.rows[i][2] = params[i][1];
+				this.rows[i][3] = params[i][2];
+				this.rows[i][4] = params[i][3];
+				this.rows[i][5] = params[i][4];
+				this.rows[i][6] = params[i][5];
 			}
 
 			// update table
