@@ -24,9 +24,6 @@
 
 package com.k42b3.espeon.model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -38,12 +35,12 @@ import javax.swing.table.TableModel;
 import com.k42b3.espeon.Espeon;
 
 /**
- * table
+ * SqlTable
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 83 $
+ * @version    $Revision$
  */
 public class SqlTable implements TableModel
 {
