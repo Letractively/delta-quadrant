@@ -28,8 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -63,15 +61,15 @@ import com.k42b3.espeon.model.SqlTable;
  */
 public class Main extends JFrame implements View
 {
+	private Espeon inst;
+	private ConnectCallback connectCb;
+	private GenerateCallback generateCb;
+
 	private JList<String> list;
 	private DefaultListModel<String> lm;
 	private JTable table;
 	private SqlTable tm;
 	private Toolbar toolbar;
-
-	private Espeon inst;
-	private ConnectCallback connectCb;
-	private GenerateCallback generateCb;
 
 	public Main(Espeon inst)
 	{
@@ -123,12 +121,10 @@ public class Main extends JFrame implements View
 
 		// list
 		this.lm = new DefaultListModel<String>(); 
-		
+
 		this.list = new JList<String>(this.lm);
 
 		this.list.setEnabled(false);
-		
-		//this.list.setModel(new file_list());
 
 		this.list.addListSelectionListener(new listHandler());
 
@@ -183,15 +179,11 @@ public class Main extends JFrame implements View
 
 
 									// list tables
-									PreparedStatement ps = inst.getConnection().prepareStatement("SHOW TABLES");
+									List<String> tables = inst.getTables();
 
-									ps.execute();
-
-									ResultSet result = ps.getResultSet();
-
-									while(result.next())
+									for(int i = 0; i < tables.size(); i++)
 									{
-										lm.addElement(result.getString(1));
+										lm.addElement(tables.get(i));
 									}
 
 

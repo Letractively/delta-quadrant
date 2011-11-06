@@ -34,7 +34,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
@@ -58,8 +61,16 @@ public class Espeon
 	private Connection con;
 	private Configuration cfg;
 
+	private Logger logger;
+
 	public Espeon() throws Exception
 	{
+		// logger
+		logger = Logger.getLogger("com.k42b3.espeon");
+
+		logger.setLevel(Level.INFO);
+
+
 		// set template config
 		File templatePath = new File(Espeon.path);
 		
@@ -79,11 +90,15 @@ public class Espeon
 
 	public void connect(String host, String db, String user, String pw) throws Exception
 	{
+		logger.info("Connect to " + host + "/" + db + "?user=" + user);
+
 		con = DriverManager.getConnection("jdbc:mysql://" + host + "/" + db + "?user=" + user + "&amp;password=" + pw);
 	}
 
 	public void generate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables)
 	{
+		logger.info("Generate " + templates.size() + " template/s for " + tables.size() + " table/s");
+
 		for(int j = 0; j < templates.size(); j++)
 		{
 			try
@@ -189,7 +204,7 @@ public class Espeon
 
 		params.put("table", table);
 		params.put("name", Espeon.convertTableToClass(table.substring(pos + 1)));
-		params.put("ns", Espeon.convertTableToClass(table.substring(0, pos)));
+		params.put("namespace", Espeon.convertTableToClass(table.substring(0, pos)));
 		params.put("firstColumn", firstColumn);
 		params.put("lastColumn", lastColumn);
 		params.put("primaryKey", primaryKey);
@@ -226,7 +241,28 @@ public class Espeon
 			rows[row][5] = result.getString("Extra");
 		}
 
+		logger.info("Describe table " + table + " found " + rows.length + " fields");
+
 		return rows;
+	}
+
+	public List<String> getTables() throws Exception
+	{
+		List<String> tables = new ArrayList<String>();
+		PreparedStatement ps = con.prepareStatement("SHOW TABLES");
+
+		ps.execute();
+
+		ResultSet result = ps.getResultSet();
+
+		while(result.next())
+		{
+			tables.add(result.getString(1));
+		}
+
+		logger.info("Found " + tables.size() + " tables");
+
+		return tables;
 	}
 
 	public void runGui() throws Exception
@@ -248,9 +284,12 @@ public class Espeon
 
 	public void runCmd(String[] args)
 	{
-		com.k42b3.espeon.cmd.Main panel = new com.k42b3.espeon.cmd.Main(this);
+		com.k42b3.espeon.cmd.Main panel = new com.k42b3.espeon.cmd.Main(this, args);
 
 		registerViewCallbacks(panel);
+
+
+		panel.run();
 	}
 
 	private void registerViewCallbacks(View view)
