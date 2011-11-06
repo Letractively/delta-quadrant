@@ -24,8 +24,6 @@
 
 package com.k42b3.espeon;
 
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /**
  * entry
@@ -41,27 +39,20 @@ public class Entry
 	{
 		try
 		{
-			String look_and_feel = UIManager.getSystemLookAndFeelClassName();
+			Espeon inst = new Espeon();
 
-			UIManager.setLookAndFeel(look_and_feel);
-
-
-			SwingUtilities.invokeLater(new Runnable(){
-				
-				public void run() 
-				{
-					Espeon win = new Espeon();
-					
-					win.pack();
-					
-					win.setVisible(true);				
-				}
-				
-			});
+			if(args.length == 0)
+			{
+				inst.runGui();
+			}
+			else
+			{
+				inst.runCmd(args);
+			}
 		}
 		catch(Exception e)
 		{
-			System.out.print(e.getMessage());
-		}	
+			Espeon.handleException(e);
+		}
 	}
 }

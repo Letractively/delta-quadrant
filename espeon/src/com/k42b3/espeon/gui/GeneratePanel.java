@@ -22,7 +22,7 @@
  * along with espeon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.espeon;
+package com.k42b3.espeon.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -30,23 +30,22 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import com.k42b3.espeon.model.Template;
-
-import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
+import com.k42b3.espeon.GenerateCallback;
+import com.k42b3.espeon.model.FileTemplate;
 
 /**
  * generate
@@ -54,34 +53,36 @@ import freemarker.template.DefaultObjectWrapper;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 142 $
  */
-public class Generate extends JFrame
+public class GeneratePanel extends JFrame
 {
 	public static boolean isActive = false;
 	
-	private HashMap<String, Object> table;
-	
+	private HashMap<String, HashMap<String, Object>> tables;
+
+	/*
 	private JTextField txtName;
 	private JTextField txtNs;
 	private JTextField txtTable;
 	private JTextField txtPrimaryKey;
+	*/
 
 	private JButton btnGenerate;
 	private JButton btnCancel;
 	
-	private Template tm;
+	private FileTemplate tm;
 
-	private GenerateInterface callback;
+	private GenerateCallback callback;
 
-	public Generate(HashMap<String, Object> table)
+	public GeneratePanel(HashMap<String, HashMap<String, Object>> tables)
 	{
-		this.table = table;
+		this.tables = tables;
 
 
 		this.setLocationRelativeTo(null);
 
-		this.setSize(200, 180);
+		this.setSize(200, 200);
 
 		this.setMinimumSize(this.getSize());
 
@@ -92,6 +93,7 @@ public class Generate extends JFrame
 		this.setLayout(new BorderLayout());
 
 
+		/*
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new GridLayout(0, 1));
@@ -99,8 +101,8 @@ public class Generate extends JFrame
 
 		String tableName = table.get("table").toString();
 		int pos = tableName.lastIndexOf('_');
-		String name = Generate.convertTableToClass(tableName.substring(pos + 1));
-		String ns = Generate.convertTableToClass(tableName.substring(0, pos));
+		String name = GeneratePanel.convertTableToClass(tableName.substring(pos + 1));
+		String ns = GeneratePanel.convertTableToClass(tableName.substring(0, pos));
 		String tablePrimaryKey = table.get("primaryKey") != null ? table.get("primaryKey").toString() : "";
 
 
@@ -173,9 +175,10 @@ public class Generate extends JFrame
 		
 		
 		this.add(panel, BorderLayout.NORTH);
-		
-		
-		this.tm = new Template();
+		*/
+
+
+		this.tm = new FileTemplate();
 
 		JScrollPane scrTable = new JScrollPane(new JTable(this.tm));
 		
@@ -205,7 +208,7 @@ public class Generate extends JFrame
 		this.add(panelButtons, BorderLayout.SOUTH);
 	}
 	
-	public void setCallback(GenerateInterface callback)
+	public void setCallback(GenerateCallback callback)
 	{
 		this.callback = callback;
 	}
@@ -214,7 +217,7 @@ public class Generate extends JFrame
 	{
 		setVisible(false);
 		
-		Generate.isActive = false;
+		GeneratePanel.isActive = false;
 	}
 
 	public static String convertTableToClass(String table)
@@ -235,7 +238,26 @@ public class Generate extends JFrame
 
 		return className;
 	}
-	
+
+	public static String convertTableToPath(String table)
+	{
+		String[] parts = table.split("_");
+		String className = "";
+		int length = parts.length;
+
+		for(int i = 0; i < parts.length; i++)
+		{
+			className+= Character.toUpperCase(parts[i].charAt(0)) + parts[i].substring(1);
+
+			if(i < length - 1)
+			{
+				className+= "/";
+			}
+		}
+
+		return className;
+	}
+
 	public class generateHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
@@ -250,14 +272,25 @@ public class Generate extends JFrame
 				}
 			}
 
+			if(templates.size() > 0)
+			{
+				try
+				{
+					callback.onGenerate(templates, tables);
 
-			table.put("name", txtName.getText());
-			table.put("namespace", txtNs.getText());
+					JOptionPane.showMessageDialog(null, "You have successful generated the code", "Informations", JOptionPane.INFORMATION_MESSAGE);
+				}
+				catch(Exception ex)
+				{
+					JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				}
 
-
-			callback.generate(templates, table);
-
-			close();
+				close();
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(null, "You must select min one template", "Information", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 	}
 

@@ -22,7 +22,7 @@
  * along with espeon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.espeon;
+package com.k42b3.espeon.gui;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -33,8 +33,11 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import com.k42b3.espeon.ConnectCallback;
 
 /**
  * connect
@@ -42,9 +45,9 @@ import javax.swing.JTextField;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 83 $
  */
-public class Connect extends JFrame
+public class ConnectPanel extends JFrame
 {
 	public static boolean isActive = false;
 	
@@ -56,11 +59,11 @@ public class Connect extends JFrame
 	private JButton btnConnect;
 	private JButton btnCancel;
 	
-	private ConnectInterface callback;
+	private ConnectCallback callback;
 	
-	public Connect()
+	public ConnectPanel()
 	{
-		Connect.isActive = true;
+		ConnectPanel.isActive = true;
 
 		this.setLocationRelativeTo(null);
 		
@@ -161,7 +164,7 @@ public class Connect extends JFrame
 		this.add(panelButtons);
 	}
 	
-	public void setCallback(ConnectInterface callback)
+	public void setCallback(ConnectCallback callback)
 	{
 		this.callback = callback;
 	}
@@ -170,19 +173,26 @@ public class Connect extends JFrame
 	{
 		setVisible(false);
 		
-		Connect.isActive = false;
+		ConnectPanel.isActive = false;
 	}
 	
 	public class connectHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
 		{
-			callback.connect(txtHost.getText(), txtDb.getText(), txtUser.getText(), txtPw.getText());
+			try
+			{
+				callback.onConnect(txtHost.getText(), txtDb.getText(), txtUser.getText(), txtPw.getText());
 
-			close();
+				close();
+			}
+			catch(Exception ex)
+			{
+				JOptionPane.showMessageDialog(null, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
-	
+
 	public class cancelHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
