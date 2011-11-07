@@ -37,5 +37,5 @@ import java.util.HashMap;
  */
 public interface GenerateCallback 
 {
-	public void onGenerate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables) throws Exception;
+	public void onGenerate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables);
 }

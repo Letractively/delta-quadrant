@@ -57,13 +57,6 @@ public class GeneratePanel extends JFrame
 	
 	private HashMap<String, HashMap<String, Object>> tables;
 
-	/*
-	private JTextField txtName;
-	private JTextField txtNs;
-	private JTextField txtTable;
-	private JTextField txtPrimaryKey;
-	*/
-
 	private JButton btnGenerate;
 	private JButton btnCancel;
 	
@@ -87,91 +80,6 @@ public class GeneratePanel extends JFrame
 		this.setTitle("Generate");
 
 		this.setLayout(new BorderLayout());
-
-
-		/*
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new GridLayout(0, 1));
-
-
-		String tableName = table.get("table").toString();
-		int pos = tableName.lastIndexOf('_');
-		String name = GeneratePanel.convertTableToClass(tableName.substring(pos + 1));
-		String ns = GeneratePanel.convertTableToClass(tableName.substring(0, pos));
-		String tablePrimaryKey = table.get("primaryKey") != null ? table.get("primaryKey").toString() : "";
-
-
-		JPanel panelName = new JPanel();
-
-		panelName.setLayout(new FlowLayout());
-
-		JLabel lblName = new JLabel("Name");
-		lblName.setPreferredSize(new Dimension(80, 20));
-
-		this.txtName = new JTextField();
-		this.txtName.setText(name);
-		this.txtName.setPreferredSize(new Dimension(120, 24));
-
-		panelName.add(lblName);
-		panelName.add(this.txtName);
-		
-		panel.add(panelName);
-
-
-		JPanel panelNs = new JPanel();
-
-		panelNs.setLayout(new FlowLayout());
-
-		JLabel lblNs = new JLabel("Namespace");
-		lblNs.setPreferredSize(new Dimension(80, 20));
-		
-		this.txtNs = new JTextField();
-		this.txtNs.setText(ns);
-		this.txtNs.setPreferredSize(new Dimension(120, 24));
-		
-		panelNs.add(lblNs);
-		panelNs.add(this.txtNs);
-		
-		panel.add(panelNs);
-
-
-		JPanel panelTable = new JPanel();
-		
-		panelTable.setLayout(new FlowLayout());
-
-		JLabel lblTable = new JLabel("Table");
-		lblTable.setPreferredSize(new Dimension(80, 20));
-		
-		this.txtTable = new JTextField();
-		this.txtTable.setText(tableName);
-		this.txtTable.setPreferredSize(new Dimension(120, 24));
-		
-		panelTable.add(lblTable);
-		panelTable.add(this.txtTable);
-		
-		panel.add(panelTable);
-		
-		
-		JPanel panelPrimaryKey = new JPanel();
-		
-		panelPrimaryKey.setLayout(new FlowLayout());
-
-		JLabel lblPrimaryKey = new JLabel("Primary Key");
-		lblPrimaryKey.setPreferredSize(new Dimension(80, 20));
-		
-		this.txtPrimaryKey = new JTextField();
-		this.txtPrimaryKey.setText(tablePrimaryKey);
-		this.txtPrimaryKey.setPreferredSize(new Dimension(120, 24));
-		
-		panelPrimaryKey.add(lblPrimaryKey);
-		panelPrimaryKey.add(this.txtPrimaryKey);
-		
-		panel.add(panelPrimaryKey);
-		
-		
-		this.add(panel, BorderLayout.NORTH);
-		*/
 
 
 		this.tm = new FileTemplate();
