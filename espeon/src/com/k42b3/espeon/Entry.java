@@ -24,6 +24,8 @@
 
 package com.k42b3.espeon;
 
+import javax.swing.UIManager;
+
 /**
  * Entry
  *
@@ -42,6 +44,12 @@ public class Entry
 
 			if(args.length == 0)
 			{
+				// set look and feel
+				String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+
+				UIManager.setLookAndFeel(lookAndFeel);
+
+
 				inst.runGui();
 			}
 			else

@@ -28,7 +28,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class Main extends JFrame implements View
 	private SqlTable tm;
 	private Toolbar toolbar;
 
-	public Main(Espeon inst)
+	public Main(Espeon inst) throws Exception
 	{
 		this.inst = inst;
 
@@ -154,6 +153,56 @@ public class Main extends JFrame implements View
 		this.generateCb = generateCb;
 	}
 	
+	public void run()
+	{
+		try
+		{
+			// set visivble
+			this.pack();
+
+			this.setVisible(true);
+
+			// auto connect if config is available
+			if(inst.hasMysqlConfig())
+			{
+				doConnect(null, null, null, null);
+			}
+		}
+		catch(Exception e)
+		{
+			Espeon.handleException(e);
+		}
+	}
+
+	public void doConnect(String host, String db, String user, String pw)
+	{
+		try
+		{
+			// connect
+			connectCb.onConnect(host, db, user, pw);
+
+			// list tables
+			List<String> tables = inst.getTables();
+
+			for(int i = 0; i < tables.size(); i++)
+			{
+				lm.addElement(tables.get(i));
+			}
+
+			// enable/disable buttons
+			toolbar.getGenerate().setEnabled(true);
+			toolbar.getConnect().setEnabled(false);
+
+			list.setEnabled(true);
+			table.setEnabled(true);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+		}
+	}
+
 	public class connectHandler implements ActionListener
 	{
 		public void actionPerformed(ActionEvent e) 
@@ -164,7 +213,7 @@ public class Main extends JFrame implements View
 				{
 					if(!ConnectPanel.isActive)
 					{
-						ConnectPanel win = new ConnectPanel();
+						ConnectPanel win = new ConnectPanel(inst);
 
 						win.pack();
 
@@ -172,33 +221,7 @@ public class Main extends JFrame implements View
 
 							public void onConnect(String host, String db, String user, String pw) throws Exception
 							{
-								try
-								{
-									// connect
-									connectCb.onConnect(host, db, user, pw);
-
-
-									// list tables
-									List<String> tables = inst.getTables();
-
-									for(int i = 0; i < tables.size(); i++)
-									{
-										lm.addElement(tables.get(i));
-									}
-
-
-									// enable/disable buttons
-									toolbar.getGenerate().setEnabled(true);
-									toolbar.getConnect().setEnabled(false);
-									
-									list.setEnabled(true);
-									table.setEnabled(true);
-								}
-								catch(SQLException e)
-								{
-									JOptionPane.showMessageDialog(null, e.getMessage(), "SQL Exception", JOptionPane.WARNING_MESSAGE);
-								}
-
+								doConnect(host, db, user, pw);
 							}
 
 						});

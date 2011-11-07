@@ -39,7 +39,11 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.UIManager;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -56,7 +60,17 @@ import freemarker.template.Template;
 public class Espeon
 {
 	public static String version = "0.0.4 beta";
-	public static String path = "templates";
+	public static String configFile = "espeon.conf.xml";
+
+	public static String templatePath = "templates";
+	public static String outputPath = "output";
+	
+	private String host = "127.0.0.1";
+	private String db = null;
+	private String user = null;
+	private String pw = null;
+
+	private boolean mysqlConfig = false;
 
 	private Connection con;
 	private Configuration cfg;
@@ -67,29 +81,175 @@ public class Espeon
 	{
 		// logger
 		logger = Logger.getLogger("com.k42b3.espeon");
-
 		logger.setLevel(Level.INFO);
 
+		// load config
+		loadConfig();
 
 		// set template config
-		File templatePath = new File(Espeon.path);
+		File templatePath = new File(Espeon.templatePath);
 		
 		if(templatePath.isDirectory())
 		{
 			this.cfg = new Configuration();
 
-			this.cfg.setDirectoryForTemplateLoading(new File(Espeon.path));
+			this.cfg.setDirectoryForTemplateLoading(new File(Espeon.templatePath));
 
 			this.cfg.setObjectWrapper(new DefaultObjectWrapper());
 		}
 		else
 		{
-			throw new Exception("You have to create a dir called '" + Espeon.path + "' where the templates are located");
+			throw new Exception("You have to create the template directory: '" + templatePath.getAbsolutePath());
+		}
+
+		// check outputdir
+		File output = new File(Espeon.outputPath);
+		
+		if(!output.isDirectory())
+		{
+			throw new Exception("You have to create the output directory: " + output.getAbsolutePath());
+		}
+	}
+
+	public boolean hasMysqlConfig()
+	{
+		return mysqlConfig;
+	}
+
+	public String getHost()
+	{
+		return host;
+	}
+	
+	public String getDb()
+	{
+		return db;
+	}
+	
+	public String getUser()
+	{
+		return user;
+	}
+	
+	public String getPw()
+	{
+		return pw;
+	}
+
+	public void loadConfig() throws Exception
+	{
+		File config = new File(Espeon.configFile);
+
+		if(config.isFile())
+		{
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(config);
+
+			Element rootElement = (Element) doc.getDocumentElement();
+
+			rootElement.normalize();
+
+			// template dir
+			Element templateDir = (Element) rootElement.getElementsByTagName("templateDir").item(0);
+
+			if(templateDir != null && templateDir.getTextContent() != null && !templateDir.getTextContent().isEmpty())
+			{
+				Espeon.templatePath = templateDir.getTextContent();
+			}
+
+			// output dir
+			Element outputDir = (Element) rootElement.getElementsByTagName("outputDir").item(0);
+
+			if(outputDir != null && outputDir.getTextContent() != null && !outputDir.getTextContent().isEmpty())
+			{
+				Espeon.outputPath = outputDir.getTextContent();
+			}
+
+			// mysql
+			Element mysql = (Element) rootElement.getElementsByTagName("mysql").item(0);
+
+			if(mysql != null)
+			{
+				this.mysqlConfig = true;
+
+				if(mysql.hasAttribute("host"))
+				{
+					this.host = mysql.getAttribute("host");
+				}
+				
+				if(mysql.hasAttribute("db"))
+				{
+					this.db = mysql.getAttribute("db");
+				}
+				
+				if(mysql.hasAttribute("user"))
+				{
+					this.user = mysql.getAttribute("user");
+				}
+				
+				if(mysql.hasAttribute("pw"))
+				{
+					this.pw = mysql.getAttribute("pw");
+				}
+			}
+		}
+		else
+		{
+			logger.info("Found no config " + Espeon.configFile);
 		}
 	}
 
 	public void connect(String host, String db, String user, String pw) throws Exception
 	{
+		if(host == null)
+		{
+			if(this.host != null)
+			{
+				host = this.host;
+			}
+			else
+			{
+				throw new Exception("No host specified");
+			}
+		}
+		
+		if(db == null)
+		{
+			if(this.db != null)
+			{
+				db = this.db;
+			}
+			else
+			{
+				throw new Exception("No database specified");
+			}
+		}
+
+		if(user == null)
+		{
+			if(this.user != null)
+			{
+				user = this.user;
+			}
+			else
+			{
+				throw new Exception("No user specified");
+			}
+		}
+		
+		if(pw == null)
+		{
+			if(this.pw != null)
+			{
+				pw = this.pw;
+			}
+			else
+			{
+				throw new Exception("No pw specified");
+			}
+		}
+
 		logger.info("Connect to " + host + "/" + db + "?user=" + user);
 
 		con = DriverManager.getConnection("jdbc:mysql://" + host + "/" + db + "?user=" + user + "&amp;password=" + pw);
@@ -99,28 +259,28 @@ public class Espeon
 	{
 		logger.info("Generate " + templates.size() + " template/s for " + tables.size() + " table/s");
 
-		for(int j = 0; j < templates.size(); j++)
+		Iterator<Entry<String, HashMap<String, Object>>> it = tables.entrySet().iterator();
+
+		while(it.hasNext())
 		{
-			try
+			Entry<String, HashMap<String, Object>> entry = it.next();
+
+			for(int i = 0; i < templates.size(); i++)
 			{
-				Iterator<Entry<String, HashMap<String, Object>>> it = tables.entrySet().iterator();
-
-				while(it.hasNext())
+				try
 				{
-					Entry<String, HashMap<String, Object>> entry = it.next();
+					Template temp = cfg.getTemplate(templates.get(i));
 
-					Template temp = cfg.getTemplate(templates.get(j));
-
-					Writer out = new FileWriter(entry.getKey() + "-" + templates.get(j));
+					Writer out = new FileWriter(Espeon.outputPath + "/" + entry.getKey() + "-" + templates.get(i));
 
 					temp.process(entry.getValue(), out);
 
 					out.flush();
 				}
-			}
-			catch(Exception e)
-			{
-				Espeon.handleException(e);
+				catch(Exception e)
+				{
+					Espeon.handleException(e);
+				}
 			}
 		}
 	}
@@ -201,10 +361,23 @@ public class Espeon
 		}
 
 		int pos = table.lastIndexOf('_');
+		String name;
+		String namespace;
+
+		if(pos != -1)
+		{
+			name = Espeon.convertTableToClass(table.substring(pos + 1));
+			namespace = Espeon.convertTableToClass(table.substring(0, pos));
+		}
+		else
+		{
+			name = Espeon.convertTableToClass(table);
+			namespace = "";
+		}
 
 		params.put("table", table);
-		params.put("name", Espeon.convertTableToClass(table.substring(pos + 1)));
-		params.put("namespace", Espeon.convertTableToClass(table.substring(0, pos)));
+		params.put("name", name);
+		params.put("namespace", namespace);
 		params.put("firstColumn", firstColumn);
 		params.put("lastColumn", lastColumn);
 		params.put("primaryKey", primaryKey);
@@ -267,19 +440,11 @@ public class Espeon
 
 	public void runGui() throws Exception
 	{
-		String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-
-		UIManager.setLookAndFeel(lookAndFeel);
-
-
 		com.k42b3.espeon.gui.Main panel = new com.k42b3.espeon.gui.Main(this);
 
 		registerViewCallbacks(panel);
 
-
-		panel.pack();
-
-		panel.setVisible(true);
+		panel.run();
 	}
 
 	public void runCmd(String[] args)
@@ -287,7 +452,6 @@ public class Espeon
 		com.k42b3.espeon.cmd.Main panel = new com.k42b3.espeon.cmd.Main(this, args);
 
 		registerViewCallbacks(panel);
-
 
 		panel.run();
 	}
@@ -305,7 +469,7 @@ public class Espeon
 
 		view.setGenerateCallback(new GenerateCallback() {
 
-			public void onGenerate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables) throws Exception 
+			public void onGenerate(ArrayList<String> templates, HashMap<String, HashMap<String, Object>> tables)
 			{
 				generate(templates, tables);
 			}
@@ -357,5 +521,6 @@ public class Espeon
 	public static void handleException(Exception e)
 	{
 		e.printStackTrace();
+		Logger.getLogger("com.k42b3.espeon").warning(e.getMessage());
 	}
 }

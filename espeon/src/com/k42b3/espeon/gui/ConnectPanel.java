@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.k42b3.espeon.ConnectCallback;
+import com.k42b3.espeon.Espeon;
 
 /**
  * ConnectPanel
@@ -51,6 +52,8 @@ public class ConnectPanel extends JFrame
 {
 	public static boolean isActive = false;
 	
+	private Espeon inst;
+
 	private JTextField txtHost;
 	private JTextField txtDb;
 	private JTextField txtUser;
@@ -61,7 +64,7 @@ public class ConnectPanel extends JFrame
 	
 	private ConnectCallback callback;
 	
-	public ConnectPanel()
+	public ConnectPanel(Espeon inst)
 	{
 		ConnectPanel.isActive = true;
 
@@ -86,7 +89,7 @@ public class ConnectPanel extends JFrame
 		lblHost.setPreferredSize(new Dimension(80, 20));
 		
 		this.txtHost = new JTextField();
-		this.txtHost.setText("localhost");
+		this.txtHost.setText(inst.getHost());
 		this.txtHost.setPreferredSize(new Dimension(120, 24));
 		
 		panelHost.add(lblHost);
@@ -103,7 +106,7 @@ public class ConnectPanel extends JFrame
 		lblDb.setPreferredSize(new Dimension(80, 20));
 		
 		this.txtDb = new JTextField();
-		this.txtDb.setText("cms");
+		this.txtDb.setText(inst.getDb());
 		this.txtDb.setPreferredSize(new Dimension(120, 24));
 		
 		panelDb.add(lblDb);
@@ -120,7 +123,7 @@ public class ConnectPanel extends JFrame
 		lblUser.setPreferredSize(new Dimension(80, 20));
 		
 		this.txtUser = new JTextField();
-		this.txtUser.setText("root");
+		this.txtUser.setText(inst.getUser());
 		this.txtUser.setPreferredSize(new Dimension(120, 24));
 		
 		panelUser.add(lblUser);
@@ -137,8 +140,9 @@ public class ConnectPanel extends JFrame
 		lblPw.setPreferredSize(new Dimension(80, 20));
 		
 		this.txtPw = new JTextField();
+		this.txtPw.setText(inst.getPw());
 		this.txtPw.setPreferredSize(new Dimension(120, 24));
-		
+
 		panelPw.add(lblPw);
 		panelPw.add(this.txtPw);
 		

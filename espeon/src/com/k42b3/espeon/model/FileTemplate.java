@@ -51,7 +51,7 @@ public class FileTemplate implements TableModel
 	{
 		this.listener = new ArrayList<TableModelListener>();
 
-		File dir = new File(Espeon.path);
+		File dir = new File(Espeon.templatePath);
 
 		if(dir.isDirectory())
 		{

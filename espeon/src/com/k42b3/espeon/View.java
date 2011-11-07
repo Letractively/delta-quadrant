@@ -36,4 +36,5 @@ public interface View
 {
 	public void setConnectCallback(ConnectCallback connectCb);
 	public void setGenerateCallback(GenerateCallback generateCb);
+	public void run();
 }

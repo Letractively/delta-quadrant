@@ -76,13 +76,13 @@ public class Main implements View
 		options = new Options();
 
 		options.addOption("h", "help", false, "Shows this help.");
-		options.addOption("H", "host", false, "Connect to host (default is localhost).");
+		options.addOption("H", "host", true, "Connect to host (default is localhost).");
 		options.addOption("u", "user", true, "User for login.");
-		options.addOption("p", "password", false, "Password to use when connecting to server.");
+		options.addOption("p", "password", true, "Password to use when connecting to server.");
 		options.addOption("d", "database", true, "Database to use.");
 		options.addOption("P", "pattern", true, "Table pattern.");
 		options.addOption("t", "template", true, "Templates to use.");
-		options.addOption("l", "list", true, "Shows all available tables.");
+		options.addOption("l", "list", false, "Shows all available tables.");
 	}
 
 	public void run()
@@ -102,6 +102,14 @@ public class Main implements View
 				return;
 			}
 
+			// mysql connection
+			host = cmd.hasOption('H') ? cmd.getOptionValue('H') : null;
+			user = cmd.hasOption('u') ? cmd.getOptionValue('u') : null;
+			pw   = cmd.hasOption('p') ? cmd.getOptionValue('p') : "";
+			db   = cmd.hasOption('d') ? cmd.getOptionValue('d') : null;
+
+			connectCb.onConnect(host, db, user, pw);
+
 			// list
 			if(cmd.hasOption('l'))
 			{
@@ -114,24 +122,6 @@ public class Main implements View
 
 				return;
 			}
-
-			// mysql connection
-			host = cmd.hasOption('H') ? cmd.getOptionValue('H') : null;
-			user = cmd.hasOption('u') ? cmd.getOptionValue('u') : null;
-			pw   = cmd.hasOption('p') ? cmd.getOptionValue('p') : "";
-			db   = cmd.hasOption('d') ? cmd.getOptionValue('d') : null;
-
-			if(host == null)
-			{
-				host = "127.0.0.1";
-			}
-
-			if(user == null || db == null)
-			{
-				throw new Exception("No user, pw or db specified");
-			}
-
-			connectCb.onConnect(host, db, user, pw);
 
 			// tables
 			if(cmd.hasOption('P'))
