@@ -22,7 +22,7 @@
  * along with espeon. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.espeon;
+package com.k42b3.espeon.gui;
 
 import java.awt.FlowLayout;
 
@@ -35,7 +35,7 @@ import javax.swing.JPanel;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision$
+ * @version    $Revision: 190 $
  */
 public class Toolbar extends JPanel
 {

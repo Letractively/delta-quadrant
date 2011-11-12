@@ -46,7 +46,6 @@ import javax.swing.event.ListSelectionListener;
 import com.k42b3.espeon.ConnectCallback;
 import com.k42b3.espeon.Espeon;
 import com.k42b3.espeon.GenerateCallback;
-import com.k42b3.espeon.Toolbar;
 import com.k42b3.espeon.View;
 import com.k42b3.espeon.model.SqlTable;
 
@@ -61,6 +60,7 @@ import com.k42b3.espeon.model.SqlTable;
 public class Main extends JFrame implements View
 {
 	private Espeon inst;
+	private Main self;
 	private ConnectCallback connectCb;
 	private GenerateCallback generateCb;
 
@@ -73,6 +73,7 @@ public class Main extends JFrame implements View
 	public Main(Espeon inst) throws Exception
 	{
 		this.inst = inst;
+		this.self = this;
 
 
 		this.setTitle("espeon (version: " + Espeon.version + ")");
@@ -155,23 +156,30 @@ public class Main extends JFrame implements View
 	
 	public void run()
 	{
-		try
-		{
-			// set visivble
-			this.pack();
+		SwingUtilities.invokeLater(new Runnable() {
 
-			this.setVisible(true);
-
-			// auto connect if config is available
-			if(inst.hasMysqlConfig())
+			public void run() 
 			{
-				doConnect(null, null, null, null);
+				try
+				{
+					// set visivble
+					self.pack();
+
+					self.setVisible(true);
+
+					// auto connect if config is available
+					if(inst.hasMysqlConfig())
+					{
+						self.doConnect(null, null, null, null);
+					}
+				}
+				catch(Exception e)
+				{
+					Espeon.handleException(e);
+				}
 			}
-		}
-		catch(Exception e)
-		{
-			Espeon.handleException(e);
-		}
+
+		});
 	}
 
 	public void doConnect(String host, String db, String user, String pw)
@@ -198,7 +206,6 @@ public class Main extends JFrame implements View
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
 		}
 	}
