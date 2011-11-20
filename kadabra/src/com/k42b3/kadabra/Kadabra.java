@@ -826,6 +826,8 @@ public class Kadabra
 		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 
 		pw.println("Release " + project.getName() + " on " + sdf.format(new Date()));
+		pw.println("Source: " + project.getLeftPath());
+		pw.println("Destination: " + project.getRightPath());
 		pw.println("");
 
 		for(int i = 0; i < log.size(); i++)
