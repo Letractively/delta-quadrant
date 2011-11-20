@@ -1,12 +1,13 @@
 /**
  * Kadabra
  * 
- * Kadabra is an application to mirror a local folder to an FTP server.
+ * Kadabra is an application to mirror a source folder to a destination folder.
  * You can create multiple projects wich are stored in an SQLite database.
  * With the option --status [id] you can see wich changes are made and
- * with --release [id] you can upload the changes to the FTP server.
+ * with --release [id] you update the changes. You can use different handler
+ * like System or FTP.
  * 
- * Copyright (c) 2010 Christoph Kappestein <k42b3.x@gmail.com>
+ * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
  * 
  * This file is part of oat. oat is free software: you can 
  * redistribute it and/or modify it under the terms of the GNU 
