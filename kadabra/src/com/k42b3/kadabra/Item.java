@@ -92,4 +92,9 @@ public class Item
 	{
 		return type == Item.DIRECTORY;
 	}
+
+	public String toString() 
+	{
+		return "Item [name=" + name + ", type=" + type + ", md5=" + md5 + "]";
+	}
 }

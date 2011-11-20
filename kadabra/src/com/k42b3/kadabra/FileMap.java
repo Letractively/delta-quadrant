@@ -51,20 +51,36 @@ public class FileMap
 		if(dir != null)
 		{
 			NodeList childs = dir.getChildNodes();
-			Item[] items = new Item[childs.getLength()];
+			int len = 0;
 
 			for(int i = 0; i < childs.getLength(); i++)
 			{
-				Element el = (Element) childs.item(i);
-
-				if(el.getNodeName().equals("dir"))
+				if(childs.item(i) instanceof Element)
 				{
-					items[i] = new Item(el.getAttribute("name"), Item.DIRECTORY);
+					len++;
 				}
-				
-				if(el.getNodeName().equals("file"))
+			}
+
+			Item[] items = new Item[len];
+			int c = 0;
+
+			for(int i = 0; i < childs.getLength(); i++)
+			{
+				if(childs.item(i) instanceof Element)
 				{
-					items[i] = new Item(el.getAttribute("name"), Item.FILE, el.getAttribute("md5"));
+					Element el = (Element) childs.item(i);
+
+					if(el.getNodeName().equals("dir"))
+					{
+						items[c] = new Item(el.getAttribute("name"), Item.DIRECTORY);
+					}
+
+					if(el.getNodeName().equals("file"))
+					{
+						items[c] = new Item(el.getAttribute("name"), Item.FILE, el.getAttribute("md5"));
+					}
+
+					c++;
 				}
 			}
 
@@ -79,6 +95,12 @@ public class FileMap
 	private Element findPath(Element parent, String path)
 	{
 		String name;
+		path = path.trim();
+
+		if(!path.isEmpty() && path.charAt(0) == '/')
+		{
+			path = path.substring(1);
+		}
 
 		if(path.indexOf('/') != -1)
 		{
@@ -91,6 +113,10 @@ public class FileMap
 			path = null;
 		}
 
+		if(name.isEmpty() || name.equals("."))
+		{
+			return parent;
+		}
 
 		NodeList list = parent.getChildNodes();
 
@@ -140,7 +166,7 @@ public class FileMap
 			Item item = files[i];
 
 			// check whether not current or up dir
-			if(item.getName().equals(".") || item.getName().equals(".."))
+			if(item.getName().equals(".") || item.getName().equals("..") || item.getName().equals(FileMap.getFileName()))
 			{
 				continue;
 			}

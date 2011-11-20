@@ -24,12 +24,17 @@
 
 package com.k42b3.kadabra;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.Console;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -51,11 +56,16 @@ public class Kadabra
 	private Console console;
 	private Logger logger;
 	private SQLiteConnection db;
+	private ArrayList<String> log;
+
+	SimpleDateFormat logDateFormat;
 
 	public Kadabra()
 	{
 		this.console = System.console();
 		this.logger = Logger.getLogger("com.k42b3.kadabra");
+
+		logDateFormat = new SimpleDateFormat("HH:mm:ss");
 
 		try
 		{
@@ -72,11 +82,15 @@ public class Kadabra
 	{
 		try
 		{
+			this.log = new ArrayList<String>();
+
 			Project project = new Project(db, projectId);
 
 			project.getRightHandler().loadMap();
 
 			this.mirrorFolder(project, true, "");
+
+			console.printf("Found " + this.log.size() + " changes%n");
 
 			project.close();
 		}
@@ -90,12 +104,23 @@ public class Kadabra
 	{
 		try
 		{
+			this.log = new ArrayList<String>();
+
 			Project project = new Project(db, projectId);
 
 			project.getRightHandler().loadMap();
 
 			this.mirrorFolder(project, false, "");
 
+			console.printf("Found " + this.log.size() + " changes%n");
+
+			// rebuild map
+			FileMap.generate(project.getRightHandler());
+
+			// write log
+			this.writeLog(project);
+
+			// add release
 			project.addRelease();
 
 			project.close();
@@ -236,8 +261,8 @@ public class Kadabra
 			HandlerAbstract handlerLeft = HandlerFactory.factory(leftResource, leftPath);
 			HandlerAbstract handlerRight = HandlerFactory.factory(rightResource, rightPath);
 
-			this.buildMap(handlerRight);
-
+			// build map
+			FileMap.generate(handlerRight);
 
 			// insert project
 			String sql = "INSERT INTO projects (" +
@@ -638,7 +663,7 @@ public class Kadabra
 				}
 				else
 				{
-					console.printf("A " + path + "/" + leftItem.getName() + "%n");
+					this.addLog("A " + path + "/" + leftItem.getName());
 
 					if(!testRun)
 					{
@@ -658,7 +683,7 @@ public class Kadabra
 					// compare content
 					if(!leftItem.getMd5().equals(rightItem.getMd5()))
 					{
-						console.printf("U " + path + "/" + leftItem.getName() + "%n");
+						this.addLog("U " + path + "/" + leftItem.getName());
 
 						if(!testRun)
 						{
@@ -670,7 +695,7 @@ public class Kadabra
 				}
 				else
 				{
-					console.printf("A " + path + "/" + leftItem.getName() + "%n");
+					this.addLog("A " + path + "/" + leftItem.getName());
 
 					if(!testRun)
 					{
@@ -745,7 +770,7 @@ public class Kadabra
 
 			if(leftItem.isDirectory())
 			{
-				console.printf("A " + path + "/" + leftItem.getName() + "%n");
+				this.addLog("A " + path + "/" + leftItem.getName());
 
 				if(!testRun)
 				{
@@ -757,12 +782,12 @@ public class Kadabra
 
 			if(leftItem.isFile())
 			{
-				console.printf("A " + path + "/" + leftItem.getName() + "%n");
+				this.addLog("A " + path + "/" + leftItem.getName());
 
 				if(!testRun)
 				{
 					byte[] content = project.getLeftHandler().getContent(path + "/" + leftItem.getName());
-					
+
 					project.getRightHandler().uploadFile(path + "/" + leftItem.getName(), content);
 				}
 			}
@@ -793,16 +818,29 @@ public class Kadabra
 		return path;
 	}
 
-	private void buildMap(HandlerAbstract handler) throws Exception
+	private void writeLog(Project project) throws Exception
 	{
-		if(!handler.isFile(FileMap.getFileName()))
+		String file = "release." + project.getId() + ".log";
+		PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(file)));
+
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
+
+		pw.println("Release " + project.getName() + " on " + sdf.format(new Date()));
+		pw.println("");
+
+		for(int i = 0; i < log.size(); i++)
 		{
-			 FileMap.generate(handler);
+			pw.println(log.get(i));
 		}
-		else
-		{
-			throw new Exception("Map already exists");
-		}
+
+		pw.close();
+	}
+
+	private void addLog(String msg)
+	{
+		this.log.add("[" + logDateFormat.format(new Date()) + "]: " + msg);
+
+		console.printf(msg + "%n");
 	}
 
 	/**
