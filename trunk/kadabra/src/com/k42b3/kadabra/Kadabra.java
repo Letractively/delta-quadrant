@@ -26,11 +26,8 @@
 package com.k42b3.kadabra;
 
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.Console;
-import java.io.File;
 import java.io.FileWriter;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -39,8 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import com.almworks.sqlite4java.SQLiteConnection;
-import com.almworks.sqlite4java.SQLiteStatement;
 import com.k42b3.kadabra.record.Exclude;
 import com.k42b3.kadabra.record.Project;
 import com.k42b3.kadabra.record.Release;

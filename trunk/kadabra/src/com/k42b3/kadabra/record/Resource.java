@@ -41,7 +41,7 @@ import com.k42b3.kadabra.Db;
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
- * @version    $Revision: 197 $
+ * @version    $Revision$
  */
 public class Resource extends Record
 {
