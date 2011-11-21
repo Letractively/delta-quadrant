@@ -127,7 +127,7 @@ public class Ftp extends HandlerAbstract
 	{
 		logger.info(basePath + "/" + path);
 
-		OutputStream os = client.storeFileStream(path);
+		OutputStream os = client.storeFileStream(basePath + "/" + path);
 
 		if(os != null)
 		{

@@ -82,6 +82,16 @@ public abstract class HandlerAbstract
 		return map;
 	}
 
+	public Resource getResource()
+	{
+		return resource;
+	}
+
+	public String getBasePath()
+	{
+		return basePath;
+	}
+
 	abstract public Item[] getFiles(String path) throws Exception;
 	abstract public void makeDirectory(String path) throws Exception;
 	abstract public byte[] getContent(String path) throws Exception;

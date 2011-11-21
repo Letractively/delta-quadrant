@@ -57,7 +57,7 @@ public class FileMap
 		if(handler.isFile(getFileName()))
 		{
 			byte[] content = handler.getContent(getFileName());
-			
+
 			this.loadXml(new String(content, Charset.forName("UTF-8")));
 		}
 		else
@@ -193,7 +193,7 @@ public class FileMap
 	private static void build(HandlerAbstract handler, StringBuilder resp, String path) throws Exception
 	{
 		Item[] files = handler.getFiles(path);
-		
+
 		for(int i = 0; i < files.length; i++)
 		{
 			Item item = files[i];
