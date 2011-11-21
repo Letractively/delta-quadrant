@@ -28,7 +28,6 @@ package com.k42b3.kadabra.handler;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
 import com.k42b3.kadabra.Kadabra;
-import com.k42b3.kadabra.Resource;
+import com.k42b3.kadabra.record.Resource;
 
 /**
  * System

@@ -26,7 +26,6 @@
 package com.k42b3.kadabra.handler;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -41,7 +40,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
 import com.k42b3.kadabra.Kadabra;
-import com.k42b3.kadabra.Resource;
+import com.k42b3.kadabra.record.Resource;
 
 /**
  * Ftp

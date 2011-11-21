@@ -41,7 +41,7 @@ import com.jcraft.jsch.Session;
 import com.k42b3.kadabra.HandlerAbstract;
 import com.k42b3.kadabra.Item;
 import com.k42b3.kadabra.Kadabra;
-import com.k42b3.kadabra.Resource;
+import com.k42b3.kadabra.record.Resource;
 
 /**
  * Ssh
