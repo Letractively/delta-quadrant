@@ -102,12 +102,15 @@ public class Resource extends Record
 
 	public void insert() throws Exception
 	{
-		String sql = "INSERT INTO " +
-			"resources " +
-		"SET " +
-			"type = ?, " +
-			"name = ?, " +
-			"config = ?";
+		String sql = "INSERT INTO resources (" +
+			"type, " +
+			"name, " +
+			"config " +
+		") VALUES (" +
+			"?, " +
+			"?, " +
+			"?" +
+		")";
 
 		SQLiteStatement st = Db.getInstance().query(sql);
 

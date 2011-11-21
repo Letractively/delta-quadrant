@@ -258,24 +258,29 @@ public class Project extends Record
 		FileMap.generate(handlerRight);
 
 
-		String sql = "INSERT INTO " +
-			"projects " +
-		"SET " +
-			"name = ?, " +
-			"date = NOW(), " + 
-			"leftPath = ?, " + 
-			"leftResourceId = ?, " + 
-			"rightPath = ?, " + 
-			"rightResourceId = ?";
-		
+		String sql = "INSERT INTO projects (" +
+			"name, " +
+			"date, " +
+			"leftPath, " +
+			"leftResourceId, " +
+			"rightPath, " +
+			"rightResourceId" +
+		") VALUES (" +
+			"?, " +
+			"datetime(), " +
+			"?, " +
+			"?, " +
+			"?, " +
+			"?" +
+		")";
+
 		SQLiteStatement st = Db.getInstance().query(sql);
 
 		st.bind(1, this.getName());
-		st.bind(2, this.getDate());
-		st.bind(3, this.getLeftPath());
-		st.bind(4, this.getLeftResourceId());
-		st.bind(5, this.getRightPath());
-		st.bind(6, this.getRightResourceId());
+		st.bind(2, this.getLeftPath());
+		st.bind(3, this.getLeftResourceId());
+		st.bind(4, this.getRightPath());
+		st.bind(5, this.getRightResourceId());
 
 		st.step();
 	}
@@ -286,7 +291,7 @@ public class Project extends Record
 			"projects " +
 		"SET " +
 			"name = ?, " +
-			"date = ?, " +
+			"date = datetime(), " +
 			"leftPath = ?, " +
 			"leftResourceId = ?, " +
 			"rightPath = ?, " +
@@ -297,11 +302,10 @@ public class Project extends Record
 		SQLiteStatement st = Db.getInstance().query(sql);
 
 		st.bind(1, this.getName());
-		st.bind(2, this.getDate());
-		st.bind(3, this.getLeftPath());
-		st.bind(4, this.getLeftResourceId());
-		st.bind(5, this.getRightPath());
-		st.bind(6, this.getRightResourceId());
+		st.bind(2, this.getLeftPath());
+		st.bind(3, this.getLeftResourceId());
+		st.bind(4, this.getRightPath());
+		st.bind(5, this.getRightResourceId());
 
 		st.step();
 	}
@@ -361,8 +365,8 @@ public class Project extends Record
 			project.leftResourceId = st.columnInt(4);
 			project.leftHandler = HandlerFactory.factory(Resource.getResourceById(project.getLeftResourceId()), project.getLeftPath());
 
-			project.rightPath = st.columnString(3);
-			project.rightResourceId = st.columnInt(4);
+			project.rightPath = st.columnString(5);
+			project.rightResourceId = st.columnInt(6);
 			project.rightHandler = HandlerFactory.factory(Resource.getResourceById(project.getRightResourceId()), project.getRightPath());
 
 			project.exclude = Project.getExclude(project.getId());
