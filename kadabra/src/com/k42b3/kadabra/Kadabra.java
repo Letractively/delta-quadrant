@@ -51,7 +51,7 @@ import com.k42b3.kadabra.record.Resource;
  */
 public class Kadabra
 {
-	public static String version = "0.0.4 beta";
+	public static String version = "0.0.5 beta";
 
 	private Console console;
 	private Logger logger;
@@ -130,7 +130,7 @@ public class Kadabra
 
 			String formatString = "%1$-4s %2$-16s %3$-32s %4$-32s%n";
 
-			console.printf(formatString, "Id", "Name", "leftPath", "rightPath");
+			console.printf(formatString, "Id", "Name", "Left path", "Right path");
 
 			for(int i = 0; i < projects.size(); i++)
 			{
@@ -312,10 +312,10 @@ public class Kadabra
 
 			String formatString = "%1$-12s %2$-32s%n";
 
-			console.printf("Id: " + project.getId() + "%n");
-			console.printf("Name: " + project.getName() + "%n");
-			console.printf("Date: " + project.getDate() + "%n");
-			console.printf("Left path: " + project.getLeftPath() + "%n");
+			console.printf("Id:         " + project.getId() + "%n");
+			console.printf("Name:       " + project.getName() + "%n");
+			console.printf("Date:       " + project.getDate() + "%n");
+			console.printf("Left path:  " + project.getLeftPath() + "%n");
 			console.printf("Right path: " + project.getRightPath() + "%n");
 
 
@@ -367,7 +367,7 @@ public class Kadabra
 
 	public void help()
 	{
-		String formatString = "%1$-32s %2$-64s%n";
+		String formatString = "%1$-22s %2$-64s%n";
 
 		console.printf("Kadabra, Version: " + Kadabra.version + "%n");
 		console.printf("Usage:%n");
@@ -382,8 +382,8 @@ public class Kadabra
 		console.printf(formatString, "add resource", "Add a new resource wich can be used by a project");
 		console.printf(formatString, "add exclude", "Add a new exclude regexp to an project. Files or dirs wich match the pattern are excluded.");
 		console.printf(formatString, "del", "Delete a project");
-		console.printf(formatString, "del resource", "Delete a project");
-		console.printf(formatString, "del exclude", "Delete a project");
+		console.printf(formatString, "del resource", "Delete a resource");
+		console.printf(formatString, "del exclude", "Delete a exclude");
 		console.printf(formatString, "info [projectId]", "Get informations about a project");
 		console.printf(formatString, "build", "Build the tables in the database if it not exists");
 		console.printf(formatString, "about", "Shows informations about the application");

@@ -82,11 +82,13 @@ public class Exclude extends Record
 
 	public void insert() throws Exception
 	{
-		String sql = "INSERT INTO " +
-			"exclude " +
-		"SET " +
-			"projectId = ?, " +
-			"pattern = ?";
+		String sql = "INSERT INTO exclude (" +
+			"projectId, " +
+			"pattern " +
+		") VALUES (" +
+			"?, " +
+			"?" +
+		")";
 
 		SQLiteStatement st = Db.getInstance().query(sql);
 

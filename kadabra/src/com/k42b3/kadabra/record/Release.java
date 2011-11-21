@@ -79,11 +79,13 @@ public class Release extends Record
 
 	public void insert() throws Exception
 	{
-		String sql = "INSERT INTO " +
-			"releases " +
-		"SET " +
-			"projectId = ?, " +
-			"date = NOW()";
+		String sql = "INSERT INTO releases (" +
+			"projectId, " +
+			"date " +
+		") VALUES (" +
+			"?, " +
+			"datetime()" +
+		")";
 
 		SQLiteStatement st = Db.getInstance().query(sql);
 
@@ -98,14 +100,13 @@ public class Release extends Record
 			"releases " +
 		"SET " +
 			"projectId = ?, " +
-			"date = ? " +
+			"date = datetime() " +
 		"WHERE " +
 			"id = " + this.getId();
 
 		SQLiteStatement st = Db.getInstance().query(sql);
 
 		st.bind(1, this.getProjectId());
-		st.bind(2, this.getDate());
 
 		st.step();
 	}
