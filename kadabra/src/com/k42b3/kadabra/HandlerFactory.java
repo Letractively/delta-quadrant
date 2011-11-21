@@ -3,8 +3,8 @@
  * 
  * Kadabra is an application to mirror a source folder to a destination folder.
  * You can create multiple projects wich are stored in an SQLite database.
- * With the option --status [id] you can see wich changes are made and
- * with --release [id] you update the changes. You can use different handler
+ * With the command status [id] you can see wich changes are made and
+ * with release [id] you update the changes. You can use different handler
  * like System or FTP.
  * 
  * Copyright (c) 2010, 2011 Christoph Kappestein <k42b3.x@gmail.com>
