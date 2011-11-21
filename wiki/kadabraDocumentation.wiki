@@ -1,5 +1,5 @@
 = Introduction =
 
-Kadabra is an application to mirror a resource to another resource. A resource can be a local folder or an remote FTP folder. You can create multiple projects wich are stored in an SQLite database. With the option --status [id] you can see wich changes are made and with --release [id] you can mirror the project. Kadabra never deletes a file it only copies the changed and new files from the left resource to the right resource.
+Kadabra is an application to mirror a source folder to a destination folder. You can create multiple projects wich are stored in an SQLite database. With the command status [id] you can see wich changes are made and with release [id] you update the changes. You can use different handler like System or FTP.
 
-At the moment Kadabra is mainly used in a staging process. I.e. if you have a development server you can copy with Kadabra all files to the test server and from this to the live server.
+Kadabra can be used in a staging system i.e. if you have a development server you can copy with Kadabra all files to the test server and from this to the production server. You can also use Kadabra to simply upload local files to an FTP server. Kadabra uploads only the files wich have changed the change is determined based on an XML file wich contains the complete folder structure and md5 hashes of all files.
