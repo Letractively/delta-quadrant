@@ -41,6 +41,10 @@ import java.util.logging.Logger;
 
 import com.almworks.sqlite4java.SQLiteConnection;
 import com.almworks.sqlite4java.SQLiteStatement;
+import com.k42b3.kadabra.record.Exclude;
+import com.k42b3.kadabra.record.Project;
+import com.k42b3.kadabra.record.Release;
+import com.k42b3.kadabra.record.Resource;
 
 /**
  * Kadabra
@@ -56,27 +60,16 @@ public class Kadabra
 
 	private Console console;
 	private Logger logger;
-	private SQLiteConnection db;
-	private ArrayList<String> log;
 
-	SimpleDateFormat logDateFormat;
+	private ArrayList<String> log;
+	private SimpleDateFormat logDateFormat;
 
 	public Kadabra()
 	{
 		this.console = System.console();
 		this.logger = Logger.getLogger("com.k42b3.kadabra");
 
-		logDateFormat = new SimpleDateFormat("HH:mm:ss");
-
-		try
-		{
-			db = new SQLiteConnection(new File("projects"));
-			db.open(true);
-		}
-		catch(Exception e)
-		{
-			handleException(e);
-		}
+		this.logDateFormat = new SimpleDateFormat("HH:mm:ss");
 	}
 
 	public void status(int projectId)
@@ -85,7 +78,7 @@ public class Kadabra
 		{
 			this.log = new ArrayList<String>();
 
-			Project project = new Project(db, projectId);
+			Project project = Project.getProjectById(projectId);
 
 			project.getRightHandler().loadMap();
 
@@ -107,7 +100,7 @@ public class Kadabra
 		{
 			this.log = new ArrayList<String>();
 
-			Project project = new Project(db, projectId);
+			Project project = Project.getProjectById(projectId);
 
 			project.getRightHandler().loadMap();
 
@@ -138,42 +131,19 @@ public class Kadabra
 	{
 		try
 		{
-			String sql = "SELECT " +
-				"projects.id, " +
-				"projects.name, " +
-				"projects.leftPath, " +
-				"projects.leftResourceId, " +
-				"resourcesLeft.type, " +
-				"projects.rightPath, " +
-				"projects.rightResourceId, " +
-				"resourcesRight.type, " +
-				"projects.date " +
-			"FROM " +
-				"projects " +
-			"INNER JOIN " +
-				"resources resourcesLeft " +
-			"ON " +
-				"projects.leftResourceId = resourcesLeft.id " +
-			"INNER JOIN " +
-				"resources resourcesRight " +
-			"ON " +
-				"projects.rightResourceId = resourcesRight.id " +
-			"ORDER BY " +
-				"projects.name ASC";
-
-			SQLiteStatement st = db.prepare(sql);
+			ArrayList<Project> projects = Project.getProjects();
 
 			String formatString = "%1$-4s %2$-16s %3$-32s %4$-32s%n";
 
 			console.printf(formatString, "Id", "Name", "leftPath", "rightPath");
 
-			while(st.step())
+			for(int i = 0; i < projects.size(); i++)
 			{
 				console.printf(formatString, 
-					st.columnString(0),
-					st.columnString(1),
-					trimString(st.columnString(2), 32),
-					trimString(st.columnString(5), 32));
+						projects.get(i).getId(),
+						projects.get(i).getName(),
+						trimString(projects.get(i).getLeftPath(), 32),
+						trimString(projects.get(i).getRightPath(), 32));
 			}
 		}
 		catch(Exception e)
@@ -186,60 +156,18 @@ public class Kadabra
 	{
 		try
 		{
-			String sql = "SELECT " +
-				"id, " +
-				"type, " +
-				"name " +
-			"FROM " +
-				"resources " +
-			"ORDER BY " +
-				"id ASC";
-
-			SQLiteStatement st = db.prepare(sql);
+			ArrayList<Resource> resources = Resource.getResources();
 
 			String formatString = "%1$-4s %2$-8s %3$-32s%n";
 
 			console.printf(formatString, "Id", "Type", "Name");
 
-			while(st.step())
+			for(int i = 0; i < resources.size(); i++)
 			{
 				console.printf(formatString, 
-					st.columnString(0),
-					st.columnString(1),
-					st.columnString(2));
-			}
-		}
-		catch(Exception e)
-		{
-			handleException(e);
-		}
-	}
-	
-	public void listExclude()
-	{
-		try
-		{
-			String sql = "SELECT " +
-				"id, " +
-				"projectId, " +
-				"pattern " +
-			"FROM " +
-				"resources " +
-			"ORDER BY " +
-				"id ASC";
-
-			SQLiteStatement st = db.prepare(sql);
-
-			String formatString = "%1$-4s %2$-4s %3$-32s%n";
-
-			console.printf(formatString, "Id", "Project Id", "Pattern");
-
-			while(st.step())
-			{
-				console.printf(formatString, 
-					st.columnString(0), 
-					st.columnString(1), 
-					st.columnString(2));
+						resources.get(i).getId(),
+						resources.get(i).getType(),
+						resources.get(i).getName());
 			}
 		}
 		catch(Exception e)
@@ -252,45 +180,15 @@ public class Kadabra
 	{
 		try
 		{
-			leftPath = normalizePath(leftPath);
-			rightPath = normalizePath(rightPath);
+			Project project = new Project();
 
-			Resource leftResource = new Resource(db, leftResourceId);
-			Resource rightResource = new Resource(db, rightResourceId);
+			project.setName(name);
+			project.setLeftPath(leftPath);
+			project.setLeftResourceId(leftResourceId);
+			project.setRightPath(rightPath);
+			project.setRightResourceId(rightResourceId);
 
-			// build map for both sides
-			HandlerAbstract handlerLeft = HandlerFactory.factory(leftResource, leftPath);
-			HandlerAbstract handlerRight = HandlerFactory.factory(rightResource, rightPath);
-
-			// build map
-			FileMap.generate(handlerRight);
-
-			// insert project
-			String sql = "INSERT INTO projects (" +
-				"name, " +
-				"leftPath, " +
-				"leftResourceId, " +
-				"rightPath, " +
-				"rightResourceId, " +
-				"date" +
-			") VALUES (" +
-				"?, " +
-				"?, " +
-				"?, " +
-				"?, " +
-				"?, " +
-				"datetime()" +
-			")";
-
-			SQLiteStatement st = db.prepare(sql);
-
-			st.bind(1, name);
-			st.bind(2, leftPath);
-			st.bind(3, leftResource.getId());
-			st.bind(4, rightPath);
-			st.bind(5, rightResource.getId());
-
-			st.step();
+			project.insert();
 
 			console.printf("Add project successful%n");
 		}
@@ -304,34 +202,13 @@ public class Kadabra
 	{
 		try
 		{
-			// serialize object
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			Resource resource = new Resource();
 
-			ObjectOutputStream oos = new ObjectOutputStream(baos);
+			resource.setType(type);
+			resource.setName(name);
+			resource.setConfig(config);
 
-			oos.writeObject(config);
-
-			oos.close();
-
-
-			// insert record
-			String sql = "INSERT INTO resources (" +
-				"type, " +
-				"name, " +
-				"config " +
-			") VALUES (" +
-				"?, " +
-				"?, " +
-				"?" +
-			")";
-
-			SQLiteStatement st = db.prepare(sql);
-
-			st.bind(1, type);
-			st.bind(2, name);
-			st.bind(3, baos.toByteArray());
-
-			st.step();
+			resource.insert();
 
 			console.printf("Add resource successful%n");
 		}
@@ -345,28 +222,12 @@ public class Kadabra
 	{
 		try
 		{
-			Project project = new Project(db, projectId);
+			Exclude exclude = new Exclude();
 
+			exclude.setProjectId(projectId);
+			exclude.setPattern(pattern);
 
-			// check pattern
-			"foobar".matches(pattern);
-
-
-			// insert record
-			String sql = "INSERT INTO exclude (" +
-				"projectId, " +
-				"pattern " +
-			") VALUES (" +
-				"?, " +
-				"?" +
-			")";
-
-			SQLiteStatement st = db.prepare(sql);
-
-			st.bind(1, project.getId());
-			st.bind(2, pattern);
-
-			st.step();
+			exclude.insert();
 
 			console.printf("Add exclude successful%n");
 		}
@@ -380,36 +241,9 @@ public class Kadabra
 	{
 		try
 		{
-			Project project = new Project(db, projectId);
-			String sql;
+			Project project = Project.getProjectById(projectId);
 
-
-			// delete project
-			sql = "DELETE FROM " +
-				"projects " +
-			"WHERE " +
-				"id = " + project.getId();
-
-			db.exec(sql); 
-
-
-			// delete releases
-			sql = "DELETE FROM " +
-				"releases " +
-			"WHERE " +
-				"projectId = " + project.getId();
-
-			db.exec(sql); 
-
-
-			// delete exclude
-			sql = "DELETE FROM " +
-				"exclude " +
-			"WHERE " +
-				"projectId = " + project.getId();
-
-			db.exec(sql); 
-
+			project.delete();
 
 			console.printf("Delete project " + projectId + " successful%n");
 		}
@@ -423,14 +257,9 @@ public class Kadabra
 	{
 		try
 		{
-			// delete exclude
-			String sql = "DELETE FROM " +
-				"resources " +
-			"WHERE " +
-				"id = " + resourceId;
+			Resource resource = Resource.getResourceById(resourceId);
 
-			db.exec(sql); 
-
+			resource.delete();
 
 			console.printf("Delete resource " + resourceId + " successful%n");
 		}
@@ -444,14 +273,9 @@ public class Kadabra
 	{
 		try
 		{
-			// delete exclude
-			String sql = "DELETE FROM " +
-				"exclude " +
-			"WHERE " +
-				"projectId = " + excludeId;
+			Exclude exclude = Exclude.getExcludeById(excludeId);
 
-			db.exec(sql); 
-
+			exclude.delete();
 
 			console.printf("Delete exclude " + excludeId + " successful%n");
 		}
@@ -465,79 +289,17 @@ public class Kadabra
 	{
 		try
 		{
-			String sql;
+			Db.getInstance().exec("DROP TABLE IF EXISTS projects");
+			Project.setupTable();
 
+			Db.getInstance().exec("DROP TABLE IF EXISTS resources");
+			Resource.setupTable();
 
-			// remove all tables
-			sql = "DROP TABLE IF EXISTS projects";
+			Db.getInstance().exec("DROP TABLE IF EXISTS releases");
+			Release.setupTable();
 
-			db.exec(sql);
-
-			sql = "DROP TABLE IF EXISTS resources";
-
-			db.exec(sql);
-
-			sql = "DROP TABLE IF EXISTS releases";
-
-			db.exec(sql);
-
-			sql = "DROP TABLE IF EXISTS exclude";
-
-			db.exec(sql);
-
-
-			// projects
-			sql = "CREATE TABLE IF NOT EXISTS projects (" +
-				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-				"name VARCHAR(128), " +
-				"leftPath VARCHAR(512)," +
-				"leftResourceId INTEGER," +
-				"rightPath VARCHAR(512)," +
-				"rightResourceId INTEGER," +
-				"date DATETIME" +
-			")";
-
-			db.exec(sql);
-
-			// resources
-			sql = "CREATE TABLE IF NOT EXISTS resources (" +
-				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-				"type VARCHAR(16)," +
-				"name VARCHAR(128)," +
-				"config BLOB" +
-			")";
-
-			db.exec(sql);
-
-			sql = "INSERT INTO resources (" +
-				"type, " +
-				"name, " +
-				"config " +
-			") VALUES (" +
-				"'SYSTEM', " +
-				"'Local', " +
-				"''" +
-			")";
-
-			db.exec(sql);
-
-			// releases
-			sql = "CREATE TABLE IF NOT EXISTS releases (" +
-				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-				"projectId INTEGER," +
-				"date DATETIME" +
-			")";
-
-			db.exec(sql);
-
-			// exclude
-			sql = "CREATE TABLE IF NOT EXISTS exclude (" +
-				"id INTEGER PRIMARY KEY AUTOINCREMENT," +
-				"projectId INTEGER," +
-				"pattern VARCHAR" +
-			")";
-
-			db.exec(sql);
+			Db.getInstance().exec("DROP TABLE IF EXISTS exclude");
+			Exclude.setupTable();
 
 			console.printf("Building tables successful%n");
 		}
@@ -551,17 +313,7 @@ public class Kadabra
 	{
 		try
 		{
-			Project project = new Project(db, projectId);
-
-			String sql = "SELECT " +
-				"id, " +
-				"pattern " +
-			"FROM " +
-				"exclude " +
-			"WHERE " +
-				"projectId = " + project.getId();
-
-			SQLiteStatement st = db.prepare(sql);
+			Project project = Project.getProjectById(projectId);
 
 			String formatString = "%1$-12s %2$-32s%n";
 
@@ -571,15 +323,29 @@ public class Kadabra
 			console.printf("Left path: " + project.getLeftPath() + "%n");
 			console.printf("Right path: " + project.getRightPath() + "%n");
 
-			console.printf("%n-- Exclude rules:%n");
 
 			formatString = "%1$-4s %2$-16s%n";
 
+			// excludes
+			console.printf("%n-- Exclude rules:%n");
 			console.printf(formatString, "Id", "Pattern");
 
-			while(st.step())
+			ArrayList<Exclude> excludes = project.getExcludes();
+
+			for(int i = 0; i < excludes.size(); i++)
 			{
-				console.printf(formatString, st.columnString(0), st.columnString(1));
+				console.printf(formatString, excludes.get(i).getId(), excludes.get(i).getPattern());
+			}
+
+			// releases
+			console.printf("%n-- Latest releases:%n");
+			console.printf(formatString, "Id", "Date");
+
+			ArrayList<Release> releases = project.getReleases(8);
+
+			for(int i = 0; i < releases.size(); i++)
+			{
+				console.printf(formatString, releases.get(i).getId(), releases.get(i).getDate());
 			}
 		}
 		catch(Exception e)
@@ -608,21 +374,24 @@ public class Kadabra
 	{
 		String formatString = "%1$-32s %2$-64s%n";
 
-		console.printf(formatString, "Argument", "Description");
-		console.printf(formatString, "--status [projectId]", "Shows wich files will be updated but without making any actions");
-		console.printf(formatString, "--release [projectId]", "Mirros the local folder to the remote folder");
-		console.printf(formatString, "--list", "List all projects with their project id");
-		console.printf(formatString, "--listResource", "List all resources with their resource id");
-		console.printf(formatString, "--listExclude", "List all excludes with their exclude id");
-		console.printf(formatString, "--add", "Add a new project to the database");
-		console.printf(formatString, "--addResource", "Add a new resource wich can be used by a project");
-		console.printf(formatString, "--addExclude", "Add a new exclude regexp to an project. Files or dirs wich match the pattern are excluded.");
-		console.printf(formatString, "--del [projectId]", "Delete a project");
-		console.printf(formatString, "--delResource [resourceId]", "Delete a project");
-		console.printf(formatString, "--delExclude [excludeId]", "Delete a project");
-		console.printf(formatString, "--info [projectId]", "Get informations about a project");
-		console.printf(formatString, "--build", "Build the tables in the database if it not exists");
-		console.printf(formatString, "--about", "Shows informations about the application");
+		console.printf("Kadabra, Version: " + Kadabra.version + "%n");
+		console.printf("Usage:%n");
+		console.printf("    java -jar kadabra.jar [command]%n");
+		console.printf("%n");
+		console.printf("Available commands:%n");
+		console.printf(formatString, "status [projectId]", "Shows wich files will be updated but without making any actions");
+		console.printf(formatString, "release [projectId]", "Mirros the local folder to the remote folder");
+		console.printf(formatString, "list", "List all projects with their project id");
+		console.printf(formatString, "list resource", "List all resources with their resource id");
+		console.printf(formatString, "add", "Add a new project to the database");
+		console.printf(formatString, "add resource", "Add a new resource wich can be used by a project");
+		console.printf(formatString, "add exclude", "Add a new exclude regexp to an project. Files or dirs wich match the pattern are excluded.");
+		console.printf(formatString, "del", "Delete a project");
+		console.printf(formatString, "del resource", "Delete a project");
+		console.printf(formatString, "del exclude", "Delete a project");
+		console.printf(formatString, "info [projectId]", "Get informations about a project");
+		console.printf(formatString, "build", "Build the tables in the database if it not exists");
+		console.printf(formatString, "about", "Shows informations about the application");
 	}
 
 	private void mirrorFolder(Project project, boolean testRun, String path) throws Exception
@@ -795,30 +564,6 @@ public class Kadabra
 		}
 	}
 
-	private String trimString(String str, int length)
-	{
-		if(str.length() > length)
-		{
-			return "..." + str.substring(str.length() - (length - 3));
-		}
-		else
-		{
-			return str;
-		}
-	}
-	
-	private String normalizePath(String path)
-	{
-		path = path.trim();
-
-		if(path.charAt(path.length() - 1) == '/')
-		{
-			path = path.substring(0, path.length() - 1);
-		}
-
-		return path;
-	}
-
 	private void writeLog(Project project) throws Exception
 	{
 		String file = "release." + project.getId() + ".log";
@@ -867,6 +612,18 @@ public class Kadabra
 		}
 
 		return result.toString();
+	}
+
+	public static String trimString(String str, int length)
+	{
+		if(str.length() > length)
+		{
+			return "..." + str.substring(str.length() - (length - 3));
+		}
+		else
+		{
+			return str;
+		}
 	}
 
 	public static void handleException(Exception e)

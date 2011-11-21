@@ -27,6 +27,8 @@ package com.k42b3.kadabra;
 
 import java.util.ArrayList;
 
+import com.k42b3.kadabra.record.Resource;
+
 /**
  * HandlerFactory
  *

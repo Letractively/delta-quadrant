@@ -54,31 +54,27 @@ public class Entry
 			Console console = System.console();
 			Kadabra instance = new Kadabra();
 
-			if(args.length == 2 && args[0].equals("--status"))
+			if(args.length == 2 && args[0].equals("status"))
 			{
 				int id = Integer.parseInt(args[1]);
 
 				instance.status(id);
 			}
-			else if(args.length == 2 && args[0].equals("--release"))
+			else if(args.length == 2 && args[0].equals("release"))
 			{
 				int id = Integer.parseInt(args[1]);
 
 				instance.release(id);
 			}
-			else if(args.length == 1 && args[0].equals("--list"))
+			else if(args.length == 1 && args[0].equals("list"))
 			{
 				instance.listProject();
 			}
-			else if(args.length == 1 && args[0].equals("--listResource"))
+			else if(args.length == 2 && args[0].equals("list") && args[1].equals("resource"))
 			{
 				instance.listResource();
 			}
-			else if(args.length == 1 && args[0].equals("--listExclude"))
-			{
-				instance.listExclude();
-			}
-			else if(args.length == 1 && args[0].equals("--add"))
+			else if(args.length == 1 && args[0].equals("add"))
 			{
 				String name = console.readLine("Name: ");
 
@@ -90,7 +86,7 @@ public class Entry
 
 				instance.addProject(name, leftPath, legtResourceId, rightPath, rightResourceId);
 			}
-			else if(args.length == 1 && args[0].equals("--addResource"))
+			else if(args.length == 2 && args[0].equals("add") && args[1].equals("resource"))
 			{
 				String type = console.readLine("Type [System|Ftp|Ssh]: ").toUpperCase();
 				HashMap<String, String> config = new HashMap<String, String>();
@@ -108,42 +104,42 @@ public class Entry
 
 				instance.addResource(type, name, config);
 			}
-			else if(args.length == 1 && args[0].equals("--addExclude"))
+			else if(args.length == 2 && args[0].equals("add") && args[1].equals("exclude"))
 			{
 				int projectId = Integer.parseInt(console.readLine("Project ID: "));
 				String pattern = console.readLine("Pattern: ");
 
 				instance.addExclude(projectId, pattern);
 			}
-			else if(args.length == 2 && args[0].equals("--del"))
+			else if(args.length == 1 && args[0].equals("del"))
 			{
-				int id = Integer.parseInt(args[1]);
+				int projectId = Integer.parseInt(console.readLine("Project ID: "));
 
-				instance.deleteProject(id);
+				instance.deleteProject(projectId);
 			}
-			else if(args.length == 2 && args[0].equals("--delResource"))
+			else if(args.length == 2 && args[0].equals("del") && args[1].equals("resource"))
 			{
-				int id = Integer.parseInt(args[1]);
+				int resourceId = Integer.parseInt(console.readLine("Resource ID: "));
 
-				instance.deleteResource(id);
+				instance.deleteResource(resourceId);
 			}
-			else if(args.length == 2 && args[0].equals("--delExclude"))
+			else if(args.length == 2 && args[0].equals("del") && args[1].equals("exclude"))
 			{
-				int id = Integer.parseInt(args[1]);
+				int excludeId = Integer.parseInt(console.readLine("Exclude ID: "));
 
-				instance.deleteExclude(id);
+				instance.deleteExclude(excludeId);
 			}
-			else if(args.length == 1 && args[0].equals("--build"))
+			else if(args.length == 1 && args[0].equals("build"))
 			{
 				instance.build();
 			}
-			else if(args.length == 2 && args[0].equals("--info"))
+			else if(args.length == 2 && args[0].equals("info"))
 			{
 				int id = Integer.parseInt(args[1]);
 
 				instance.info(id);
 			}
-			else if(args.length == 1 && args[0].equals("--about"))
+			else if(args.length == 1 && args[0].equals("about"))
 			{
 				instance.about();
 			}

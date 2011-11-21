@@ -26,8 +26,9 @@
 package com.k42b3.kadabra;
 
 import java.io.Console;
-import java.io.IOException;
 import java.util.logging.Logger;
+
+import com.k42b3.kadabra.record.Resource;
 
 /**
  * HandlerAbstract
