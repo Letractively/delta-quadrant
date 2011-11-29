@@ -56,7 +56,6 @@ public class Zubat extends JFrame
 	private Configuration config;
 	private Oauth oauth;
 	private Http http;
-	private Logger logger;
 	private Services availableServices;
 	
 	private MenuPanel menuPanel;
@@ -66,10 +65,10 @@ public class Zubat extends JFrame
 
 	private TrafficTableModel trafficTm;
 
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");;
+
 	public Zubat()
 	{
-		logger = Logger.getLogger("com.k42b3.zubat");
-		
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 
 		this.setLocation(100, 100);
