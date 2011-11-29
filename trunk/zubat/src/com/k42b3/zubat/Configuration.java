@@ -50,6 +50,8 @@ import org.w3c.dom.ls.LSSerializer;
  */
 public class Configuration 
 {
+	private static File config;
+
 	private String baseUrl;
 	private String consumerKey;
 	private String consumerSecret;
@@ -209,9 +211,21 @@ public class Configuration
 
 	public static File getFile()
 	{
-		return new File("zubat.conf.xml");
+		return Configuration.config;
 	}
-	
+
+	public static void setFile(File config) throws Exception
+	{
+		if(config.isFile() && config.canRead())
+		{
+			Configuration.config = config;
+		}
+		else
+		{
+			throw new Exception("Unable to read config file " + config.getAbsolutePath());
+		}
+	}
+
 	public static Document loadDocument() throws Exception
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

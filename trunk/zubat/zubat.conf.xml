@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zubat>
     <baseUrl>http://127.0.0.1/projects/amun/public/</baseUrl>
-    <consumerKey>d036c3f056b883ed7b0c0963098497de9277bf6f</consumerKey>
-    <consumerSecret>7aa9ede57d44a1b3026c5ce2f5bf31c0e80089f4</consumerSecret>
-    <token>8e503d6c36fc7d3d295eafcf4b6607a7a1045965</token>
-    <tokenSecret>a967c8798a2326c45d28d873d0546eb385d814d6</tokenSecret>
+    <consumerKey>d8ef509981f24e3d40d9950d4d33661f6aed33cb</consumerKey>
+    <consumerSecret>50191a710af29666cb451b6566ec7a13579d722c</consumerSecret>
+    <token>361e2e0342dfed62e15f85baa259db1654c98757</token>
+    <tokenSecret>04e6ca73571e52f8633a383fc477819c253279b4</tokenSecret>
     <service type="http://ns.amun-project.org/2011/amun/content/gadget">
         <item>id</item>
         <item>title</item>
@@ -136,8 +136,13 @@
     <service type="http://ns.amun-project.org/2011/amun/user/right"/>
     <service type="http://ns.amun-project.org/2011/amun/service/news">
         <item>title</item>
+        <item>date</item>
+        <item>authorName</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/service/page">
+        <item>pageId</item>
+        <item>userId</item>
+        <item>content</item>
         <item>date</item>
     </service>
 </zubat>

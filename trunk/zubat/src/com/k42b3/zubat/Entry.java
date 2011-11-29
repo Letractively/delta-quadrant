@@ -24,6 +24,8 @@
 
 package com.k42b3.zubat;
 
+import java.io.File;
+
 import javax.swing.UIManager;
 
 /**
@@ -45,6 +47,19 @@ public class Entry
 			UIManager.setLookAndFeel(lookAndFeel);
 
 
+			// set config file
+			File configFile = getConfigFile(args);
+
+			if(configFile != null)
+			{
+				Configuration.setFile(configFile);
+			}
+			else
+			{
+				Configuration.setFile(new File("zubat.conf.xml"));
+			}
+
+
 			if(args.length > 0 && args[0].equals("--auth"))
 			{
 				new Auth();
@@ -58,5 +73,25 @@ public class Entry
 		{
 			Zubat.handleException(e);
 		}
+	}
+
+	public static File getConfigFile(String[] args)
+	{
+		boolean foundConfig = false;
+
+		for(int i = 0; i < args.length; i++)
+		{
+			if(args[i].equals("--config"))
+			{
+				foundConfig = true;
+			}
+
+			if(foundConfig)
+			{
+				return new File(args[i]);
+			}
+		}
+
+		return null;
 	}
 }
