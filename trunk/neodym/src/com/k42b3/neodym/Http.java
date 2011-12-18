@@ -76,25 +76,14 @@ public class Http
 
 	private Logger logger = Logger.getLogger("com.k42b3.neodym");
 
-	public Http(Oauth oauth, TrafficListenerInterface trafficListener)
-	{
-		this.oauth = oauth;
-		this.trafficListener = trafficListener;
-	}
-
-	public Http(Oauth oauth)
-	{
-		this(oauth, null);
-	}
-
 	public Http(TrafficListenerInterface trafficListener)
 	{
-		this(null, trafficListener);
+		this.trafficListener = trafficListener;
 	}
 
 	public Http()
 	{
-		this(null, null);
+		this(null);
 	}
 
 	public String request(int method, String url, Map<String, String> header, String body, boolean signed) throws Exception
@@ -148,6 +137,8 @@ public class Http
 		logger.info("Request: " + httpRequest.getRequestLine().toString());
 
 		HttpResponse httpResponse = httpClient.execute(httpRequest);
+
+		logger.info("Response: " + httpResponse.getStatusLine().toString());
 
 		HttpEntity entity = httpResponse.getEntity();
 

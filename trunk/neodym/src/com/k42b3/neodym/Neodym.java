@@ -33,8 +33,4 @@ package com.k42b3.neodym;
 public class Neodym 
 {
 	public static final String version = "0.0.1 beta";
-	
-	public static void main(String[] args)
-	{
-	}
 }
