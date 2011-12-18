@@ -22,7 +22,6 @@
 
 package com.k42b3.neodym.oauth;
 
-
 /**
  * PLAINTEXT
  *

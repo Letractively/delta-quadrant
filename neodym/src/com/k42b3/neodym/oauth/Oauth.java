@@ -87,13 +87,14 @@ public class Oauth
 	{
 		this.http = http;
 		this.provider = provider;
-	}
 
-	public void auth(String token, String tokenSecret)
-	{
-		this.setToken(token);
-		this.setTokenSecret(tokenSecret);
-		this.authed = true;
+		if((provider.getToken() != null && !provider.getToken().isEmpty()) && (provider.getTokenSecret() != null && !provider.getTokenSecret().isEmpty()))
+		{
+			this.setToken(provider.getToken());
+			this.setTokenSecret(provider.getTokenSecret());
+
+			this.authed = true;
+		}
 	}
 
 	public void setToken(String token)
@@ -412,9 +413,11 @@ public class Oauth
 		
 		base.append(urlEncode(this.getNormalizedParameters(params)));
 
+		logger.fine("BaseString: " + base.toString());
+
 		return base.toString();
 	}
-	
+
 	private String getNormalizedParameters(HashMap<String, String> params)
 	{
 		Iterator<Entry<String, String>> it = params.entrySet().iterator();

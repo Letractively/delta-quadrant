@@ -22,6 +22,10 @@
 
 package com.k42b3.neodym.oauth;
 
+import com.k42b3.neodym.Http;
+import com.k42b3.neodym.ServiceItem;
+import com.k42b3.neodym.Services;
+
 /**
  * OauthProvider
  *
@@ -38,17 +42,26 @@ public class OauthProvider
 
 	private String consumerKey;
 	private String consumerSecret;
+	private String token;
+	private String tokenSecret;
 
 	private String method = "HMAC-SHA1";
 
+	public OauthProvider(String requestUrl, String authorizationUrl, String accessUrl, String consumerKey, String consumerSecret, String token, String tokenSecret)
+	{
+		this.setRequestUrl(requestUrl);
+		this.setAuthorizationUrl(authorizationUrl);
+		this.setAccessUrl(accessUrl);
+
+		this.setConsumerKey(consumerKey);
+		this.setConsumerSecret(consumerSecret);
+		this.setToken(token);
+		this.setTokenSecret(tokenSecret);
+	}
+
 	public OauthProvider(String requestUrl, String authorizationUrl, String accessUrl, String consumerKey, String consumerSecret)
 	{
-		this.requestUrl = requestUrl;
-		this.authorizationUrl = authorizationUrl;
-		this.accessUrl = accessUrl;
-
-		this.consumerKey = consumerKey;
-		this.consumerSecret = consumerSecret;
+		this(requestUrl, authorizationUrl, accessUrl, consumerKey, consumerSecret, null, null);
 	}
 
 	public String getRequestUrl() 
@@ -100,7 +113,27 @@ public class OauthProvider
 	{
 		this.consumerSecret = consumerSecret;
 	}
-	
+
+	public String getToken()
+	{
+		return token;
+	}
+
+	public void setToken(String token)
+	{
+		this.token = token;
+	}
+
+	public String getTokenSecret()
+	{
+		return tokenSecret;
+	}
+
+	public void setTokenSecret(String tokenSecret)
+	{
+		this.tokenSecret = tokenSecret;
+	}
+
 	public String getMethod() 
 	{
 		return method;
@@ -109,5 +142,33 @@ public class OauthProvider
 	public void setMethod(String method) 
 	{
 		this.method = method;
+	}
+	
+	public static OauthProvider discoverProvider(Http http, String baseUrl, String consumerKey, String consumerSecret) throws Exception
+	{
+		// load available services
+		Services services = new Services(http, baseUrl);
+		services.discover();
+
+		ServiceItem request = services.getItem("http://oauth.net/core/1.0/endpoint/request");
+		ServiceItem authorization = services.getItem("http://oauth.net/core/1.0/endpoint/authorize");
+		ServiceItem access = services.getItem("http://oauth.net/core/1.0/endpoint/access");
+
+		if(request == null)
+		{
+			throw new Exception("Could not find request service");
+		}
+
+		if(authorization == null)
+		{
+			throw new Exception("Could not find authorization service");
+		}
+
+		if(access == null)
+		{
+			throw new Exception("Could not find access service");
+		}
+
+		return new OauthProvider(request.getUri(), authorization.getUri(), access.getUri(), consumerKey, consumerSecret);
 	}
 }

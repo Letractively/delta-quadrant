@@ -48,13 +48,13 @@ public class Services
 
 	private Logger logger = Logger.getLogger("com.k42b3.neodym");
 
-	public Services(String baseUrl, Http http)
+	public Services(Http http, String baseUrl)
 	{
 		this.baseUrl = baseUrl;
 		this.http = http;
 	}
 
-	public void loadData() throws Exception
+	public void discover() throws Exception
 	{
 		String url = this.getXrdsUrl(baseUrl);
 
@@ -105,6 +105,8 @@ public class Services
 			if(headers[i].getName().toLowerCase().equals("x-xrds-location"))
 			{
 				xrdsLocation = headers[i].getValue();
+
+				logger.info("Found XRDS location: " + xrdsLocation);
 
 				break;
 			}
