@@ -335,6 +335,7 @@ public class Oauth
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void signRequest(HttpRequestBase request) throws Exception
 	{
 		// add values
@@ -508,6 +509,7 @@ public class Oauth
 		return "1.0";
 	}
 
+	@SuppressWarnings("unused")
 	private HttpEntity httpRequest(String method, String url, Map<String, String> header, String body) throws Exception
 	{
 		// build request
