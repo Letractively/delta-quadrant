@@ -32,5 +32,5 @@ package com.k42b3.neodym.oauth;
  */
 public interface SignatureInterface 
 {
-	public String build(String baseString, String consumerSecret, String tokenSecret);
+	public String build(String baseString, String consumerSecret, String tokenSecret) throws Exception;
 }

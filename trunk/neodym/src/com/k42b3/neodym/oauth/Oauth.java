@@ -90,11 +90,16 @@ public class Oauth
 
 		if((provider.getToken() != null && !provider.getToken().isEmpty()) && (provider.getTokenSecret() != null && !provider.getTokenSecret().isEmpty()))
 		{
-			this.setToken(provider.getToken());
-			this.setTokenSecret(provider.getTokenSecret());
-
-			this.authed = true;
+			this.auth(provider.getToken(), provider.getTokenSecret());
 		}
+	}
+
+	public void auth(String token, String tokenSecret)
+	{
+		this.setToken(token);
+		this.setTokenSecret(tokenSecret);
+
+		this.authed = true;
 	}
 
 	public void setToken(String token)
