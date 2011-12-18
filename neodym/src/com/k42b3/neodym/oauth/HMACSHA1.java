@@ -40,31 +40,22 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class HMACSHA1 implements SignatureInterface
 {
-	public String build(String baseString, String consumerSecret, String tokenSecret)
+	public String build(String baseString, String consumerSecret, String tokenSecret) throws Exception
 	{
-		try
-		{
-			String key = Oauth.urlEncode(consumerSecret) + "&" + Oauth.urlEncode(tokenSecret);
+		String key = Oauth.urlEncode(consumerSecret) + "&" + Oauth.urlEncode(tokenSecret);
 
 
-			Charset charset = Charset.defaultCharset();
+		Charset charset = Charset.defaultCharset();
 
-			SecretKey sk = new SecretKeySpec(key.getBytes(charset), "HmacSHA1");
+		SecretKey sk = new SecretKeySpec(key.getBytes(charset), "HmacSHA1");
 
-			Mac mac = Mac.getInstance("HmacSHA1");
+		Mac mac = Mac.getInstance("HmacSHA1");
 
-			mac.init(sk);
+		mac.init(sk);
 
-			byte[] result = mac.doFinal(baseString.getBytes(charset));
+		byte[] result = mac.doFinal(baseString.getBytes(charset));
 
 
-			return Base64.encodeBase64String(result);
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-			
-			return null;
-		}
+		return Base64.encodeBase64String(result);
 	}
 }
