@@ -28,10 +28,16 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
@@ -55,6 +61,7 @@ public class Zubat extends JFrame
 
 	private Oauth oauth;
 	private Http http;
+	private Account account;
 	private Services availableServices;
 	
 	private MenuPanel menuPanel;
@@ -69,17 +76,11 @@ public class Zubat extends JFrame
 	public Zubat()
 	{
 		this.setTitle("zubat (version: " + Zubat.version + ")");
-
 		this.setLocation(100, 100);
-
 		this.setSize(800, 600);
-
 		this.setMinimumSize(this.getSize());
-
 		this.setLayout(new BorderLayout());
-
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 
 		try
 		{
@@ -98,6 +99,8 @@ public class Zubat extends JFrame
 			this.fetchServices();
 
 			this.doAuthentication();
+
+			this.fetchAccount();
 
 
 			menuPanel = new MenuPanel(this);
@@ -144,9 +147,28 @@ public class Zubat extends JFrame
 		return http;
 	}
 
+	public Account getAccount()
+	{
+		return account;
+	}
+
 	public Services getAvailableServices()
 	{
 		return availableServices;
+	}
+
+	private void fetchAccount() throws Exception
+	{
+		ServiceItem item = this.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/service/my/verifyCredentials");
+
+		if(item != null)
+		{
+			account = Account.buildAccount(http.requestXml(Http.GET, item.getUri()));
+		}
+		else
+		{
+			throw new Exception("Could not discover user informations");
+		}
 	}
 
 	private void doAuthentication() throws Exception

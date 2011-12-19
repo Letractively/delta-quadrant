@@ -60,7 +60,6 @@ public class ColumnPanel extends JFrame
 {
 	private ViewTableModel viewTm;
 	private ServiceItem item;
-	private Logger logger;
 
 	private JTable table;
 	private ColumnTableModel tm;
@@ -68,11 +67,12 @@ public class ColumnPanel extends JFrame
 	private JButton btnSave;
 	private JButton btnCancel;
 
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+
 	public ColumnPanel(ViewTableModel viewTm, ServiceItem item) throws Exception
 	{
 		this.viewTm = viewTm;
 		this.item = item;
-		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 

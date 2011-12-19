@@ -55,7 +55,6 @@ public class TreePanel extends JPanel
 {
 	private Http http;
 	private Services services;
-	private DefaultMutableTreeNode root;
 	private JTree tree;
 	private DefaultTreeModel model;
 	private JButton btnRefresh;
@@ -137,7 +136,7 @@ public class TreePanel extends JPanel
 
 		for(int i = 0; i < childs.getLength(); i++)
 		{
-			if(childs.item(i).getNodeType() != node.ELEMENT_NODE)
+			if(childs.item(i).getNodeType() != Node.ELEMENT_NODE)
 			{
 				continue;
 			}
@@ -160,7 +159,7 @@ public class TreePanel extends JPanel
 			// parse children
 			for(int i = 0; i < childs.getLength(); i++)
 			{
-				if(childs.item(i).getNodeType() != node.ELEMENT_NODE)
+				if(childs.item(i).getNodeType() != Node.ELEMENT_NODE)
 				{
 					continue;
 				}

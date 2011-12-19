@@ -28,12 +28,24 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
+import java.util.HashMap;
 
+import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.border.EmptyBorder;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
 import com.k42b3.neodym.Services;
 
@@ -58,6 +70,8 @@ public class MenuPanel extends JMenuBar
 		this.add(this.buildMenu("http://ns.amun-project.org/2011/amun/user"));
 		this.add(this.buildMenu("http://ns.amun-project.org/2011/amun/service"));
 		this.add(this.buildHelpMenu());
+		this.add(Box.createHorizontalGlue());
+		this.add(this.buildInfo());
 	}
 
 	private JMenu buildMenu(String baseUrl)
@@ -177,6 +191,14 @@ public class MenuPanel extends JMenuBar
 		menu.add(aboutItem);
 
 		return menu;
+	}
+
+	private JLabel buildInfo()
+	{
+		JLabel lblInfo = new JLabel(zubat.getAccount().getName() + " (" + zubat.getAccount().getGroup() + ")");
+		lblInfo.setBorder(new EmptyBorder(4, 4, 4, 8));
+
+		return lblInfo;
 	}
 
 	private int charCount(char c, String content)

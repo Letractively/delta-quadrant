@@ -41,14 +41,13 @@ import javax.swing.table.AbstractTableModel;
 public class ColumnTableModel extends AbstractTableModel
 {
 	protected ViewTableModel tm;
-	protected Logger logger;
-
 	protected Object[][] rows;
 
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+	
 	public ColumnTableModel(ViewTableModel tm) throws Exception
 	{
 		this.tm = tm;
-		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		rows = new Object[tm.getSupportedFields().size()][2];
 
