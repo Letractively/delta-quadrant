@@ -50,7 +50,8 @@ import org.w3c.dom.ls.LSSerializer;
  */
 public class Configuration 
 {
-	private static File config;
+	private static Configuration instance;
+	private static File file;
 
 	private String baseUrl;
 	private String consumerKey;
@@ -58,6 +59,10 @@ public class Configuration
 	private String token;
 	private String tokenSecret;
 	private HashMap<String, ArrayList<String>> services;
+
+	private Configuration()
+	{
+	}
 
 	public String getBaseUrl() 
 	{
@@ -119,13 +124,13 @@ public class Configuration
 		this.services = services;
 	}
 
-	public static Configuration parseFile(File configFile) throws Exception
+	public static Configuration initInstance(File configFile) throws Exception
 	{
-		Configuration config = new Configuration();
+		instance = new Configuration();
+		file = configFile;
 
 		// load dom
 		Document doc = Configuration.loadDocument();
-
 
 		// parse config elements
 		String baseUrl = "";
@@ -177,9 +182,33 @@ public class Configuration
 			tokenSecret = tokenSecretElement.getTextContent();
 		}
 
-		
-		HashMap<String, ArrayList<String>> services = new HashMap<String, ArrayList<String>>();
+		// set values
+		instance.setBaseUrl(baseUrl);
+		instance.setConsumerKey(consumerKey);
+		instance.setConsumerSecret(consumerSecret);
+		instance.setToken(token);
+		instance.setTokenSecret(tokenSecret);
+		instance.setServices(getServices(doc));
 
+		return instance;
+	}
+
+	public static Configuration getInstance()
+	{
+		return instance;
+	}
+
+	public static void reload() throws Exception
+	{
+		if(instance != null)
+		{
+			instance.setServices(getServices(loadDocument()));
+		}
+	}
+
+	public static HashMap<String, ArrayList<String>> getServices(Document doc)
+	{
+		HashMap<String, ArrayList<String>> services = new HashMap<String, ArrayList<String>>();
 		NodeList serviceList = doc.getElementsByTagName("service");
 
 		for(int i = 0; i < serviceList.getLength(); i++)
@@ -199,38 +228,14 @@ public class Configuration
 			services.put(type, items);
 		}
 
-		config.setBaseUrl(baseUrl);
-		config.setConsumerKey(consumerKey);
-		config.setConsumerSecret(consumerSecret);
-		config.setToken(token);
-		config.setTokenSecret(tokenSecret);
-		config.setServices(services);
-
-		return config;
-	}
-
-	public static File getFile()
-	{
-		return Configuration.config;
-	}
-
-	public static void setFile(File config) throws Exception
-	{
-		if(config.isFile() && config.canRead())
-		{
-			Configuration.config = config;
-		}
-		else
-		{
-			throw new Exception("Unable to read config file " + config.getAbsolutePath());
-		}
+		return services;
 	}
 
 	public static Document loadDocument() throws Exception
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		Document doc = db.parse(Configuration.getFile());
+		Document doc = db.parse(file);
 
 		return doc;
 	}
@@ -243,7 +248,7 @@ public class Configuration
 		LSSerializer writer = impl.createLSSerializer();
 		LSOutput output = impl.createLSOutput();
 
-		output.setByteStream(new FileOutputStream(Configuration.getFile()));
+		output.setByteStream(new FileOutputStream(file));
 
 		writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
 		writer.write(doc, output);

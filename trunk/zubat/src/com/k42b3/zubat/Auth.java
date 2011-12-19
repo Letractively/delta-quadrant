@@ -58,7 +58,6 @@ import com.k42b3.neodym.oauth.OauthProvider;
  */
 public class Auth extends JFrame
 {
-	private Configuration config;
 	private Services availableServices;
 	private Oauth oauth;
 	private Http http;
@@ -86,15 +85,13 @@ public class Auth extends JFrame
 		try
 		{
 			// status
-			Configuration config = Configuration.parseFile(Configuration.getFile());
-
 			JLabel status;
 
-			if(config.getConsumerKey().trim().isEmpty())
+			if(Configuration.getInstance().getConsumerKey().trim().isEmpty())
 			{
 				status = new JLabel("Please provide a consumer key in the configuration.");
 			}
-			else if(config.getConsumerSecret().trim().isEmpty())
+			else if(Configuration.getInstance().getConsumerSecret().trim().isEmpty())
 			{
 				status = new JLabel("Please provide a consumer secret in the configuration.");
 			}
@@ -126,8 +123,8 @@ public class Auth extends JFrame
 
 
 			// oauth config
-			availableServices = new Services(config.getBaseUrl(), http);
-			availableServices.loadData();
+			availableServices = new Services(http, Configuration.getInstance().getBaseUrl());
+			availableServices.discover();
 
 			ServiceItem request = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request");
 			ServiceItem authorization = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize");
@@ -148,7 +145,7 @@ public class Auth extends JFrame
 				throw new Exception("Could not find access service");
 			}
 
-			OauthProvider provider = new OauthProvider(request.getUri(), authorization.getUri(), access.getUri(), config.getConsumerKey(), config.getConsumerSecret());
+			OauthProvider provider = new OauthProvider(request.getUri(), authorization.getUri(), access.getUri(), Configuration.getInstance().getConsumerKey(), Configuration.getInstance().getConsumerSecret());
 			oauth = new Oauth(http, provider);
 		}
 		catch(Exception e)

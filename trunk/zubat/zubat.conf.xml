@@ -137,6 +137,8 @@
     <service type="http://ns.amun-project.org/2011/amun/service/news">
         <item>title</item>
         <item>date</item>
+        <item>authorHostId</item>
+        <item>authorCountryId</item>
         <item>authorName</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/service/page">
@@ -144,5 +146,11 @@
         <item>userId</item>
         <item>content</item>
         <item>date</item>
+    </service>
+    <service type="http://ns.amun-project.org/2011/amun/service/comment">
+        <item>id</item>
+        <item>globalId</item>
+        <item>text</item>
+        <item>authorName</item>
     </service>
 </zubat>

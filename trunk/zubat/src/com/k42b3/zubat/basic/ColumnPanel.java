@@ -200,7 +200,6 @@ public class ColumnPanel extends JFrame
 			// load dom
 			Document doc = Configuration.loadDocument();
 
-
 			// find service node
 			NodeList serviceList = doc.getElementsByTagName("service");
 			Element serviceElement = null;
@@ -217,7 +216,6 @@ public class ColumnPanel extends JFrame
 					break;
 				}
 			}
-
 
 			// append new items
 			if(serviceElement != null)
@@ -252,6 +250,8 @@ public class ColumnPanel extends JFrame
 
 			// save dom
 			Configuration.saveDocument(doc);
+
+			Configuration.reload();
 		}
 		catch(Exception e)
 		{
