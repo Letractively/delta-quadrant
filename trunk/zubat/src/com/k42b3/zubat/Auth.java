@@ -61,26 +61,19 @@ public class Auth extends JFrame
 	private Services availableServices;
 	private Oauth oauth;
 	private Http http;
-	private Logger logger;
 
 	private TrafficTableModel trafficTm;
 
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+	
 	public Auth()
 	{
-		this.logger = Logger.getLogger("com.k42b3.zubat");
-
 		this.setTitle("zubat (version: " + Zubat.version + ")");
-
 		this.setLocation(100, 100);
-
 		this.setSize(500, 200);
-
 		this.setMinimumSize(this.getSize());
-
 		this.setResizable(false);
-
 		this.setLayout(new BorderLayout());
-
 
 		try
 		{

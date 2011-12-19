@@ -49,7 +49,6 @@ public class ViewTableModel extends AbstractTableModel
 	protected String baseUrl;
 	protected String url;
 	protected Http http;
-	protected Logger logger;
 
 	protected ArrayList<String> supportedFields = new ArrayList<String>();
 	protected ArrayList<String> fields = new ArrayList<String>();
@@ -59,12 +58,13 @@ public class ViewTableModel extends AbstractTableModel
 	protected int startIndex;
 	protected int itemsPerPage;
 
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+	
 	public ViewTableModel(String url, Http http) throws Exception
 	{
 		this.baseUrl = url;
 		this.url = url;
 		this.http = http;
-		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.requestSupportedFields(url);
 	}
