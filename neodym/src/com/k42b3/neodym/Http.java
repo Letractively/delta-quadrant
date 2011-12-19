@@ -205,6 +205,21 @@ public class Http
 		return this.request(method, url, null, null, true);
 	}
 
+	public String requestNotSigned(int method, String url, Map<String, String> header, String body) throws Exception
+	{
+		return this.request(method, url, header, body, false);
+	}
+
+	public String requestNotSigned(int method, String url, Map<String, String> header) throws Exception
+	{
+		return this.requestNotSigned(method, url, header, null);
+	}
+
+	public String requestNotSigned(int method, String url) throws Exception
+	{
+		return this.requestNotSigned(method, url, null);
+	}
+
 	public Document requestXml(int method, String url, Map<String, String> header, String body, boolean signed) throws Exception
 	{
 		// request
@@ -254,17 +269,27 @@ public class Http
 
 	public Document requestXml(int method, String url, Map<String, String> header) throws Exception
 	{
-		return this.requestXml(method, url, header, null, true);
+		return this.requestXml(method, url, header, null);
 	}
 
 	public Document requestXml(int method, String url) throws Exception
 	{
-		return this.requestXml(method, url, null, null, true);
+		return this.requestXml(method, url, null);
+	}
+
+	public Document requestNotSignedXml(int method, String url, Map<String, String> header, String body) throws Exception
+	{
+		return this.requestXml(method, url, header, body, false);
 	}
 
 	public Document requestNotSignedXml(int method, String url, Map<String, String> header) throws Exception
 	{
-		return this.requestXml(method, url, header, null, false);
+		return this.requestNotSignedXml(method, url, header, null);
+	}
+
+	public Document requestNotSignedXml(int method, String url) throws Exception
+	{
+		return this.requestNotSignedXml(method, url, null);
 	}
 
 	public HttpRequest getLastRequest()
