@@ -43,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -70,7 +71,6 @@ public class ViewPanel extends JPanel
 
 	private JPanel search;
 	private JPanel buttons;
-	private JLabel lblPagination;
 
 	private JTextField txtSearch;
 	private JComboBox cboOperator;
@@ -110,14 +110,13 @@ public class ViewPanel extends JPanel
 
 
 		// pagination
-		buttons = new ButtonsPanel();
+		buttons = new ButtonsPanel(tm);
+		buttons.validate();
 
 		tm.addTableModelListener(new TableModelListener() {
 
 			public void tableChanged(TableModelEvent e) 
 			{
-				lblPagination.setText(tm.getStartIndex() + " / " + tm.getItemsPerPage() + " of " + tm.getTotalResults());
-
 				buttons.validate();
 			}
 
@@ -255,16 +254,21 @@ public class ViewPanel extends JPanel
 
 	class ButtonsPanel extends JPanel
 	{
-		public ButtonsPanel()
-		{
-			lblPagination = new JLabel(tm.getStartIndex() + " / " + tm.getItemsPerPage() + " of " + tm.getTotalResults());
+		private ViewTableModel tm;
+		private JButton btnPrev;
+		private JButton btnNext;
+		private JLabel lblPagination;
 
-			JButton btnPrev = new JButton("Prev");
-			JButton btnNext = new JButton("Next");
+		public ButtonsPanel(ViewTableModel model)
+		{
+			this.tm = model;
+			btnPrev = new JButton("Prev");
+			btnNext = new JButton("Next");
+			lblPagination = new JLabel();
 
 			btnPrev.addActionListener(new ActionListener() {
 
-				public void actionPerformed(ActionEvent arg0) 
+				public void actionPerformed(ActionEvent ex) 
 				{
 					try
 					{
@@ -280,7 +284,7 @@ public class ViewPanel extends JPanel
 
 			btnNext.addActionListener(new ActionListener() {
 
-				public void actionPerformed(ActionEvent arg0) 
+				public void actionPerformed(ActionEvent ex) 
 				{
 					try
 					{
@@ -299,6 +303,31 @@ public class ViewPanel extends JPanel
 			this.add(btnPrev);
 			this.add(lblPagination);
 			this.add(btnNext);
+		}
+
+		public void validate()
+		{
+			lblPagination.setText(tm.getStartIndex() + " / " + tm.getItemsPerPage() + " of " + tm.getTotalResults());
+
+			if(tm.getStartIndex() == 0)
+			{
+				btnPrev.setEnabled(false);
+			}
+			else
+			{
+				btnPrev.setEnabled(true);
+			}
+
+			if(tm.getTotalResults() < tm.getItemsPerPage() || tm.getStartIndex() * tm.getItemsPerPage() >= tm.getTotalResults())
+			{
+				btnNext.setEnabled(false);
+			}
+			else
+			{
+				btnNext.setEnabled(true);
+			}
+
+			super.validate();
 		}
 	}
 }
