@@ -47,20 +47,19 @@ public class Entry
 			UIManager.setLookAndFeel(lookAndFeel);
 
 
-			// set config file
+			// init config file
 			File configFile = getConfigFile(args);
 
-			if(configFile != null)
+			if(configFile == null)
 			{
-				Configuration.setFile(configFile);
-			}
-			else
-			{
-				Configuration.setFile(new File("zubat.conf.xml"));
+				configFile = new File("zubat.conf.xml");
 			}
 
+			Configuration.initInstance(configFile);
 
-			if(args.length > 0 && args[0].equals("--auth"))
+
+			// start
+			if(isAuth(args))
 			{
 				new Auth();
 			}
@@ -84,6 +83,8 @@ public class Entry
 			if(args[i].equals("--config"))
 			{
 				foundConfig = true;
+
+				continue;
 			}
 
 			if(foundConfig)
@@ -93,5 +94,18 @@ public class Entry
 		}
 
 		return null;
+	}
+
+	public static boolean isAuth(String[] args)
+	{
+		for(int i = 0; i < args.length; i++)
+		{
+			if(args[i].equals("--auth"))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

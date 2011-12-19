@@ -53,7 +53,6 @@ public class Zubat extends JFrame
 {
 	public static String version = "0.0.6 beta";
 
-	private Configuration config;
 	private Oauth oauth;
 	private Http http;
 	private Services availableServices;
@@ -95,8 +94,6 @@ public class Zubat extends JFrame
 				}
 
 			});
-
-			config = Configuration.parseFile(Configuration.getFile());
 
 			this.fetchServices();
 
@@ -142,11 +139,6 @@ public class Zubat extends JFrame
 		}
 	}
 
-	public Configuration getConfig()
-	{
-		return config;
-	}
-
 	public Http getHttp()
 	{
 		return http;
@@ -163,12 +155,12 @@ public class Zubat extends JFrame
 		String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();
 		String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
 
-		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, config.getConsumerKey(), config.getConsumerSecret());
+		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, Configuration.getInstance().getConsumerKey(), Configuration.getInstance().getConsumerSecret());
 		oauth = new Oauth(http, provider);
 
-		if(!config.getToken().isEmpty() && !config.getTokenSecret().isEmpty())
+		if(!Configuration.getInstance().getToken().isEmpty() && !Configuration.getInstance().getTokenSecret().isEmpty())
 		{
-			oauth.auth(config.getToken(), config.getTokenSecret());
+			oauth.auth(Configuration.getInstance().getToken(), Configuration.getInstance().getTokenSecret());
 		}
 		else
 		{
@@ -180,9 +172,8 @@ public class Zubat extends JFrame
 
 	private void fetchServices() throws Exception
 	{
-		availableServices = new Services(config.getBaseUrl(), http);
-		
-		availableServices.loadData();
+		availableServices = new Services(http, Configuration.getInstance().getBaseUrl());
+		availableServices.discover();
 	}
 
 	public void onReady() throws Exception
@@ -211,9 +202,9 @@ public class Zubat extends JFrame
 
 			for(int i = 0; i < types.size(); i++)
 			{
-				if(getConfig().getServices().containsKey(types.get(i)))
+				if(Configuration.getInstance().getServices().containsKey(types.get(i)))
 				{
-					ArrayList<String> selectedFields = getConfig().getServices().get(types.get(i));
+					ArrayList<String> selectedFields = Configuration.getInstance().getServices().get(types.get(i));
 
 					if(selectedFields.size() > 0)
 					{
