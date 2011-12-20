@@ -45,6 +45,8 @@ import com.k42b3.neodym.Http;
  */
 public class CheckboxListTableModel extends AbstractTableModel
 {
+	private static final long serialVersionUID = 1L;
+	
 	protected String url;
 	protected Http http;
 	protected Logger logger;
@@ -92,7 +94,7 @@ public class CheckboxListTableModel extends AbstractTableModel
 		return rows.length;
 	}
 
-	public Class getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(int columnIndex)
 	{
 		switch(columnIndex)
 		{

@@ -45,6 +45,8 @@ import com.k42b3.neodym.TrafficItem;
  */
 public class TrafficDetail extends JFrame
 {
+	private static final long serialVersionUID = 1L;
+
 	private JTabbedPane tabPane;
 	private JTextArea txtRequest;
 	private JTextArea txtResponse;

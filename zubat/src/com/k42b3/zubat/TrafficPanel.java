@@ -44,6 +44,8 @@ import com.k42b3.neodym.TrafficItem;
  */
 public class TrafficPanel extends JPanel
 {
+	private static final long serialVersionUID = 1L;
+
 	private JTable trafficTable;
 	private TrafficDetail trafficDetailFrame;
 	private TrafficTableModel trafficTm;

@@ -22,24 +22,26 @@
  * along with zubat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat.basic.form;
+package com.k42b3.zubat.amun.user.activity;
 
-import javax.swing.JTextArea;
+import java.awt.Component;
 
 /**
- * Textarea
+ * Container
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Textarea extends JTextArea implements FormElementInterface
+public class Container extends com.k42b3.zubat.basic.Container
 {
 	private static final long serialVersionUID = 1L;
 
-	public String getValue() 
+	protected Component getViewTab() throws Exception
 	{
-		return this.getText();
+		ViewPanel view = new ViewPanel(http, item, fields);
+
+		return view;
 	}
 }

@@ -41,6 +41,8 @@ import org.w3c.dom.NodeList;
  */
 public class Account extends HashMap<String, String>
 {
+	private static final long serialVersionUID = 1L;
+
 	private static String[] fields = {"name", "profileUrl", "thumbnailUrl", "loggedIn", "gender", "group", "status", "timezone", "updated", "date"};
 
 	public String getName()

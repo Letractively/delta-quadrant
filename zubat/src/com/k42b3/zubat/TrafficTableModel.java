@@ -43,6 +43,8 @@ import com.k42b3.neodym.TrafficItem;
  */
 public class TrafficTableModel extends AbstractTableModel
 {
+	private static final long serialVersionUID = 1L;
+
 	private ArrayList<String> fields = new ArrayList<String>();
 	private ArrayList<TrafficItem> rows = new ArrayList<TrafficItem>();
 

@@ -107,20 +107,14 @@
         <item>status</item>
         <item>name</item>
         <item>gender</item>
-        <item>timezone</item>
-        <item>lastSeen</item>
-        <item>updated</item>
-        <item>date</item>
         <item>profileUrl</item>
-        <item>thumbnailUrl</item>
+        <item>updated</item>
         <item>groupTitle</item>
         <item>countryTitle</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/user/activity">
         <item>id</item>
         <item>title</item>
-        <item>url</item>
-        <item>body</item>
         <item>date</item>
         <item>authorName</item>
     </service>
@@ -132,7 +126,11 @@
         <item>friendName</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/user/group"/>
-    <service type="http://ns.amun-project.org/2011/amun/user/group/right"/>
+    <service type="http://ns.amun-project.org/2011/amun/user/group/right">
+        <item>id</item>
+        <item>groupTitle</item>
+        <item>rightDescription</item>
+    </service>
     <service type="http://ns.amun-project.org/2011/amun/user/right"/>
     <service type="http://ns.amun-project.org/2011/amun/service/news">
         <item>title</item>

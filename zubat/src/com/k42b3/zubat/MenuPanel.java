@@ -28,11 +28,8 @@ import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
-import java.util.HashMap;
 
 import javax.swing.Box;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -40,12 +37,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
 import com.k42b3.neodym.Services;
 
@@ -59,6 +50,8 @@ import com.k42b3.neodym.Services;
  */
 public class MenuPanel extends JMenuBar
 {
+	private static final long serialVersionUID = 1L;
+
 	private Zubat zubat;
 
 	public MenuPanel(Zubat zubatInstance)
