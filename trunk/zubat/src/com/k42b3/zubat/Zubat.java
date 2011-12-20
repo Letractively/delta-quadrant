@@ -26,18 +26,13 @@ package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
@@ -57,6 +52,8 @@ import com.k42b3.neodym.oauth.OauthProvider;
  */
 public class Zubat extends JFrame
 {
+	private static final long serialVersionUID = 1L;
+
 	public static String version = "0.0.7 beta";
 
 	private Oauth oauth;
@@ -108,7 +105,7 @@ public class Zubat extends JFrame
 			this.add(menuPanel, BorderLayout.NORTH);
 
 
-			treePanel = new TreePanel(http, availableServices);
+			treePanel = new TreePanel(this);
 
 			treePanel.setPreferredSize(new Dimension(150, 100));
 
@@ -214,7 +211,7 @@ public class Zubat extends JFrame
 		}
 	}
 
-	public void loadContainer(ServiceItem item)
+	public Component loadContainer(ServiceItem item)
 	{
 		try
 		{
@@ -242,7 +239,7 @@ public class Zubat extends JFrame
 
 			try
 			{
-				Class container = Class.forName(className);
+				Class<?> container = Class.forName(className);
 
 				instance = (Container) container.newInstance();
 			}
@@ -253,17 +250,26 @@ public class Zubat extends JFrame
 
 			logger.info("Load class " + className);
 
+
+			// call onload
 			instance.onLoad(http, item, fields);
 
+
+			// add component
 			containerPanel.add(instance.getComponent(), className);
 
 			CardLayout cl = (CardLayout) containerPanel.getLayout();
 
 			cl.show(containerPanel, className);
+
+
+			return instance.getComponent();
 		}
 		catch(Exception e)
 		{
 			Zubat.handleException(e);
+
+			return null;
 		}
 	}
 	

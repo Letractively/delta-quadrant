@@ -50,18 +50,38 @@ import com.k42b3.zubat.Zubat;
  */
 public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 {
+	private static final long serialVersionUID = 1L;
+
 	public final static int RECEIVE = 0x0;
 	public final static int CREATE = 0x1;
 	public final static int UPDATE = 0x2;
 	public final static int DELETE = 0x3;
 
-	private Http http;
-	private ServiceItem item;
-	private ArrayList<String> fields;
+	protected Http http;
+	protected ServiceItem item;
+	protected ArrayList<String> fields;
 
-	private int selectedId = 0;
+	protected int selectedId = 0;
 
 	public Container()
+	{
+		this.addChangeListener(this.getChangeListener());
+		this.addContainerListener(this.getContainerListener());
+
+		this.buildComponent();
+	}
+
+	protected ChangeListener getChangeListener()
+	{
+		return new ContainerChangeListener();
+	}
+
+	protected ContainerListener getContainerListener()
+	{
+		return new ContainerContainerListener();
+	}
+
+	protected void buildComponent()
 	{
 		this.addTab("View", null);
 		this.addTab("Create", null);
@@ -70,9 +90,6 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 
 		this.setEnabledAt(UPDATE, false);
 		this.setEnabledAt(DELETE, false);
-
-		this.addChangeListener(new ContainerChangeListener());
-		this.addContainerListener(new ContainerContainerListener());
 	}
 
 	public void onLoad(Http http, ServiceItem item, ArrayList<String> fields)
@@ -89,106 +106,112 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 		return this;
 	}
 
+	public void setSelectedId(int selectedId)
+	{
+		if(selectedId > 0)
+		{
+			setEnabledAt(2, true);
+			setEnabledAt(3, true);
+
+			this.selectedId = selectedId;
+		}
+		else
+		{
+			setEnabledAt(2, false);
+			setEnabledAt(3, false);
+
+			this.selectedId = 0;
+		}
+	}
+
+	protected Component getDeleteTab() throws Exception
+	{
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=delete&id=" + selectedId, http);
+
+		return form;
+	}
+
+	protected Component getUpdateTab() throws Exception
+	{
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=update&id=" + selectedId, http);
+		
+		return form;
+	}
+
+	protected Component getCreateTab() throws Exception
+	{
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=create", http);
+
+		return form;
+	}
+
+	protected Component getViewTab() throws Exception
+	{
+		ViewPanel view = new ViewPanel(http, item, fields);
+
+		return view;
+	}
+
 	public void renderTabs()
 	{
-		switch(getSelectedIndex())
+		try
 		{
-			case DELETE:
+			switch(getSelectedIndex())
+			{
+				case DELETE:
 
-				try
-				{
 					if(selectedId <= 0)
 					{
 						throw new Exception("No row selected");
 					}
 
-					FormPanel form = new FormPanel(item.getUri() + "/form?method=delete&id=" + selectedId, http);
+					setComponentAt(DELETE, this.getDeleteTab());
 
-					setComponentAt(DELETE, form);
+					break;
 
-					validate();
-				}
-				catch(Exception ex)
-				{
-					Zubat.handleException(ex);
-				}
+				case UPDATE:
 
-				break;
-
-			case UPDATE:
-
-				try
-				{
 					if(selectedId <= 0)
 					{
 						throw new Exception("No row selected");
 					}
 
-					FormPanel form = new FormPanel(item.getUri() + "/form?method=update&id=" + selectedId, http);
+					setComponentAt(UPDATE, this.getUpdateTab());
 
-					setComponentAt(UPDATE, form);
+					break;
 
-					validate();
-				}
-				catch(Exception ex)
-				{
-					Zubat.handleException(ex);
-				}
+				case CREATE:
 
-				break;
+					setComponentAt(CREATE, this.getCreateTab());
 
-			case CREATE:
+					break;
 
-				try
-				{
-					FormPanel form = new FormPanel(item.getUri() + "/form?method=create", http);
+				default:
+				case RECEIVE:
 
-					setComponentAt(CREATE, form);
+					setSelectedId(0);
 
-					validate();
-				}
-				catch(Exception ex)
-				{
-					Zubat.handleException(ex);
-				}
+					setComponentAt(RECEIVE, this.getViewTab());
 
-				break;
-
-			default:
-			case RECEIVE:
-
-				try
-				{
-					selectedId = 0;
-
-					setEnabledAt(2, false);
-					setEnabledAt(3, false);
-
-					setSelectedIndex(0);
-
-
-					ViewPanel view = new ViewPanel(http, item, fields);
-
-					setComponentAt(RECEIVE, view);
-
-					setSelectedIndex(0);
-
-					validate();
-				}
-				catch(Exception ex)
-				{
-					Zubat.handleException(ex);
-				}
-
-				break;
+					break;
+			}
 		}
+		catch(Exception ex)
+		{
+			Zubat.handleException(ex);
+		}
+
+		validate();
 	}
 
 	class ContainerChangeListener implements ChangeListener
 	{
 		public void stateChanged(ChangeEvent e)
 		{
-			renderTabs();
+			if(isShowing())
+			{
+				renderTabs();
+			}
 		}
 	}
 	
@@ -225,13 +248,7 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 							{
 								int id = Integer.parseInt(rawId.toString());
 
-								if(id > 0)
-								{
-									selectedId = id;
-
-									setEnabledAt(2, true);
-									setEnabledAt(3, true);
-								}
+								setSelectedId(id);
 							}
 						}
 

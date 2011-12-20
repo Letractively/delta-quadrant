@@ -25,6 +25,7 @@
 package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,15 +34,18 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
-import com.k42b3.neodym.Services;
+import com.k42b3.neodym.ServiceItem;
 
 /**
  * TreePanel
@@ -53,21 +57,26 @@ import com.k42b3.neodym.Services;
  */
 public class TreePanel extends JPanel
 {
-	private Http http;
-	private Services services;
+	private static final long serialVersionUID = 1L;
+
+	private Zubat instance;
+
 	private JTree tree;
 	private DefaultTreeModel model;
 	private JButton btnRefresh;
 
-	public TreePanel(Http http, Services services) throws Exception
+	private ServiceItem page;
+	
+	public TreePanel(Zubat instance) throws Exception
 	{
-		this.http = http;
-		this.services = services;
+		this.instance = instance;
 
 		this.setLayout(new BorderLayout());
 
 		model = new DefaultTreeModel(this.loadTree());
 		tree = new JTree(model);
+		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		tree.addTreeSelectionListener(new TreeListener());
 
 		this.add(new JScrollPane(tree), BorderLayout.CENTER);
 
@@ -102,11 +111,18 @@ public class TreePanel extends JPanel
 
 	private DefaultMutableTreeNode loadTree() throws Exception
 	{
-		String url = services.getItem("http://ns.amun-project.org/2011/amun/content/page").getUri();
+		page = instance.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
+
+		if(page == null)
+		{
+			throw new Exception("Could not find page service");
+		}
+
+		String url = page.getUri();
 
 		if(url != null)
 		{
-			Document doc = http.requestXml(Http.GET, url + "/buildTree");
+			Document doc = instance.getHttp().requestXml(Http.GET, url + "/buildTree");
 
 			Node entry = doc.getElementsByTagName("entry").item(0);
 
@@ -141,12 +157,12 @@ public class TreePanel extends JPanel
 				continue;
 			}
 
-			if(childs.item(i).getNodeName() == "id")
+			if(childs.item(i).getNodeName().equals("id"))
 			{
 				id = Integer.parseInt(childs.item(i).getTextContent());
 			}
 
-			if(childs.item(i).getNodeName() == "text")
+			if(childs.item(i).getNodeName().equals("text"))
 			{
 				text = childs.item(i).getTextContent();
 			}
@@ -164,7 +180,7 @@ public class TreePanel extends JPanel
 					continue;
 				}
 
-				if(childs.item(i).getNodeName() == "children")
+				if(childs.item(i).getNodeName().equals("children"))
 				{
 					DefaultMutableTreeNode child = this.parseTree(childs.item(i));
 					
@@ -182,7 +198,7 @@ public class TreePanel extends JPanel
 			return null;
 		}
 	}
-	
+
 	class PageItem
 	{
 		private int id;
@@ -213,10 +229,39 @@ public class TreePanel extends JPanel
 		{
 			this.text = text;
 		}
-		
-		public String toString()
+
+		public String toString() 
 		{
 			return text;
+		}
+	}
+
+	class TreeListener implements TreeSelectionListener
+	{
+		public void valueChanged(TreeSelectionEvent e) 
+		{
+			if(e.getNewLeadSelectionPath() != null)
+			{
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
+
+				if(node != null)
+				{
+					PageItem item = (PageItem) node.getUserObject();
+					Component com = instance.loadContainer(page);
+
+					if(com instanceof com.k42b3.zubat.basic.Container)
+					{
+						com.k42b3.zubat.basic.Container con = (com.k42b3.zubat.basic.Container) com;
+
+						con.setSelectedId(item.getId());
+						con.setSelectedIndex(2); // update
+					}
+				}
+			}
+			else
+			{
+				instance.loadContainer(page);
+			}
 		}
 	}
 }

@@ -79,40 +79,43 @@ import com.k42b3.zubat.basic.form.Textarea;
  */
 public class FormPanel extends JPanel
 {
-	private String url;
-	private Http http;
-	private Logger logger;
+	private static final long serialVersionUID = 1L;
 
-	private String requestMethod;
-	private String requestUrl;
-	private LinkedHashMap<String, FormElementInterface> requestFields = new LinkedHashMap<String, FormElementInterface>();
+	protected String url;
+	protected Http http;
 
-	private Container body;
-	private JButton btnSend;
+	protected String requestMethod;
+	protected String requestUrl;
+	protected LinkedHashMap<String, FormElementInterface> requestFields = new LinkedHashMap<String, FormElementInterface>();
 
-	private SearchPanel searchPanel;
-	private HashMap<String, ReferenceItem> referenceFields = new HashMap<String, ReferenceItem>();
+	protected Container body;
+	protected JButton btnSend;
+
+	protected SearchPanel searchPanel;
+	protected HashMap<String, ReferenceItem> referenceFields = new HashMap<String, ReferenceItem>();
+
+	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 
 	public FormPanel(String url, Http http) throws Exception
 	{
 		this.url = url;
 		this.http = http;
-		this.logger = Logger.getLogger("com.k42b3.zubat");
-
 
 		this.setLayout(new BorderLayout());
 
+		this.buildComponent();
+	}
 
+	protected void buildComponent() throws Exception
+	{
 		// form panel
 		body = new JPanel();
 		body.setLayout(new GridLayout(0, 1));
-
 
 		// load data
 		this.request(url);
 
 		this.add(new JScrollPane(body), BorderLayout.CENTER);
-
 
 		// buttons
 		JPanel buttons = new JPanel();
@@ -139,10 +142,10 @@ public class FormPanel extends JPanel
 
 		buttons.add(this.btnSend);
 
-		this.add(buttons, BorderLayout.SOUTH);
+		this.add(buttons, BorderLayout.SOUTH);		
 	}
 
-	private void request(String url) throws Exception
+	protected void request(String url) throws Exception
 	{
 		// request
 		Document doc = http.requestXml(Http.GET, url);
@@ -182,7 +185,7 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	private void sendRequest() throws Exception
+	protected void sendRequest() throws Exception
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -225,7 +228,7 @@ public class FormPanel extends JPanel
 		http.requestXml(Http.POST, requestUrl, header, requestContent);
 	}
 
-	private Container parse(Node node) throws Exception
+	protected Container parse(Node node) throws Exception
 	{
 		if(node.getNodeType() == Node.ELEMENT_NODE)
 		{
@@ -275,7 +278,7 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	private Container parseForm(Node node) throws Exception
+	protected Container parseForm(Node node) throws Exception
 	{
 		Node nodeMethod = this.getChildNode(node, "method");
 		Node nodeAction = this.getChildNode(node, "action");
@@ -312,7 +315,7 @@ public class FormPanel extends JPanel
 		return panel;
 	}
 
-	private Container parseInput(Node node)
+	protected Container parseInput(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -355,7 +358,7 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	private Container parseSelect(Node node)
+	protected Container parseSelect(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -375,7 +378,7 @@ public class FormPanel extends JPanel
 			
 			if(items != null)
 			{
-				DefaultComboBoxModel model = new DefaultComboBoxModel(items);
+				DefaultComboBoxModel<SelectItem> model = new DefaultComboBoxModel<SelectItem>(items);
 
 				Select input = new Select(model);
 				input.setPreferredSize(new Dimension(300, 22));
@@ -413,7 +416,7 @@ public class FormPanel extends JPanel
 		return null;
 	}
 
-	private SelectItem[] getSelectOptions(Node node)
+	protected SelectItem[] getSelectOptions(Node node)
 	{
 		ArrayList<Node> options = this.getChildNodes(node, "item");
 		SelectItem[] items = new SelectItem[options.size()];
@@ -432,7 +435,7 @@ public class FormPanel extends JPanel
 		return items;
 	}
 
-	private Container parseTextarea(Node node)
+	protected Container parseTextarea(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -461,7 +464,7 @@ public class FormPanel extends JPanel
 		return item;
 	}
 
-	private Container parseTabbedPane(Node node) throws Exception
+	protected Container parseTabbedPane(Node node) throws Exception
 	{
 		JTabbedPane item = new JTabbedPane();
 		Node nodeChildren = this.getChildNode(node, "children");
@@ -489,7 +492,7 @@ public class FormPanel extends JPanel
 		return item;
 	}
 
-	private Container parsePanel(Node node) throws Exception
+	protected Container parsePanel(Node node) throws Exception
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -520,7 +523,7 @@ public class FormPanel extends JPanel
 		return panel;
 	}
 
-	private Container parseReference(Node node)
+	protected Container parseReference(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
@@ -597,12 +600,12 @@ public class FormPanel extends JPanel
 		return item;
 	}
 
-	private Container parseCheckboxList(Node node)
+	protected Container parseCheckboxList(Node node)
 	{
 		Node nodeRef = this.getChildNode(node, "ref");
 		Node nodeLabel = this.getChildNode(node, "label");
-		Node nodeValue = this.getChildNode(node, "value");
-		Node nodeDisabled = this.getChildNode(node, "disabled");
+		//Node nodeValue = this.getChildNode(node, "value");
+		//Node nodeDisabled = this.getChildNode(node, "disabled");
 		Node nodeSrc = this.getChildNode(node, "src");
 
 		JPanel item = new JPanel();
@@ -622,7 +625,7 @@ public class FormPanel extends JPanel
 		return item;
 	}
 
-	private ArrayList<Node> getChildNodes(Node node, String nodeName)
+	protected ArrayList<Node> getChildNodes(Node node, String nodeName)
 	{
 		ArrayList<Node> nodes = new ArrayList<Node>();
 
@@ -645,8 +648,8 @@ public class FormPanel extends JPanel
 
 		return nodes;
 	}
-	
-	private Node getChildNode(Node node, String nodeName)
+
+	protected Node getChildNode(Node node, String nodeName)
 	{
 		NodeList childList = node.getChildNodes();
 

@@ -58,16 +58,18 @@ import com.k42b3.zubat.Zubat;
  */
 public class ColumnPanel extends JFrame
 {
-	private ViewTableModel viewTm;
-	private ServiceItem item;
+	private static final long serialVersionUID = 1L;
 
-	private JTable table;
-	private ColumnTableModel tm;
+	protected ViewTableModel viewTm;
+	protected ServiceItem item;
 
-	private JButton btnSave;
-	private JButton btnCancel;
+	protected JTable table;
+	protected ColumnTableModel tm;
 
-	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+	protected JButton btnSave;
+	protected JButton btnCancel;
+
+	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 
 	public ColumnPanel(ViewTableModel viewTm, ServiceItem item) throws Exception
 	{
@@ -75,25 +77,24 @@ public class ColumnPanel extends JFrame
 		this.item = item;
 
 		this.setTitle("zubat (version: " + Zubat.version + ")");
-
 		this.setLocation(100, 100);
-
 		this.setSize(430, 400);
-
 		this.setMinimumSize(this.getSize());
-
 		this.setLayout(new BorderLayout());
-
 
 		tm = new ColumnTableModel(viewTm);
 
+		this.buildComponent();
+	}
 
+	protected void buildComponent() throws Exception
+	{
 		this.add(this.buildTable(), BorderLayout.CENTER);
 
 		this.add(this.buildButtons(), BorderLayout.SOUTH);
 	}
 
-	private Component buildTable() throws Exception
+	protected Component buildTable() throws Exception
 	{
 		table = new JTable(tm);
 
@@ -136,7 +137,7 @@ public class ColumnPanel extends JFrame
 		return new JScrollPane(table);
 	}
 
-	private Component buildButtons()
+	protected Component buildButtons()
 	{
 		JPanel buttons = new JPanel();
 

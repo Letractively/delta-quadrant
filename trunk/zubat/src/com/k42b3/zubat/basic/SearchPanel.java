@@ -59,57 +59,59 @@ import com.k42b3.zubat.Zubat;
  */
 public class SearchPanel extends JFrame
 {
-	private Http http;
-	private ReferenceItem item;
-	private Logger logger;
+	private static final long serialVersionUID = 1L;
 
-	private JTextField txtSearch;
-	private JComboBox cboOperator;
-	private JComboBox cboField;
+	protected Http http;
+	protected ReferenceItem item;
 
-	private JTable table;
-	private ViewTableModel tm;
+	protected JTextField txtSearch;
+	protected JComboBox<String> cboOperator;
+	protected JComboBox<String> cboField;
 
-	private JButton btnSearch;
-	private JButton btnCancel;
+	protected JTable table;
+	protected ViewTableModel tm;
+
+	protected JButton btnSearch;
+	protected JButton btnCancel;
+
+	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 
 	public SearchPanel(Http http, ReferenceItem item) throws Exception
 	{
 		this.http = http;
 		this.item = item;
-		this.logger = Logger.getLogger("com.k42b3.zubat");
 
 		this.setTitle("zubat (version: " + Zubat.version + ")");
-
 		this.setLocation(100, 100);
-
 		this.setSize(430, 400);
-
 		this.setMinimumSize(this.getSize());
 
 		this.setLayout(new BorderLayout());
 
-
 		tm = new ViewTableModel(item.getSrc(), http);
 
+		this.buildComponent();
+	}
 
+	protected void buildComponent() throws Exception
+	{
 		this.add(this.buildSearch(), BorderLayout.NORTH);
 
 		this.add(this.buildTable(), BorderLayout.CENTER);
 
 		this.add(this.buildButtons(), BorderLayout.SOUTH);
 	}
-	
+
 	private Component buildSearch()
 	{
 		JPanel searchPanel = new JPanel();
 		searchPanel.setLayout(new FlowLayout());
 
-		cboField = new JComboBox(new DefaultComboBoxModel(tm.getSupportedFields().toArray()));
+		cboField = new JComboBox<String>(new DefaultComboBoxModel(tm.getSupportedFields().toArray()));
 		cboField.setPreferredSize(new Dimension(125, 22));
 
 		String[] operators = {"contains", "equals", "startsWith", "present"};
-		cboOperator = new JComboBox(new DefaultComboBoxModel(operators));
+		cboOperator = new JComboBox<String>(new DefaultComboBoxModel(operators));
 		cboOperator.setPreferredSize(new Dimension(75, 22));
 
 		txtSearch = new JTextField();

@@ -38,6 +38,8 @@ import javax.swing.JComboBox;
  */
 public class Select extends JComboBox implements FormElementInterface
 {
+	private static final long serialVersionUID = 1L;
+
 	public Select(ComboBoxModel model)
 	{
 		super(model);

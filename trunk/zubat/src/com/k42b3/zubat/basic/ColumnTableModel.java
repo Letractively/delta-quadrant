@@ -40,10 +40,12 @@ import javax.swing.table.AbstractTableModel;
  */
 public class ColumnTableModel extends AbstractTableModel
 {
+	private static final long serialVersionUID = 1L;
+
 	protected ViewTableModel tm;
 	protected Object[][] rows;
 
-	private Logger logger = Logger.getLogger("com.k42b3.zubat");
+	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 	
 	public ColumnTableModel(ViewTableModel tm) throws Exception
 	{
@@ -83,7 +85,7 @@ public class ColumnTableModel extends AbstractTableModel
 		return 2;
 	}
 
-	public Class getColumnClass(int columnIndex)
+	public Class<?> getColumnClass(int columnIndex)
 	{
 		switch(columnIndex)
 		{

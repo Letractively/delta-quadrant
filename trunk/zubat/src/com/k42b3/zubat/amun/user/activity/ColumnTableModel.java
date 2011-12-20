@@ -22,24 +22,25 @@
  * along with zubat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat.basic.form;
+package com.k42b3.zubat.amun.user.activity;
 
-import javax.swing.JTextArea;
+import com.k42b3.zubat.basic.ViewTableModel;
+
 
 /**
- * Textarea
+ * ColumnTableModel
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
  * @link       http://code.google.com/p/delta-quadrant
  * @version    $Revision$
  */
-public class Textarea extends JTextArea implements FormElementInterface
+public class ColumnTableModel extends com.k42b3.zubat.basic.ColumnTableModel
 {
 	private static final long serialVersionUID = 1L;
 
-	public String getValue() 
+	public ColumnTableModel(ViewTableModel tm) throws Exception 
 	{
-		return this.getText();
+		super(tm);
 	}
 }

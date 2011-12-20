@@ -61,19 +61,21 @@ import com.k42b3.zubat.Zubat;
  */
 public class ViewPanel extends JPanel
 {
-	private Http http;
-	private ServiceItem service;
-	private ArrayList<String> fields;
+	private static final long serialVersionUID = 1L;
+	
+	protected Http http;
+	protected ServiceItem service;
+	protected ArrayList<String> fields;
 
-	private ViewTableModel tm;
-	private JTable table;
+	protected ViewTableModel tm;
+	protected JTable table;
 
-	private JPanel search;
-	private JPanel buttons;
+	protected JPanel search;
+	protected JPanel buttons;
 
-	private JTextField txtSearch;
-	private JComboBox cboOperator;
-	private JComboBox cboField;
+	protected JTextField txtSearch;
+	protected JComboBox<String> cboOperator;
+	protected JComboBox<String> cboField;
 
 	public ViewPanel(Http http, ServiceItem service, ArrayList<String> fields) throws Exception
 	{
@@ -81,12 +83,16 @@ public class ViewPanel extends JPanel
 		this.service = service;
 		this.fields = fields;
 
-
 		this.setLayout(new BorderLayout());
 
+		tm = this.getTableModel();
 
-		// table
-		tm = new ViewTableModel(service.getUri(), http);
+		this.buildComponent();
+	}
+
+	protected ViewTableModel getTableModel() throws Exception
+	{
+		ViewTableModel tm = new ViewTableModel(service.getUri(), http);
 
 		if(fields == null || fields.size() == 0)
 		{
@@ -97,18 +103,39 @@ public class ViewPanel extends JPanel
 			tm.loadData(fields);
 		}
 
+		return tm;
+	}
+
+	protected void buildComponent()
+	{
+		this.add(this.buildTable(), BorderLayout.CENTER);
+
+		this.add(this.buildSearch(), BorderLayout.NORTH);
+
+		this.add(this.buildButtons(), BorderLayout.SOUTH);
+	}
+
+	public JTable getTable()
+	{
+		return table;
+	}
+
+	protected Component buildTable()
+	{
 		table = new JTable(tm);
 
-		this.add(new JScrollPane(table), BorderLayout.CENTER);
+		return new JScrollPane(table);
+	}
 
+	protected Component buildSearch()
+	{
+		search = new SearchPanel();
 
-		// search bar
-		JPanel search = new SearchPanel();
+		return search;
+	}
 
-		this.add(search, BorderLayout.NORTH);
-
-
-		// pagination
+	protected Component buildButtons()
+	{
 		buttons = new ButtonsPanel(tm);
 		buttons.validate();
 
@@ -121,16 +148,13 @@ public class ViewPanel extends JPanel
 
 		});
 
-		this.add(buttons, BorderLayout.SOUTH);
+		return buttons;
 	}
 
-	public JTable getTable()
+	protected class SearchPanel extends JPanel
 	{
-		return table;
-	}
-	
-	class SearchPanel extends JPanel
-	{
+		private static final long serialVersionUID = 1L;
+
 		private ColumnPanel panel;
 
 		public SearchPanel()
@@ -154,11 +178,11 @@ public class ViewPanel extends JPanel
 			JLabel lblSearch = new JLabel("Search:");
 			lblSearch.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-			cboField = new JComboBox(new DefaultComboBoxModel(tm.getSupportedFields().toArray()));
+			cboField = new JComboBox<String>(new DefaultComboBoxModel(tm.getSupportedFields().toArray()));
 			cboField.setPreferredSize(new Dimension(100, 22));
 
 			String[] operators = {"contains", "equals", "startsWith", "present"};
-			cboOperator = new JComboBox(new DefaultComboBoxModel(operators));
+			cboOperator = new JComboBox<String>(new DefaultComboBoxModel(operators));
 			cboOperator.setPreferredSize(new Dimension(75, 22));
 
 			txtSearch = new JTextField();
@@ -251,8 +275,10 @@ public class ViewPanel extends JPanel
 		}
 	}
 
-	class ButtonsPanel extends JPanel
+	protected class ButtonsPanel extends JPanel
 	{
+		private static final long serialVersionUID = 1L;
+
 		private ViewTableModel tm;
 		private JButton btnPrev;
 		private JButton btnNext;

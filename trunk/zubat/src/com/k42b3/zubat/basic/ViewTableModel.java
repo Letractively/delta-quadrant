@@ -46,6 +46,8 @@ import com.k42b3.neodym.Http;
  */
 public class ViewTableModel extends AbstractTableModel
 {
+	private static final long serialVersionUID = 1L;
+
 	protected String baseUrl;
 	protected String url;
 	protected Http http;

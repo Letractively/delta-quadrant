@@ -54,6 +54,8 @@ import com.k42b3.neodym.ServiceItem;
  */
 public class Container extends JPanel implements com.k42b3.zubat.Container
 {
+	private static final long serialVersionUID = 1L;
+
 	private Http http;
 	private ServiceItem item;
 	private ArrayList<String> fields;

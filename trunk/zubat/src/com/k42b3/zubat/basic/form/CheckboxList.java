@@ -42,6 +42,8 @@ import com.k42b3.neodym.Http;
  */
 public class CheckboxList extends JPanel implements FormElementInterface
 {
+	private static final long serialVersionUID = 1L;
+
 	private String url;
 	private Http http;
 

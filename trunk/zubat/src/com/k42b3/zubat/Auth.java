@@ -58,6 +58,8 @@ import com.k42b3.neodym.oauth.OauthProvider;
  */
 public class Auth extends JFrame
 {
+	private static final long serialVersionUID = 1L;
+
 	private Services availableServices;
 	private Oauth oauth;
 	private Http http;
