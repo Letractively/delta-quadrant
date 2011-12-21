@@ -133,13 +133,13 @@
     </service>
     <service type="http://ns.amun-project.org/2011/amun/user/right"/>
     <service type="http://ns.amun-project.org/2011/amun/service/news">
+        <item>id</item>
         <item>title</item>
         <item>date</item>
-        <item>authorHostId</item>
-        <item>authorCountryId</item>
         <item>authorName</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/service/page">
+        <item>id</item>
         <item>pageId</item>
         <item>userId</item>
         <item>content</item>

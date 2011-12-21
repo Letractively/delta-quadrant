@@ -27,17 +27,27 @@ package com.k42b3.zubat;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.swing.DropMode;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.w3c.dom.Document;
@@ -74,9 +84,26 @@ public class TreePanel extends JPanel
 		this.setLayout(new BorderLayout());
 
 		model = new DefaultTreeModel(this.loadTree());
+
 		tree = new JTree(model);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new TreeListener());
+		tree.setDragEnabled(true);
+		tree.setTransferHandler(new TreeTransferHandler());
+		//tree.addTreeSelectionListener(new TreeListener());
+
+		/*
+		ImageIcon pageIcon = new ImageIcon(this.getClass().getResource("/page/normal.png"), "Page");
+
+		if(pageIcon != null) 
+		{
+		    DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+		    renderer.setLeafIcon(pageIcon);
+		    renderer.setOpenIcon(pageIcon);
+		    renderer.setClosedIcon(pageIcon);
+
+		    tree.setCellRenderer(renderer);
+		}
+		*/
 
 		this.add(new JScrollPane(tree), BorderLayout.CENTER);
 
@@ -234,6 +261,16 @@ public class TreePanel extends JPanel
 		{
 			return text;
 		}
+
+		public boolean equals(Object obj)
+		{
+			if(obj instanceof PageItem)
+			{
+				return ((PageItem) obj).getId() == this.getId();
+			}
+
+			return false;
+		}
 	}
 
 	class TreeListener implements TreeSelectionListener
@@ -261,6 +298,137 @@ public class TreePanel extends JPanel
 			else
 			{
 				instance.loadContainer(page);
+			}
+		}
+	}
+
+	class TreeTransferHandler extends TransferHandler
+	{
+		private DataFlavor pageFlavor = new DataFlavor(PageTransferable.class, null);
+
+		public boolean importData(TransferSupport support)
+		{
+			Component source = support.getComponent();
+			Transferable data = support.getTransferable();
+
+			try
+			{
+				JTree tree = (JTree) source;
+				TreePath path = tree.getSelectionPath();
+				Object srcData = data.getTransferData(pageFlavor);
+
+				if(path != null && srcData instanceof DefaultMutableTreeNode)
+				{
+					DefaultMutableTreeNode src = (DefaultMutableTreeNode) srcData;
+					DefaultMutableTreeNode dest = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+					// remove src node
+					//DefaultTreeModel tm = (DefaultTreeModel) tree.getModel();
+					//tm.removeNodeFromParent(src);
+
+					// add dest node
+					if(dest.isLeaf())
+					{
+						DefaultMutableTreeNode parent = (DefaultMutableTreeNode) dest.getParent();
+
+						if(parent != null)
+						{
+							System.out.println(parent + " parent insert " + src + " at pos " + parent.getIndex(dest));
+							parent.insert(src, parent.getIndex(dest));
+						}
+						else
+						{
+							System.out.println(dest + " has no parent");
+						}
+					}
+					else
+					{
+						System.out.println("insert");
+						dest.add(src);
+					}
+				}
+
+				return true;
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+				
+				return false;
+			}
+		}
+
+		public boolean canImport(TransferSupport support)
+		{
+			if(!support.isDrop() || !support.isDataFlavorSupported(pageFlavor))
+			{
+				return false;
+			}
+
+			if(support.getDropAction() == MOVE)
+			{
+				support.setShowDropLocation(true);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		public int getSourceActions(JComponent c)
+		{
+			return MOVE;
+		}
+
+		protected Transferable createTransferable(JComponent c)
+		{
+			JTree tree = (JTree) c;
+			TreePath path = tree.getSelectionPath();
+
+			if(path != null)
+			{
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+
+				// we can only move under the root
+				if(((PageItem) node.getUserObject()).getId() > 1)
+				{
+					return new PageTransferable(node);
+				}
+			}
+
+			return null;
+		}
+
+		protected void exportDone(JComponent source, Transferable data, int action)
+		{
+			// export done
+		}
+
+		private class PageTransferable implements Transferable
+		{
+			private DefaultMutableTreeNode page;
+
+			public PageTransferable(DefaultMutableTreeNode page)
+			{
+				this.page = page;
+			}
+
+			public DataFlavor[] getTransferDataFlavors() 
+			{
+				DataFlavor[] flavors = {pageFlavor};
+
+				return flavors;
+			}
+
+			public boolean isDataFlavorSupported(DataFlavor flavor) 
+			{
+				return flavor.equals(pageFlavor);
+			}
+
+			public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException 
+			{
+				return page;
 			}
 		}
 	}
