@@ -33,6 +33,10 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 
 import javax.swing.DropMode;
@@ -40,6 +44,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -50,6 +55,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -85,7 +92,6 @@ public class TreePanel extends JPanel
 		this.instance = instance;
 		this.page = instance.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
 		this.model = new DefaultTreeModel(this.loadTree());
-		
 
 		if(page == null)
 		{
@@ -185,32 +191,11 @@ public class TreePanel extends JPanel
 	{
 		DefaultMutableTreeNode treeNode;
 		NodeList childs = node.getChildNodes();
+		PageItem item = PageItem.parsePage(node);
 
-		// parse node
-		int id = 0;
-		String text = null;
-
-		for(int i = 0; i < childs.getLength(); i++)
+		if(item != null)
 		{
-			if(childs.item(i).getNodeType() != Node.ELEMENT_NODE)
-			{
-				continue;
-			}
-
-			if(childs.item(i).getNodeName().equals("id"))
-			{
-				id = Integer.parseInt(childs.item(i).getTextContent());
-			}
-
-			if(childs.item(i).getNodeName().equals("text"))
-			{
-				text = childs.item(i).getTextContent();
-			}
-		}
-
-		if(id != 0 && text != null)
-		{
-			treeNode = new DefaultMutableTreeNode(new PageItem(id, text));
+			treeNode = new DefaultMutableTreeNode(item);
 
 			// parse children
 			for(int i = 0; i < childs.getLength(); i++)
@@ -302,54 +287,7 @@ public class TreePanel extends JPanel
 		}
 	}
 
-	class PageItem
-	{
-		private int id;
-		private String text;
-
-		public PageItem(int id, String text)
-		{
-			this.setId(id);
-			this.setText(text);
-		}
-
-		public int getId() 
-		{
-			return id;
-		}
-
-		public void setId(int id) 
-		{
-			this.id = id;
-		}
-
-		public String getText() 
-		{
-			return text;
-		}
-
-		public void setText(String text) 
-		{
-			this.text = text;
-		}
-
-		public String toString() 
-		{
-			return text;
-		}
-
-		public boolean equals(Object obj)
-		{
-			if(obj instanceof PageItem)
-			{
-				return ((PageItem) obj).getId() == this.getId();
-			}
-
-			return false;
-		}
-	}
-
-	class TreeListener implements TreeSelectionListener
+	private class TreeListener implements TreeSelectionListener
 	{
 		public void valueChanged(TreeSelectionEvent e) 
 		{
@@ -378,7 +316,7 @@ public class TreePanel extends JPanel
 		}
 	}
 
-	class TreeTransferHandler extends TransferHandler
+	private class TreeTransferHandler extends TransferHandler
 	{
 		private DataFlavor pageFlavor = new DataFlavor(PageTransferable.class, null);
 
@@ -428,6 +366,8 @@ public class TreePanel extends JPanel
 			}
 			catch(Exception e)
 			{
+				JOptionPane.showMessageDialog(null, e.getMessage());
+
 				return false;
 			}
 		}

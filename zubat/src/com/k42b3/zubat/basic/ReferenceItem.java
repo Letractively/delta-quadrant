@@ -22,9 +22,8 @@
  * along with zubat. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.k42b3.zubat;
+package com.k42b3.zubat.basic;
 
-import com.k42b3.zubat.basic.SearchPanel;
 import com.k42b3.zubat.basic.form.Input;
 
 /**

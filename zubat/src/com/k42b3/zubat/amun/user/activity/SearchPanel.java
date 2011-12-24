@@ -25,7 +25,7 @@
 package com.k42b3.zubat.amun.user.activity;
 
 import com.k42b3.neodym.Http;
-import com.k42b3.zubat.ReferenceItem;
+import com.k42b3.zubat.basic.ReferenceItem;
 
 /**
  * SearchPanel
