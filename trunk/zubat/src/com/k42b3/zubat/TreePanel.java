@@ -33,14 +33,17 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -55,6 +58,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
+import com.k42b3.neodym.Message;
 import com.k42b3.neodym.ServiceItem;
 
 /**
@@ -70,21 +74,37 @@ public class TreePanel extends JPanel
 	private static final long serialVersionUID = 1L;
 
 	private Zubat instance;
+	private ServiceItem page;
+	private DefaultTreeModel model;
 
 	private JTree tree;
-	private DefaultTreeModel model;
-	private JButton btnRefresh;
+	private boolean isBusy = false;
 
-	private ServiceItem page;
-	
 	public TreePanel(Zubat instance) throws Exception
 	{
 		this.instance = instance;
+		this.page = instance.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
+		this.model = new DefaultTreeModel(this.loadTree());
+		
 
+		if(page == null)
+		{
+			throw new Exception("Could not find page service");
+		}
+
+		this.buildComponent();
+	}
+
+	private void buildComponent()
+	{
 		this.setLayout(new BorderLayout());
 
-		model = new DefaultTreeModel(this.loadTree());
+		this.add(this.buildTree(), BorderLayout.CENTER);
+		//this.add(this.buildButtons(), BorderLayout.SOUTH);
+	}
 
+	private Component buildTree()
+	{
 		tree = new JTree(model);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setDragEnabled(true);
@@ -104,22 +124,22 @@ public class TreePanel extends JPanel
 		    tree.setCellRenderer(renderer);
 		}
 		*/
-
-		this.add(new JScrollPane(tree), BorderLayout.CENTER);
-
-
-		// buttons
+		
+		return new JScrollPane(tree);
+	}
+	
+	private Component buildButtons()
+	{
 		JPanel buttons = new JPanel();
 
-		this.btnRefresh = new JButton("Refresh");
-
-		this.btnRefresh.addActionListener(new ActionListener() {
+		JButton btnRefresh = new JButton("Refresh");
+		btnRefresh.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e)
 			{
 				try
 				{
-					model.setRoot(loadTree());
+					reload();
 				}
 				catch(Exception ex)
 				{
@@ -130,21 +150,14 @@ public class TreePanel extends JPanel
 		});
 
 		buttons.setLayout(new FlowLayout(FlowLayout.LEADING));
+		buttons.add(btnRefresh);
 
-		buttons.add(this.btnRefresh);
-
-		this.add(buttons, BorderLayout.SOUTH);
+		return buttons;
 	}
-
+	
+	
 	private DefaultMutableTreeNode loadTree() throws Exception
 	{
-		page = instance.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
-
-		if(page == null)
-		{
-			throw new Exception("Could not find page service");
-		}
-
 		String url = page.getUri();
 
 		if(url != null)
@@ -223,6 +236,69 @@ public class TreePanel extends JPanel
 		else
 		{
 			return null;
+		}
+	}
+
+	private void reload() throws Exception
+	{
+		model.setRoot(loadTree());
+	}
+
+	private void moveNode(int id, int sort) throws Exception
+	{
+		if(!isBusy)
+		{
+			isBusy = true;
+
+			// header
+			HashMap<String, String> header = new HashMap<String, String>();
+
+			header.put("Content-Type", "application/xml");
+			header.put("X-HTTP-Method-Override", "PUT");
+
+			// body
+			String body = "<request><id>" + id + "</id><sort>" + sort + "</sort></request>";
+
+			// request
+			instance.getHttp().requestXml(Http.POST, page.getUri(), header, body);
+
+			// reload
+			reload();
+
+			isBusy = false;
+		}
+		else
+		{
+			throw new Exception("Busy ...");
+		}
+	}
+
+	private void reparentNode(int id, int parentId) throws Exception
+	{
+		if(!isBusy)
+		{
+			isBusy = true;
+
+			// header
+			HashMap<String, String> header = new HashMap<String, String>();
+
+			header.put("Content-Type", "application/xml");
+			header.put("X-HTTP-Method-Override", "PUT");
+
+			// body
+			String body = "<request><id>" + id + "</id><parentId>" + parentId + "</parentId></request>";
+
+			// request
+			instance.getHttp().requestXml(Http.POST, page.getUri(), header, body);
+
+			// reload
+			reload();
+
+			isBusy = false;
+		}
+		else
+		{
+			throw new Exception("Busy ...");
 		}
 	}
 
@@ -314,6 +390,7 @@ public class TreePanel extends JPanel
 			try
 			{
 				JTree tree = (JTree) source;
+				DefaultTreeModel tm = (DefaultTreeModel) tree.getModel();
 				TreePath path = tree.getSelectionPath();
 				Object srcData = data.getTransferData(pageFlavor);
 
@@ -322,29 +399,28 @@ public class TreePanel extends JPanel
 					DefaultMutableTreeNode src = (DefaultMutableTreeNode) srcData;
 					DefaultMutableTreeNode dest = (DefaultMutableTreeNode) path.getLastPathComponent();
 
-					// remove src node
-					//DefaultTreeModel tm = (DefaultTreeModel) tree.getModel();
-					//tm.removeNodeFromParent(src);
+					PageItem srcItem = (PageItem) src.getUserObject();
+					PageItem destItem = (PageItem) dest.getUserObject();
 
-					// add dest node
+					// move node
 					if(dest.isLeaf())
 					{
 						DefaultMutableTreeNode parent = (DefaultMutableTreeNode) dest.getParent();
 
 						if(parent != null)
 						{
-							System.out.println(parent + " parent insert " + src + " at pos " + parent.getIndex(dest));
-							parent.insert(src, parent.getIndex(dest));
-						}
-						else
-						{
-							System.out.println(dest + " has no parent");
+							moveNode(srcItem.getId(), parent.getIndex(dest));
+
+							tm.removeNodeFromParent(src);
+							tm.insertNodeInto(src, parent, parent.getIndex(dest));
 						}
 					}
 					else
 					{
-						System.out.println("insert");
-						dest.add(src);
+						reparentNode(srcItem.getId(), destItem.getId());
+
+						tm.removeNodeFromParent(src);
+						tm.insertNodeInto(src, dest, dest.getChildCount());
 					}
 				}
 
@@ -352,15 +428,17 @@ public class TreePanel extends JPanel
 			}
 			catch(Exception e)
 			{
-				System.out.println(e.getMessage());
-				e.printStackTrace();
-				
 				return false;
 			}
 		}
 
 		public boolean canImport(TransferSupport support)
 		{
+			if(isBusy)
+			{
+				return false;
+			}
+
 			if(!support.isDrop() || !support.isDataFlavorSupported(pageFlavor))
 			{
 				return false;
@@ -383,6 +461,11 @@ public class TreePanel extends JPanel
 
 		protected Transferable createTransferable(JComponent c)
 		{
+			if(isBusy)
+			{
+				return null;
+			}
+
 			JTree tree = (JTree) c;
 			TreePath path = tree.getSelectionPath();
 
