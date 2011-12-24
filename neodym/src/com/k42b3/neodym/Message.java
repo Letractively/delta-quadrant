@@ -22,6 +22,9 @@
 
 package com.k42b3.neodym;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 /**
  * Message
  *
@@ -34,6 +37,12 @@ public class Message
 {
 	private String text = "";
 	private boolean success = true;
+
+	public Message(String text, boolean success)
+	{
+		this.setText(text);
+		this.setSuccess(success);
+	}
 
 	public String getText() 
 	{
@@ -58,5 +67,38 @@ public class Message
 	public boolean hasSuccess()
 	{
 		return success;
+	}
+	
+	public static Message parseMessage(Element element)
+	{
+		NodeList childs = element.getChildNodes();
+
+		String text = null;
+		boolean success = false;
+
+		for(int i = 0; i < childs.getLength(); i++)
+		{
+			if(childs.item(i) instanceof Element)
+			{
+				Element el = (Element) childs.item(i);
+				
+				if(el.getNodeName().equals("text"))
+				{
+					text = el.getTextContent();
+				}
+
+				if(el.getNodeName().equals("success"))
+				{
+					success = Boolean.parseBoolean(el.getTextContent());
+				}
+			}
+		}
+
+		if(text != null && !text.isEmpty())
+		{
+			return new Message(text, success);
+		}
+
+		return null;
 	}
 }

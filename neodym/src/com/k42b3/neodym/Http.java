@@ -253,7 +253,7 @@ public class Http
 		// get message
 		Message msg = Http.parseResponse(rootElement);
 
-		if(!msg.hasSuccess())
+		if(msg != null && !msg.hasSuccess())
 		{
 			throw new Exception("API error occured");
 		}
@@ -314,27 +314,12 @@ public class Http
 
 	public static Message parseResponse(Element element)
 	{
-		NodeList childs = element.getChildNodes();
-		Message msg = new Message();
+		Message msg = Message.parseMessage(element);
 
-		for(int i = 0; i < childs.getLength(); i++)
+		if(msg != null)
 		{
-			if(childs.item(i).getNodeName().equals("text"))
-			{
-				msg.setText(childs.item(i).getTextContent());
-			}
+			lastMessageText = msg.getText();
 
-			if(childs.item(i).getNodeName().equals("success"))
-			{
-				msg.setSuccess(!childs.item(i).getTextContent().equals("false"));
-			}
-		}
-
-
-		lastMessageText = msg.getText();
-
-		if(!lastMessageText.isEmpty())
-		{
 			SwingUtilities.invokeLater(new Runnable() {
 
 				public void run() 
