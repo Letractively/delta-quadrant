@@ -61,7 +61,6 @@ import org.xml.sax.SAXException;
 
 import com.k42b3.neodym.Http;
 import com.k42b3.neodym.Message;
-import com.k42b3.zubat.ReferenceItem;
 import com.k42b3.zubat.Zubat;
 import com.k42b3.zubat.basic.form.CheckboxList;
 import com.k42b3.zubat.basic.form.FormElementInterface;

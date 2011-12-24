@@ -46,7 +46,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 
 import com.k42b3.neodym.Http;
-import com.k42b3.zubat.ReferenceItem;
 import com.k42b3.zubat.Zubat;
 
 /**
