@@ -26,12 +26,16 @@ package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JSplitPane;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import com.k42b3.neodym.Http;
@@ -74,7 +78,7 @@ public class Zubat extends JFrame
 	{
 		this.setTitle("zubat (version: " + Zubat.version + ")");
 		this.setLocation(100, 100);
-		this.setSize(800, 600);
+		this.setSize(820, 600);
 		this.setMinimumSize(this.getSize());
 		this.setLayout(new BorderLayout());
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -106,17 +110,24 @@ public class Zubat extends JFrame
 
 
 			treePanel = new TreePanel(this);
-
 			treePanel.setPreferredSize(new Dimension(150, 100));
+			treePanel.setMinimumSize(new Dimension(100, 100));
+			treePanel.setBorder(new EmptyBorder(4, 0, 4, 4));
 
-			treePanel.setBorder(new EmptyBorder(0, 0, 0, 6));
-
-			this.add(treePanel, BorderLayout.WEST);
+			//this.add(treePanel, BorderLayout.WEST);
 
 
 			containerPanel = new ContainerPanel();
+			containerPanel.setMinimumSize(new Dimension(400, 100));
+			containerPanel.setBorder(new EmptyBorder(4, 4, 4, 0));
 
-			this.add(containerPanel, BorderLayout.CENTER);
+			//this.add(containerPanel, BorderLayout.CENTER);
+
+
+			JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, treePanel, containerPanel);
+			sp.setBorder(BorderFactory.createEmptyBorder());
+			
+			this.add(sp, BorderLayout.CENTER);
 
 
 			trafficPanel = new TrafficPanel(trafficTm);

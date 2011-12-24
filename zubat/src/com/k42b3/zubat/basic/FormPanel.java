@@ -44,6 +44,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.border.EmptyBorder;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -115,6 +116,7 @@ public class FormPanel extends JPanel
 		// load data
 		this.request(url);
 
+		// add panel
 		this.add(new JScrollPane(body), BorderLayout.CENTER);
 
 		// buttons
@@ -150,24 +152,19 @@ public class FormPanel extends JPanel
 		// request
 		Document doc = http.requestXml(Http.GET, url);
 
-
 		// parse response
 		try
 		{
 			Element rootElement = (Element) doc.getDocumentElement();
-
 			rootElement.normalize();
-
 
 			// get message
 			Message msg = Http.parseResponse(rootElement);
 
-			if(!msg.hasSuccess())
+			if(msg != null && !msg.hasSuccess())
 			{
 				JPanel errorPanel = new JPanel();
-
 				errorPanel.setLayout(new FlowLayout());
-
 				errorPanel.add(new JLabel(msg.getText()));
 
 				body.add(errorPanel);

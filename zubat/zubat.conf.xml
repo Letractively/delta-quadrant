@@ -27,12 +27,11 @@
     </service>
     <service type="http://ns.amun-project.org/2011/amun/content/page">
         <item>id</item>
+        <item>parentId</item>
+        <item>path</item>
         <item>title</item>
         <item>template</item>
-        <item>cache</item>
-        <item>expire</item>
         <item>date</item>
-        <item>url</item>
     </service>
     <service type="http://ns.amun-project.org/2011/amun/content/page/gadget">
         <item>id</item>

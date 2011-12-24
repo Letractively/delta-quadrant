@@ -27,6 +27,7 @@ package com.k42b3.zubat;
 import java.io.File;
 
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * Entry
@@ -42,9 +43,8 @@ public class Entry
 	{
 		try
 		{
-			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-
-			UIManager.setLookAndFeel(lookAndFeel);
+			// look and feel
+			Entry.setLookAndFeel();
 
 
 			// init config file
@@ -107,5 +107,19 @@ public class Entry
 		}
 
 		return false;
+	}
+
+	public static void setLookAndFeel() throws Exception
+	{
+		try
+		{
+			String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+
+			UIManager.setLookAndFeel(lookAndFeel);
+		}
+		catch(Exception e)
+		{
+			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+		}
 	}
 }
