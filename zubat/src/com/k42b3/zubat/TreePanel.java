@@ -97,7 +97,7 @@ public class TreePanel extends JPanel
 		this.setLayout(new BorderLayout());
 
 		this.add(this.buildTree(), BorderLayout.CENTER);
-		//this.add(this.buildButtons(), BorderLayout.SOUTH);
+		this.add(this.buildButtons(), BorderLayout.SOUTH);
 	}
 
 	private Component buildTree()
@@ -107,10 +107,10 @@ public class TreePanel extends JPanel
 		//tree.setDragEnabled(true);
 		//tree.setTransferHandler(new TreeTransferHandler());
 		tree.addTreeSelectionListener(new TreeListener());
-		
+
 		return new JScrollPane(tree);
 	}
-	
+
 	private Component buildButtons()
 	{
 		JPanel buttons = new JPanel();
