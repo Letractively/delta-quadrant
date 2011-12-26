@@ -33,30 +33,20 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
-import javax.swing.DropMode;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -65,7 +55,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
-import com.k42b3.neodym.Message;
 import com.k42b3.neodym.ServiceItem;
 
 /**
@@ -86,6 +75,8 @@ public class TreePanel extends JPanel
 
 	private JTree tree;
 	private boolean isBusy = false;
+
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
 
 	public TreePanel(Zubat instance) throws Exception
 	{
@@ -113,23 +104,9 @@ public class TreePanel extends JPanel
 	{
 		tree = new JTree(model);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.setDragEnabled(true);
-		tree.setTransferHandler(new TreeTransferHandler());
-		//tree.addTreeSelectionListener(new TreeListener());
-
-		/*
-		ImageIcon pageIcon = new ImageIcon(this.getClass().getResource("/page/normal.png"), "Page");
-
-		if(pageIcon != null) 
-		{
-		    DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-		    renderer.setLeafIcon(pageIcon);
-		    renderer.setOpenIcon(pageIcon);
-		    renderer.setClosedIcon(pageIcon);
-
-		    tree.setCellRenderer(renderer);
-		}
-		*/
+		//tree.setDragEnabled(true);
+		//tree.setTransferHandler(new TreeTransferHandler());
+		tree.addTreeSelectionListener(new TreeListener());
 		
 		return new JScrollPane(tree);
 	}
@@ -347,10 +324,14 @@ public class TreePanel extends JPanel
 
 						if(parent != null)
 						{
-							moveNode(srcItem.getId(), parent.getIndex(dest));
+							int sort = parent.getIndex(dest);
+
+							moveNode(srcItem.getId(), sort);
 
 							tm.removeNodeFromParent(src);
-							tm.insertNodeInto(src, parent, parent.getIndex(dest));
+							tm.insertNodeInto(src, parent, sort);
+
+							logger.info("Set page sort " + srcItem.getId() + " to " + sort);
 						}
 					}
 					else
@@ -359,6 +340,8 @@ public class TreePanel extends JPanel
 
 						tm.removeNodeFromParent(src);
 						tm.insertNodeInto(src, dest, dest.getChildCount());
+
+						logger.info("Set parent for page " + srcItem.getId() + " to " + destItem.getId());
 					}
 				}
 

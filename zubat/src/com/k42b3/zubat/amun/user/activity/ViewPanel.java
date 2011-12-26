@@ -24,9 +24,7 @@
 
 package com.k42b3.zubat.amun.user.activity;
 
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.SystemColor;
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
