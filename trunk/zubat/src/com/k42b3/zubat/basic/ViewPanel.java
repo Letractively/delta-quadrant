@@ -332,7 +332,11 @@ public class ViewPanel extends JPanel
 
 		public void validate()
 		{
-			lblPagination.setText(tm.getStartIndex() + " / " + tm.getItemsPerPage() + " of " + tm.getTotalResults());
+			int pageResults = tm.getStartIndex() + tm.getItemsPerPage();
+			int count = pageResults > tm.getTotalResults() ? tm.getTotalResults() : pageResults;
+
+
+			lblPagination.setText(tm.getStartIndex() + " - " + count + " of " + tm.getTotalResults());
 
 			if(tm.getStartIndex() == 0)
 			{
@@ -343,7 +347,7 @@ public class ViewPanel extends JPanel
 				btnPrev.setEnabled(true);
 			}
 
-			if(tm.getTotalResults() < tm.getItemsPerPage() || tm.getStartIndex() * tm.getItemsPerPage() >= tm.getTotalResults())
+			if(tm.getTotalResults() < tm.getItemsPerPage() || pageResults >= tm.getTotalResults())
 			{
 				btnNext.setEnabled(false);
 			}
