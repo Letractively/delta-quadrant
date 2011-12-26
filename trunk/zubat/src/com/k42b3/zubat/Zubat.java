@@ -26,7 +26,6 @@ package com.k42b3.zubat;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -35,7 +34,6 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
 import com.k42b3.neodym.Http;
@@ -72,7 +70,7 @@ public class Zubat extends JFrame
 
 	private TrafficTableModel trafficTm;
 
-	private Logger logger = Logger.getLogger("com.k42b3.zubat");;
+	private Logger logger = Logger.getLogger("com.k42b3.zubat");
 
 	public Zubat()
 	{
