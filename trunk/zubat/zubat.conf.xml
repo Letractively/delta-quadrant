@@ -113,7 +113,7 @@
     </service>
     <service type="http://ns.amun-project.org/2011/amun/user/activity">
         <item>id</item>
-        <item>title</item>
+        <item>summary</item>
         <item>date</item>
         <item>authorName</item>
     </service>
@@ -148,6 +148,18 @@
         <item>id</item>
         <item>globalId</item>
         <item>text</item>
+        <item>authorName</item>
+    </service>
+    <service type="http://ns.amun-project.org/2011/amun/service/googleproject">
+        <item>id</item>
+        <item>pageId</item>
+        <item>name</item>
+        <item>date</item>
+    </service>
+    <service type="http://ns.amun-project.org/2011/amun/service/googleproject/author">
+        <item>id</item>
+        <item>name</item>
+        <item>date</item>
         <item>authorName</item>
     </service>
 </zubat>
