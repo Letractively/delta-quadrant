@@ -56,7 +56,7 @@ public class Zubat extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
-	public static String version = "0.0.7 beta";
+	public static String version = "0.0.8 beta";
 
 	private Oauth oauth;
 	private Http http;
