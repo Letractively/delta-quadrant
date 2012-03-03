@@ -24,7 +24,9 @@
 
 package com.k42b3.zubat.amun.user.activity;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.SystemColor;
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
@@ -103,7 +105,10 @@ public class ViewPanel extends com.k42b3.zubat.basic.ViewPanel
 				if(value != null)
 				{
 					ViewTableModel tm = (ViewTableModel) table.getModel();
-					String title = (String) tm.getValueAt(row, 1);
+					String summary = (String) tm.getValueAt(row, 1);
+					summary = summary.length() > 512 ? summary.substring(0, 512) + "..." : summary;
+					summary = summary.replaceAll("\\<.*?>","");
+
 					String date = (String) tm.getValueAt(row, 2);
 					String user = (String) tm.getValueAt(row, 3);
 
@@ -111,11 +116,14 @@ public class ViewPanel extends com.k42b3.zubat.basic.ViewPanel
 
 					if(hasFocus)
 					{
-						lblTitle = new JLabel("<html><font size=+1><b>" + title + "</b></font><br><small>created on: " + date + " by " + user + "</small></html>");
+						lblTitle = new JLabel("<html><font size=+1><b>" + summary + "</b></font><br><small>created on: " + date + " by " + user + "</small></html>");
+						lblTitle.setOpaque(true);
+						lblTitle.setBackground(SystemColor.activeCaption);
+						lblTitle.setForeground(SystemColor.activeCaptionText);
 					}
 					else
 					{
-						lblTitle = new JLabel("<html><font size=+1>" + title + "</font><br><small>created on: " + date + " by " + user + "</small></html>");
+						lblTitle = new JLabel("<html><font size=+1>" + summary + "</font><br><small>created on: " + date + " by " + user + "</small></html>");
 					}
 
 					lblTitle.setBorder(new EmptyBorder(5, 5, 5, 5));
