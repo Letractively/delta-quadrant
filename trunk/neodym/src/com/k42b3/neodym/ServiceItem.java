@@ -25,7 +25,7 @@ package com.k42b3.neodym;
 import java.util.ArrayList;
 
 /**
- * ServiceItem
+ * An service item of the discovered XRDS
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3

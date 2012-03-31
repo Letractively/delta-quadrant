@@ -23,16 +23,17 @@
 package com.k42b3.neodym;
 
 import java.io.StringReader;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -47,13 +48,18 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.k42b3.neodym.oauth.Oauth;
 
 /**
- * Http
+ * Handles http requests. If an oauth object is set you can also send signed
+ * requests. Here an simple example code howto use the http class
+ * 
+ * <code>
+ * Http http = new Http();
+ * String response = http.request(Http.GET, "http://google.de");
+ * </code>
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
@@ -65,15 +71,13 @@ public class Http
 	public static int GET = 0x1;
 	public static int POST = 0x2;
 
-	public static String lastResponseText;
-	public static String lastMessageText;
-
 	private Oauth oauth;
 	private TrafficListenerInterface trafficListener;
+	private CacheManager cacheManager = new CacheManager();
 
 	private HttpRequest lastRequest;
 	private HttpResponse lastResponse;
-
+	
 	private Logger logger = Logger.getLogger("com.k42b3.neodym");
 
 	public Http(TrafficListenerInterface trafficListener)
@@ -88,10 +92,26 @@ public class Http
 
 	public String request(int method, String url, Map<String, String> header, String body, boolean signed) throws Exception
 	{
+		// check cache (only GET)
+		String cacheKey = url;
+
+		if(method == Http.GET)
+		{
+			Cache cache = cacheManager.get(cacheKey);
+
+			if(cache != null)
+			{
+				logger.info("Found cache for " + cacheKey + " expires in " + DateFormat.getInstance().format(cache.getExpire()));
+
+				return cache.getResponse();
+			}
+		}
+
+
+		// build request
 		HttpParams httpParams = new BasicHttpParams();
 		HttpConnectionParams.setConnectionTimeout(httpParams, 6000);
 		DefaultHttpClient httpClient = new DefaultHttpClient(httpParams);
-
 
 		HttpRequestBase httpRequest;
 
@@ -141,7 +161,6 @@ public class Http
 		logger.info("Response: " + httpResponse.getStatusLine().toString());
 
 		HttpEntity entity = httpResponse.getEntity();
-
 		String responseContent = EntityUtils.toString(entity);
 
 
@@ -164,19 +183,14 @@ public class Http
 
 		if(!(statusCode >= 200 && statusCode < 300))
 		{
-			lastResponseText = responseContent;
-
-			if(!lastResponseText.isEmpty())
+			if(!responseContent.isEmpty())
 			{
-				SwingUtilities.invokeLater(new Runnable(){
+				String message = responseContent.length() > 128 ? responseContent.substring(0, 128) + "..." : responseContent;
 
-					public void run() 
-					{
-						JOptionPane.showMessageDialog(null, lastResponseText);
-					}
-
-				});
-
+				throw new Exception(message);
+			}
+			else
+			{
 				throw new Exception("No successful status code");
 			}
 		}
@@ -185,6 +199,37 @@ public class Http
 		// assign last request/response
 		lastRequest = httpRequest;
 		lastResponse = httpResponse;
+
+
+		// cache response if expires header is set
+		if(method == Http.GET)
+		{
+			Date expire = null;
+			Header[] headers = httpResponse.getAllHeaders();
+
+			for(int i = 0; i < headers.length; i++)
+			{
+				if(headers[i].getName().toLowerCase().equals("expires"))
+				{
+					try
+					{
+						expire = DateFormat.getInstance().parse(headers[i].getValue());
+					}
+					catch(Exception e)
+					{
+					}
+				}
+			}
+
+			if(expire != null && expire.compareTo(new Date()) > 0)
+			{
+				Cache cache = new Cache(cacheKey, responseContent, expire);
+
+				cacheManager.add(cache);
+
+				logger.info("Add to cache " + cacheKey + " expires in " + DateFormat.getInstance().format(expire));
+			}
+		}
 
 
 		return responseContent;
@@ -251,7 +296,7 @@ public class Http
 
 
 		// get message
-		Message msg = Http.parseResponse(rootElement);
+		Message msg = Message.parseMessage(rootElement);
 
 		if(msg != null && !msg.hasSuccess())
 		{
@@ -312,25 +357,9 @@ public class Http
 		this.trafficListener = trafficListener;
 	}
 
-	public static Message parseResponse(Element element)
+	public CacheManager getCacheManager()
 	{
-		Message msg = Message.parseMessage(element);
-
-		if(msg != null)
-		{
-			lastMessageText = msg.getText();
-
-			SwingUtilities.invokeLater(new Runnable() {
-
-				public void run() 
-				{
-					JOptionPane.showMessageDialog(null, lastMessageText);
-				}
-
-			});
-		}
-
-		return msg;
+		return cacheManager;
 	}
 
 	public static String appendQuery(String url, String query)
