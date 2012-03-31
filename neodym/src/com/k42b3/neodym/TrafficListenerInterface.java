@@ -23,7 +23,7 @@
 package com.k42b3.neodym;
 
 /**
- * TrafficListenerInterface
+ * Interface wich is called if an http request is send
  *
  * @author     Christoph Kappestein <k42b3.x@gmail.com>
  * @license    http://www.gnu.org/licenses/gpl.html GPLv3
