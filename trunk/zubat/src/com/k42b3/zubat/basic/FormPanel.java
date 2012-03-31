@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -132,6 +133,8 @@ public class FormPanel extends JPanel
 				}
 				catch(Exception ex)
 				{
+					JOptionPane.showMessageDialog(null, ex.getMessage(), "Response", JOptionPane.ERROR_MESSAGE);
+
 					Zubat.handleException(ex);
 				}
 			}
@@ -157,7 +160,7 @@ public class FormPanel extends JPanel
 			rootElement.normalize();
 
 			// get message
-			Message msg = Http.parseResponse(rootElement);
+			Message msg = Message.parseMessage(rootElement);
 
 			if(msg != null && !msg.hasSuccess())
 			{
