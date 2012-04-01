@@ -162,4 +162,20 @@
         <item>date</item>
         <item>authorName</item>
     </service>
+    <service type="http://ns.amun-project.org/2011/amun/service/forum">
+        <item>id</item>
+        <item>globalId</item>
+        <item>sticky</item>
+        <item>closed</item>
+        <item>title</item>
+        <item>date</item>
+        <item>authorName</item>
+    </service>
+    <service type="http://ns.amun-project.org/2011/amun/system/approval/record">
+        <item>id</item>
+        <item>type</item>
+        <item>table</item>
+        <item>date</item>
+        <item>authorName</item>
+    </service>
 </zubat>
