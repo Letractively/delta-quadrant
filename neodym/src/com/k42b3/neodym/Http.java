@@ -22,6 +22,7 @@
 
 package com.k42b3.neodym;
 
+import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.util.Date;
@@ -49,6 +50,7 @@ import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import com.k42b3.neodym.oauth.Oauth;
 
@@ -281,30 +283,29 @@ public class Http
 		String responseContent = this.request(method, url, header, body, signed);
 
 
-		// parse response
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
-
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(responseContent));
-
-		Document doc = db.parse(is);
-
-		Element rootElement = (Element) doc.getDocumentElement();
-
-		rootElement.normalize();
-
-
-		// get message
-		Message msg = Message.parseMessage(rootElement);
-
-		if(msg != null && !msg.hasSuccess())
+		try
 		{
-			throw new Exception("API error occured");
+			// parse response
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+
+			InputSource is = new InputSource();
+			is.setCharacterStream(new StringReader(responseContent));
+
+			Document doc = db.parse(is);
+
+			Element rootElement = (Element) doc.getDocumentElement();
+			rootElement.normalize();
+
+
+			return doc;
 		}
+		catch(SAXException e)
+		{
+			String text = responseContent.length() > 32 ? responseContent.substring(0, 32) + "..." : responseContent;
 
-
-		return doc;
+			throw new Exception(text);
+		}
 	}
 
 	public Document requestXml(int method, String url, Map<String, String> header, String body) throws Exception
