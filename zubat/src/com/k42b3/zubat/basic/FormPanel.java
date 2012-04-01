@@ -129,7 +129,20 @@ public class FormPanel extends JPanel
 			{
 				try
 				{
-					sendRequest();
+					Document doc = sendRequest();
+					Element rootElement = (Element) doc.getDocumentElement();
+
+					// get message
+					Message msg = Message.parseMessage(rootElement);
+
+					if(msg.hasSuccess())
+					{
+						JOptionPane.showMessageDialog(null, msg.getText(), "Response", JOptionPane.INFORMATION_MESSAGE);
+					}
+					else
+					{
+						throw new Exception(msg.getText());
+					}
 				}
 				catch(Exception ex)
 				{
@@ -183,7 +196,7 @@ public class FormPanel extends JPanel
 		}
 	}
 
-	protected void sendRequest() throws Exception
+	protected Document sendRequest() throws Exception
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -223,7 +236,7 @@ public class FormPanel extends JPanel
 		header.put("X-HTTP-Method-Override", requestMethod);
 
 
-		http.requestXml(Http.POST, requestUrl, header, requestContent);
+		return http.requestXml(Http.POST, requestUrl, header, requestContent);
 	}
 
 	protected Container parse(Node node) throws Exception
