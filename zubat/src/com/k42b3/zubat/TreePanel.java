@@ -81,7 +81,7 @@ public class TreePanel extends JPanel
 	public TreePanel(Zubat instance) throws Exception
 	{
 		this.instance = instance;
-		this.page = instance.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
+		this.page = Zubat.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/content/page");
 		this.model = new DefaultTreeModel(this.loadTree());
 
 		if(page == null)
@@ -145,7 +145,7 @@ public class TreePanel extends JPanel
 
 		if(url != null)
 		{
-			Document doc = instance.getHttp().requestXml(Http.GET, url + "/tree");
+			Document doc = Zubat.getHttp().requestXml(Http.GET, url + "/tree");
 
 			Node entry = doc.getElementsByTagName("entry").item(0);
 
@@ -222,7 +222,7 @@ public class TreePanel extends JPanel
 			String body = "<request><id>" + id + "</id><sort>" + sort + "</sort></request>";
 
 			// request
-			instance.getHttp().requestXml(Http.POST, page.getUri(), header, body);
+			Zubat.getHttp().requestXml(Http.POST, page.getUri(), header, body);
 
 			// reload
 			reload();
@@ -251,7 +251,7 @@ public class TreePanel extends JPanel
 			String body = "<request><id>" + id + "</id><parentId>" + parentId + "</parentId></request>";
 
 			// request
-			instance.getHttp().requestXml(Http.POST, page.getUri(), header, body);
+			Zubat.getHttp().requestXml(Http.POST, page.getUri(), header, body);
 
 			// reload
 			reload();

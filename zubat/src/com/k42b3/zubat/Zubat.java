@@ -56,7 +56,7 @@ public class Zubat extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
-	public static String version = "0.0.8 beta";
+	public static String version = "0.0.9 beta";
 
 	private static Http http;
 	private static Account account;
@@ -148,7 +148,7 @@ public class Zubat extends JFrame
 
 	private void fetchAccount() throws Exception
 	{
-		ServiceItem item = this.getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/service/my/verifyCredentials");
+		ServiceItem item = getAvailableServices().getItem("http://ns.amun-project.org/2011/amun/service/my/verifyCredentials");
 
 		if(item != null)
 		{
