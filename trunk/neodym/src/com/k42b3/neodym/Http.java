@@ -22,7 +22,6 @@
 
 package com.k42b3.neodym;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.util.Date;
@@ -353,9 +352,19 @@ public class Http
 		this.oauth = oauth;
 	}
 
+	public Oauth getOauth()
+	{
+		return oauth;
+	}
+
 	public void setTrafficListener(TrafficListenerInterface trafficListener)
 	{
 		this.trafficListener = trafficListener;
+	}
+
+	public TrafficListenerInterface getTrafficListener()
+	{
+		return trafficListener;
 	}
 
 	public CacheManager getCacheManager()
