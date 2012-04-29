@@ -145,7 +145,7 @@ public class TreePanel extends JPanel
 
 		if(url != null)
 		{
-			Document doc = instance.getHttp().requestXml(Http.GET, url + "/buildTree");
+			Document doc = instance.getHttp().requestXml(Http.GET, url + "/tree");
 
 			Node entry = doc.getElementsByTagName("entry").item(0);
 

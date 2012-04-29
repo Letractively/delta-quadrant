@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
+import com.k42b3.zubat.Zubat;
 
 /**
  * ViewTablelModel
@@ -50,7 +51,6 @@ public class ViewTableModel extends AbstractTableModel
 
 	protected String baseUrl;
 	protected String url;
-	protected Http http;
 
 	protected ArrayList<String> supportedFields = new ArrayList<String>();
 	protected ArrayList<String> fields = new ArrayList<String>();
@@ -62,11 +62,10 @@ public class ViewTableModel extends AbstractTableModel
 
 	private Logger logger = Logger.getLogger("com.k42b3.zubat");
 	
-	public ViewTableModel(String url, Http http) throws Exception
+	public ViewTableModel(String url) throws Exception
 	{
 		this.baseUrl = url;
 		this.url = url;
-		this.http = http;
 
 		this.requestSupportedFields(url);
 	}
@@ -194,7 +193,7 @@ public class ViewTableModel extends AbstractTableModel
 		}
 
 
-		Document doc = http.requestXml(Http.GET, url);
+		Document doc = Zubat.getHttp().requestXml(Http.GET, url);
 
 
 		// get meta
@@ -258,7 +257,7 @@ public class ViewTableModel extends AbstractTableModel
 	private void requestSupportedFields(String url) throws Exception
 	{
 		// request
-		Document doc = http.requestXml(Http.GET, url + "/@supportedFields");
+		Document doc = Zubat.getHttp().requestXml(Http.GET, url + "/@supportedFields");
 
 
 		NodeList itemList = doc.getElementsByTagName("item");

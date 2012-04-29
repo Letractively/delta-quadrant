@@ -30,8 +30,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import com.k42b3.neodym.Http;
-
 /**
  * CheckboxList
  *
@@ -45,21 +43,19 @@ public class CheckboxList extends JPanel implements FormElementInterface
 	private static final long serialVersionUID = 1L;
 
 	private String url;
-	private Http http;
 
 	private CheckboxListTableModel tm;
 	private JTable table;
 
-	public CheckboxList(String url, Http http)
+	public CheckboxList(String url)
 	{
 		this.setLayout(new BorderLayout());
 
 		this.url = url;
-		this.http = http;
 
 		try
 		{
-			tm = new CheckboxListTableModel(url, http);
+			tm = new CheckboxListTableModel(url);
 
 			table = new JTable(tm);
 

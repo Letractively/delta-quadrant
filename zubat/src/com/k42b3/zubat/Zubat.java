@@ -58,10 +58,9 @@ public class Zubat extends JFrame
 
 	public static String version = "0.0.8 beta";
 
-	private Oauth oauth;
-	private Http http;
-	private Account account;
-	private Services availableServices;
+	private static Http http;
+	private static Account account;
+	private static Services availableServices;
 	
 	private MenuPanel menuPanel;
 	private TreePanel treePanel;
@@ -83,9 +82,9 @@ public class Zubat extends JFrame
 
 		try
 		{
-			// model
 			trafficTm = new TrafficTableModel();
 
+			// http
 			http = new Http(new TrafficListenerInterface(){
 
 				public void handleRequest(TrafficItem item)
@@ -95,8 +94,7 @@ public class Zubat extends JFrame
 
 			});
 
-			this.fetchServices();
-
+			// do authentication
 			this.doAuthentication();
 
 			this.fetchAccount();
@@ -137,7 +135,7 @@ public class Zubat extends JFrame
 			this.add(trafficPanel, BorderLayout.SOUTH);
 
 
-			if(oauth.isAuthed())
+			if(http.getOauth().isAuthed())
 			{
 				onReady();
 			}
@@ -146,21 +144,6 @@ public class Zubat extends JFrame
 		{
 			Zubat.handleException(e);
 		}
-	}
-
-	public Http getHttp()
-	{
-		return http;
-	}
-
-	public Account getAccount()
-	{
-		return account;
-	}
-
-	public Services getAvailableServices()
-	{
-		return availableServices;
 	}
 
 	private void fetchAccount() throws Exception
@@ -179,12 +162,17 @@ public class Zubat extends JFrame
 
 	private void doAuthentication() throws Exception
 	{
+		// fetch services
+		availableServices = new Services(http, Configuration.getInstance().getBaseUrl());
+		availableServices.discover();
+
+		// authentication
 		String requestUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/request").getUri();
 		String authorizationUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/authorize").getUri();
 		String accessUrl = availableServices.getItem("http://oauth.net/core/1.0/endpoint/access").getUri();
 
 		OauthProvider provider = new OauthProvider(requestUrl, authorizationUrl, accessUrl, Configuration.getInstance().getConsumerKey(), Configuration.getInstance().getConsumerSecret());
-		oauth = new Oauth(http, provider);
+		Oauth oauth = new Oauth(http, provider);
 
 		if(!Configuration.getInstance().getToken().isEmpty() && !Configuration.getInstance().getTokenSecret().isEmpty())
 		{
@@ -196,12 +184,6 @@ public class Zubat extends JFrame
 		}
 
 		http.setOauth(oauth);
-	}
-
-	private void fetchServices() throws Exception
-	{
-		availableServices = new Services(http, Configuration.getInstance().getBaseUrl());
-		availableServices.discover();
 	}
 
 	public void onReady() throws Exception
@@ -261,7 +243,7 @@ public class Zubat extends JFrame
 
 
 			// call onload
-			instance.onLoad(http, item, fields);
+			instance.onLoad(item, fields);
 
 
 			// add component
@@ -281,7 +263,22 @@ public class Zubat extends JFrame
 			return null;
 		}
 	}
-	
+
+	public static Http getHttp()
+	{
+		return http;
+	}
+
+	public static Account getAccount()
+	{
+		return account;
+	}
+
+	public static Services getAvailableServices()
+	{
+		return availableServices;
+	}
+
 	public static void handleException(Exception e)
 	{
 		e.printStackTrace();

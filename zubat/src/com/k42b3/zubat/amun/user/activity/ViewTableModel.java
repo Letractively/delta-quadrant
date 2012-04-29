@@ -24,7 +24,6 @@
 
 package com.k42b3.zubat.amun.user.activity;
 
-import com.k42b3.neodym.Http;
 
 /**
  * ViewTablelModel
@@ -38,9 +37,9 @@ public class ViewTableModel extends com.k42b3.zubat.basic.ViewTableModel
 {
 	private static final long serialVersionUID = 1L;
 
-	public ViewTableModel(String url, Http http) throws Exception 
+	public ViewTableModel(String url) throws Exception 
 	{
-		super(url, http);
+		super(url);
 	}
 
 	public String getColumnName(int columnIndex)

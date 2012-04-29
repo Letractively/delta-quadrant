@@ -60,7 +60,6 @@ public class SearchPanel extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 
-	protected Http http;
 	protected ReferenceItem item;
 
 	protected JTextField txtSearch;
@@ -75,9 +74,8 @@ public class SearchPanel extends JFrame
 
 	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 
-	public SearchPanel(Http http, ReferenceItem item) throws Exception
+	public SearchPanel(ReferenceItem item) throws Exception
 	{
-		this.http = http;
 		this.item = item;
 
 		this.setTitle("zubat (version: " + Zubat.version + ")");
@@ -87,7 +85,7 @@ public class SearchPanel extends JFrame
 
 		this.setLayout(new BorderLayout());
 
-		tm = new ViewTableModel(item.getSrc(), http);
+		tm = new ViewTableModel(item.getSrc());
 
 		this.buildComponent();
 	}

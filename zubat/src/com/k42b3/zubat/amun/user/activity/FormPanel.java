@@ -24,7 +24,6 @@
 
 package com.k42b3.zubat.amun.user.activity;
 
-import com.k42b3.neodym.Http;
 
 /**
  * FormPanel
@@ -38,8 +37,8 @@ public class FormPanel extends com.k42b3.zubat.basic.FormPanel
 {
 	private static final long serialVersionUID = 1L;
 
-	public FormPanel(String url, Http http) throws Exception 
+	public FormPanel(String url) throws Exception 
 	{
-		super(url, http);
+		super(url);
 	}
 }

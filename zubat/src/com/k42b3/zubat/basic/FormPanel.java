@@ -82,7 +82,6 @@ public class FormPanel extends JPanel
 	private static final long serialVersionUID = 1L;
 
 	protected String url;
-	protected Http http;
 
 	protected String requestMethod;
 	protected String requestUrl;
@@ -96,10 +95,9 @@ public class FormPanel extends JPanel
 
 	protected Logger logger = Logger.getLogger("com.k42b3.zubat");
 
-	public FormPanel(String url, Http http) throws Exception
+	public FormPanel(String url) throws Exception
 	{
 		this.url = url;
-		this.http = http;
 
 		this.setLayout(new BorderLayout());
 
@@ -164,7 +162,7 @@ public class FormPanel extends JPanel
 	protected void request(String url) throws Exception
 	{
 		// request
-		Document doc = http.requestXml(Http.GET, url);
+		Document doc = Zubat.getHttp().requestXml(Http.GET, url);
 
 		// parse response
 		try
@@ -236,7 +234,7 @@ public class FormPanel extends JPanel
 		header.put("X-HTTP-Method-Override", requestMethod);
 
 
-		return http.requestXml(Http.POST, requestUrl, header, requestContent);
+		return Zubat.getHttp().requestXml(Http.POST, requestUrl, header, requestContent);
 	}
 
 	protected Container parse(Node node) throws Exception
@@ -571,7 +569,7 @@ public class FormPanel extends JPanel
 
 						if(panel == null)
 						{
-							panel = new SearchPanel(http, item);
+							panel = new SearchPanel(item);
 
 							item.setPanel(panel);
 						}
@@ -625,7 +623,7 @@ public class FormPanel extends JPanel
 		JLabel label = new JLabel(nodeLabel.getTextContent());
 		label.setPreferredSize(new Dimension(100, 22));
 
-		CheckboxList checkboxlist = new CheckboxList(nodeSrc.getTextContent(), http);
+		CheckboxList checkboxlist = new CheckboxList(nodeSrc.getTextContent());
 		checkboxlist.setPreferredSize(new Dimension(255, 22));
 
 		item.add(checkboxlist, BorderLayout.CENTER);

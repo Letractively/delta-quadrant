@@ -36,7 +36,6 @@ import javax.swing.JTable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
 import com.k42b3.zubat.Zubat;
 
@@ -57,7 +56,6 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 	public final static int UPDATE = 0x2;
 	public final static int DELETE = 0x3;
 
-	protected Http http;
 	protected ServiceItem item;
 	protected ArrayList<String> fields;
 
@@ -92,9 +90,8 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 		this.setEnabledAt(DELETE, false);
 	}
 
-	public void onLoad(Http http, ServiceItem item, ArrayList<String> fields)
+	public void onLoad(ServiceItem item, ArrayList<String> fields)
 	{
-		this.http = http;
 		this.item = item;
 		this.fields = fields;
 
@@ -124,30 +121,35 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 		}
 	}
 
+	public int getSelectedId()
+	{
+		return this.selectedId;
+	}
+
 	protected Component getDeleteTab() throws Exception
 	{
-		FormPanel form = new FormPanel(item.getUri() + "/form?method=delete&id=" + selectedId, http);
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=delete&id=" + getSelectedId());
 
 		return form;
 	}
 
 	protected Component getUpdateTab() throws Exception
 	{
-		FormPanel form = new FormPanel(item.getUri() + "/form?method=update&id=" + selectedId, http);
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=update&id=" + getSelectedId());
 		
 		return form;
 	}
 
 	protected Component getCreateTab() throws Exception
 	{
-		FormPanel form = new FormPanel(item.getUri() + "/form?method=create", http);
+		FormPanel form = new FormPanel(item.getUri() + "/form?method=create");
 
 		return form;
 	}
 
 	protected Component getViewTab() throws Exception
 	{
-		ViewPanel view = new ViewPanel(http, item, fields);
+		ViewPanel view = new ViewPanel(item, fields);
 
 		return view;
 	}
@@ -160,7 +162,7 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 			{
 				case DELETE:
 
-					if(selectedId <= 0)
+					if(getSelectedId() <= 0)
 					{
 						throw new Exception("No row selected");
 					}
@@ -171,7 +173,7 @@ public class Container extends JTabbedPane implements com.k42b3.zubat.Container
 
 				case UPDATE:
 
-					if(selectedId <= 0)
+					if(getSelectedId() <= 0)
 					{
 						throw new Exception("No row selected");
 					}
