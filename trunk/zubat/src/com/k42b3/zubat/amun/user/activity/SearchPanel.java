@@ -24,7 +24,6 @@
 
 package com.k42b3.zubat.amun.user.activity;
 
-import com.k42b3.neodym.Http;
 import com.k42b3.zubat.basic.ReferenceItem;
 
 /**
@@ -39,8 +38,8 @@ public class SearchPanel extends com.k42b3.zubat.basic.SearchPanel
 {
 	private static final long serialVersionUID = 1L;
 
-	public SearchPanel(Http http, ReferenceItem item) throws Exception 
+	public SearchPanel(ReferenceItem item) throws Exception 
 	{
-		super(http, item);
+		super(item);
 	}
 }

@@ -27,7 +27,6 @@ package com.k42b3.zubat;
 import java.awt.Component;
 import java.util.ArrayList;
 
-import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
 
 /**
@@ -41,5 +40,5 @@ import com.k42b3.neodym.ServiceItem;
 public interface Container 
 {
 	public Component getComponent();
-	public void onLoad(Http http, ServiceItem item, ArrayList<String> fields);
+	public void onLoad(ServiceItem item, ArrayList<String> fields);
 }

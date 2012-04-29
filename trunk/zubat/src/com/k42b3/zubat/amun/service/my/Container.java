@@ -43,6 +43,7 @@ import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
+import com.k42b3.zubat.Zubat;
 
 /**
  * Zubat
@@ -56,7 +57,6 @@ public class Container extends JPanel implements com.k42b3.zubat.Container
 {
 	private static final long serialVersionUID = 1L;
 
-	private Http http;
 	private ServiceItem item;
 	private ArrayList<String> fields;
 
@@ -74,9 +74,8 @@ public class Container extends JPanel implements com.k42b3.zubat.Container
 		return this;
 	}
 
-	public void onLoad(Http http, ServiceItem item, ArrayList<String> fields) 
+	public void onLoad(ServiceItem item, ArrayList<String> fields) 
 	{
-		this.http = http;
 		this.item = item;
 		this.fields = fields;
 
@@ -109,7 +108,7 @@ public class Container extends JPanel implements com.k42b3.zubat.Container
 
 	private HashMap<String, String> requestAccount() throws Exception
 	{
-		Document doc = http.requestXml(Http.GET, item.getUri() + "/verifyCredentials");
+		Document doc = Zubat.getHttp().requestXml(Http.GET, item.getUri() + "/verifyCredentials");
 		String[] fields = {"name", "profileUrl", "thumbnailUrl", "loggedIn", "gender", "group", "status", "timezone", "updated", "date"};
 		HashMap<String, String> account = new HashMap<String, String>();
 

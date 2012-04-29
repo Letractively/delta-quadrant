@@ -63,7 +63,6 @@ public class ViewPanel extends JPanel
 {
 	private static final long serialVersionUID = 1L;
 	
-	protected Http http;
 	protected ServiceItem service;
 	protected ArrayList<String> fields;
 
@@ -77,9 +76,8 @@ public class ViewPanel extends JPanel
 	protected JComboBox<String> cboOperator;
 	protected JComboBox<String> cboField;
 
-	public ViewPanel(Http http, ServiceItem service, ArrayList<String> fields) throws Exception
+	public ViewPanel(ServiceItem service, ArrayList<String> fields) throws Exception
 	{
-		this.http = http;
 		this.service = service;
 		this.fields = fields;
 
@@ -92,7 +90,7 @@ public class ViewPanel extends JPanel
 
 	protected ViewTableModel getTableModel() throws Exception
 	{
-		ViewTableModel tm = new ViewTableModel(service.getUri(), http);
+		ViewTableModel tm = new ViewTableModel(service.getUri());
 
 		if(fields == null || fields.size() == 0)
 		{

@@ -40,7 +40,7 @@ public class Container extends com.k42b3.zubat.basic.Container
 
 	protected Component getViewTab() throws Exception
 	{
-		ViewPanel view = new ViewPanel(http, item, fields);
+		ViewPanel view = new ViewPanel(item, fields);
 
 		return view;
 	}

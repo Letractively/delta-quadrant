@@ -28,13 +28,16 @@ import java.awt.Component;
 import java.awt.SystemColor;
 import java.util.ArrayList;
 
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
-import com.k42b3.neodym.Http;
 import com.k42b3.neodym.ServiceItem;
 
 /**
@@ -49,14 +52,14 @@ public class ViewPanel extends com.k42b3.zubat.basic.ViewPanel
 {
 	private static final long serialVersionUID = 1L;
 
-	public ViewPanel(Http http, ServiceItem service, ArrayList<String> fields) throws Exception 
+	public ViewPanel(ServiceItem service, ArrayList<String> fields) throws Exception 
 	{
-		super(http, service, fields);
+		super(service, fields);
 	}
 
 	protected ViewTableModel getTableModel() throws Exception
 	{
-		ViewTableModel tm = new ViewTableModel(service.getUri(), http);
+		ViewTableModel tm = new ViewTableModel(service.getUri());
 
 		if(fields == null || fields.size() == 0)
 		{
@@ -105,29 +108,42 @@ public class ViewPanel extends com.k42b3.zubat.basic.ViewPanel
 				{
 					ViewTableModel tm = (ViewTableModel) table.getModel();
 					String summary = (String) tm.getValueAt(row, 1);
-					summary = summary.length() > 512 ? summary.substring(0, 512) + "..." : summary;
-					summary = summary.replaceAll("\\<.*?>","");
-
 					String date = (String) tm.getValueAt(row, 2);
 					String user = (String) tm.getValueAt(row, 3);
 
-					JLabel lblTitle;
+					// build editor pane
+					String html = "<html><body>" + summary + "<br /><small>created on: " + date + " by " + user + "</small></body></html>";
+
+					JEditorPane pane = new JEditorPane("text/html", html);
+					pane.setSize(table.getSize().width, Integer.MAX_VALUE);
+					pane.setEditable(false);
+
+					HTMLEditorKit kit = new HTMLEditorKit();
+					pane.setEditorKit(kit);
+
+					StyleSheet styleSheet = kit.getStyleSheet();
+					styleSheet.addRule("body {font-family:\"Helvetica Neue\", Arial, Helvetica, sans-serif;}");
+					styleSheet.addRule("h1 {margin:2px;padding:2px;}");
+					styleSheet.addRule("p {margin:2px;padding:2px;}");
+
+					Document doc = kit.createDefaultDocument();
+					pane.setDocument(doc);
+					pane.setText(html);
 
 					if(hasFocus)
 					{
-						lblTitle = new JLabel("<html><font size=+1><b>" + summary + "</b></font><br><small>created on: " + date + " by " + user + "</small></html>");
-						lblTitle.setOpaque(true);
-						lblTitle.setBackground(SystemColor.activeCaption);
-						lblTitle.setForeground(SystemColor.activeCaptionText);
+						pane.setOpaque(true);
+						pane.setBackground(SystemColor.activeCaption);
+						pane.setForeground(SystemColor.activeCaptionText);
 					}
-					else
+
+					// set height
+					if(pane.getPreferredSize().height != table.getRowHeight(row))
 					{
-						lblTitle = new JLabel("<html><font size=+1>" + summary + "</font><br><small>created on: " + date + " by " + user + "</small></html>");
+						table.setRowHeight(row, pane.getPreferredSize().height); 
 					}
 
-					lblTitle.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-					return lblTitle;
+					return pane;
 				}
 				else
 				{

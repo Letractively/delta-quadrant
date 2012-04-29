@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.k42b3.neodym.Http;
+import com.k42b3.zubat.Zubat;
 
 /**
  * CheckboxListTableModel
@@ -48,7 +49,6 @@ public class CheckboxListTableModel extends AbstractTableModel
 	private static final long serialVersionUID = 1L;
 	
 	protected String url;
-	protected Http http;
 	protected Logger logger;
 
 	protected Object[][] rows;
@@ -57,10 +57,9 @@ public class CheckboxListTableModel extends AbstractTableModel
 	protected int startIndex;
 	protected int itemsPerPage;
 
-	public CheckboxListTableModel(String url, Http http) throws Exception 
+	public CheckboxListTableModel(String url) throws Exception 
 	{
 		this.url = url;
-		this.http = http;
 		this.logger = Logger.getLogger("com.k42b3.zubat");
 		
 		this.request(url);
@@ -123,7 +122,7 @@ public class CheckboxListTableModel extends AbstractTableModel
 
 	private void request(String url) throws Exception
 	{
-		Document doc = http.requestXml(Http.GET, url);
+		Document doc = Zubat.getHttp().requestXml(Http.GET, url);
 
 
 		// get meta
