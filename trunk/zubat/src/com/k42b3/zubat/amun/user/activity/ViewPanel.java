@@ -29,10 +29,8 @@ import java.awt.SystemColor;
 import java.util.ArrayList;
 
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
