@@ -1,0 +1,5 @@
+# Introduction #
+
+An IRC bot wich you can configure via an XML file. The bot can create multiple users wich can join a specific channel. The main task of the bot is to deliver real time messages from different sources (feeds, twitter, gmail, etc.). It pushs every x seconds for new resources and post it directly to the channel if anything is new.
+
+The idea of the bot came because I need a single place where I can get near realtime informations of all different sources (feeds, twitter, gmail, etc.). So I can join the channel and see whats happening without to check every website for new information. Because Iam always in the IRC that makes it a lot easier. Iam planning to extend the functionallity of each bot so that you can interact more. At the moment you can only interact with the twitter bot i.e. if you write a private message to the bot the message will be posted as status update.
